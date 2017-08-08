@@ -14,6 +14,7 @@ class Agent(mesa.Agent):
         #statistics
         self.seenCrimes=0 #historic crimes passed on path
         self.walkedDistance=0 #distance walked in total
+        #TODO create array with initial position and all targets?
         self.walkedRoads=0 
 
         self.log=logging.getLogger('')
@@ -41,5 +42,5 @@ class Agent(mesa.Agent):
         #find new target
         self.targetRoad=self.model.findTargetLocation(road)
         self.findMyWay()
-        print('step done for agent ')
+        print('step done for agent {0}'.format(self.unique_id))
         

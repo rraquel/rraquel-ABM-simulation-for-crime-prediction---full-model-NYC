@@ -7,11 +7,13 @@ import psycopg2, sys, os, time, random, logging
 
 class Model(mesa.Model):
     """ characteristics of the model."""
-    def __init__(self):
+    def __init__(self, modelCfg):
         self.log=logging.getLogger('')
-        self.num_agents=3
-        #self.num_agents=modelCfg.getint('numAgents',1)
-        
+
+        # Get Model parameters from config. Set small default values so errors pop up
+        self.numAgents=modelCfg.getint('numAgents')
+        self.agentReTravelAvg = modelCfg.getfloat('agentReTravelAvg',1.1)
+
         #self.agentStartLocationFinder=modelCfg.get('agentStartLocationFinder', findStartLocationRandom)
         self.schedule=RandomActivation(self)
         
@@ -20,6 +22,7 @@ class Model(mesa.Model):
         self.connectDB()
         self.log.info('Generating Model')
 
+        #TODO data collection
         #collect statistics from peragent&step (can be more)
         self.dc=DataCollector(model_reporters={} , agent_reporters={})
 
@@ -27,10 +30,10 @@ class Model(mesa.Model):
         self.createRoadNetwork()
         
         #select startingPoint
-        starts=random.sample(self.G.nodes(),self.num_agents+1)
+        starts=random.sample(self.G.nodes(),self.numAgents+1)
 
         #create agent
-        for i in range(self.num_agents):
+        for i in range(self.numAgents):
             a=Agent(i, self, starts[i], self.findTargetLocation(starts[i]))
             self.schedule.add(a)
             self.log.info("Offender created")
@@ -51,17 +54,6 @@ class Model(mesa.Model):
         # from open.nyc_road_attributes as ra: length [2], crimes_2015 [3]
         # join tables using road_id into gid
         
-        #"""select intersection_id,r.gid,length,crimes_2015 from 
-        #    open.nyc_intersection2road i2r
-        #    left join open.nyc_road_proj_final r on i2r.road_id = r. gid
-        #    left join open.nyc_road_attributes ra on ra.road_id=r.gid"""
-
-        # SQL to select data
-        # from intersection2road table as i2r: intersection_id [key]
-        # from open.nyc_road_proj_final as r: gid [1]
-        # from open.nyc_road_attributes as ra: st_length [2], count (crime_num) [3]
-        # join tables using road_id into gid
-
         #crimes_2015: n crime to 1 road mapping
         
         self.curs.execute("""select intersection_id,r.gid,length,crimes_2015 from 
