@@ -34,9 +34,10 @@ class Agent(mesa.Agent):
         #one step: walk to destination
         for road in self.way:
             self.walkedDistance += self.model.G.node[road]['length']
-            self.seenCrimes += self.mode.G.node[road]['num_crimes']
+            self.seenCrimes += self.model.G.node[road]['num_crimes']
         print("Agent at distance: {}".format(self.unique_id))
-        print("Agent {0} is at road {1}, seen {2} crimes, traveled {3}")
+        print("Agent {0}, seen {1} crimes, traveled {2}".format(
+            self.unique_id,self.seenCrimes,self.walkedDistance))
         #find new target
         self.targetRoad=self.model.findTargetLocation(road)
         self.findMyWay()
