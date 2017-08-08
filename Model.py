@@ -10,6 +10,9 @@ class Model(mesa.Model):
     def __init__(self):
         self.log=logging.getLogger('')
         self.num_agents=10
+        #self.num_agents=modelCfg.getint('numAgents',1)
+        
+        #self.agentStartLocationFinder=modelCfg.get('agentStartLocationFinder', findStartLocationRandom)
         self.schedule=RandomActivation(self)
         
         self.totalCrimes=0
@@ -23,9 +26,12 @@ class Model(mesa.Model):
         #create roadNW
         self.createRoadNetwork()
         
+        #select startingPoint
+        starts=random.sample(self.G.nodes(),self.num_agents+1)
+
         #create agent
         for i in range(self.num_agents):
-            a=Agent(i, self)
+            a=Agent(i, self, starts[i], self.findTargetLocation(starts[i]))
             self.schedule.add(a)
             self.log.info("Offender created")
 
@@ -77,6 +83,27 @@ class Model(mesa.Model):
         self.log.debug("Isolated roads: {0}".format(len(nx.isolates(self.G))))
         print('roadNW built, intersection size: {0}'.format(len(intersect)))
         print('roadNW built, roads size: {0}'.format(self.G.number_of_nodes()))
+
+    def findTargetLocation(self,road):
+        mycurs = self.conn.cursor()
+        targetRoad=0
+        #TODO imput radius selection options - distance
+        searchRadius=400 #fixed search radius for target
+        maxRadius=searchRadius*1.025
+        minRadius=searchRadius*0.925
+        while targetRoad==0:
+            mycurs.execute("""select road_gid,t_dist from (
+                select road.gid as road_gid,ST_Distance(ST_Centroid(road.geom), ftus_coord) as t_dist from open.nyc_road_proj_final as road, ( 
+                select location_id,distance,ftus_coord from (
+                    select location_id,ST_distance(ftus_coord,(
+                        select ST_centroid(geom) from open.nyc_road_proj_final where gid={0})) as distance, ftus_coord from open.nyc_fs_venue_location) as foo 
+                where distance between {1} and {2} limit 2) as rd_table ) as bar 
+                where t_dist < {3} order by t_dist asc limit 1""".format(road,minRadius,maxRadius,searchRadius))
+            roadId=mycurs.fetchone() #returns tuple with first row (unordered list)
+            if not roadId is None:
+                targetRoad=roadId[0]
+                return (targetRoad)
+            searchRadius=searchRadius/10
 
     def step(self):
         """advance model by one step."""
