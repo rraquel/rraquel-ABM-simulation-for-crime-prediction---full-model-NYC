@@ -12,15 +12,25 @@ class Agent(mesa.Agent):
         self.pos=0
         self.road=startRoad
         self.targetRoad=targetRoad
-        
-        #call power law radius search distance
-        self.powerRadius(model.mu, model.dmin, model.dmax)
+
+        #no switch in python
+
+        #static
+        if model.radiusType is 0 :
+            self.searchRadius=model.staticRadius
+        #uniform
+        elif model.radiusType is 1 :
+            self.searchRadius=model.uniformRadius
+        #power
+        elif model.radiusType is 2 :
+            self.searchRadius=self.powerRadius(model.mu, model.dmin, model.dmax)
 
         #statistics
         self.seenCrimes=0 #historic crimes passed on path
         self.walkedDistance=0 #distance walked in total
         #TODO create array with initial position and all targets?
         self.walkedRoads=0 
+
 
         self.log=logging.getLogger('')
 
@@ -32,7 +42,7 @@ class Agent(mesa.Agent):
             self.way=nx.shortest_path(self.model.G,self.road,self.targetRoad,weight='length')
             #print("Agent ({0}) way: {1}".format(self.unique_id,self.way))
         except Exception as e:
-            print ("Error: One agent found no was: ",e,self.unique_id)
+            print ("Error: One agent found no way: ",e,self.unique_id)
             self.way=[self.road,self.targetRoad]
 
     def powerRadius(self, mu, dmin, dmax):

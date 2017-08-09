@@ -17,14 +17,16 @@ class Model(mesa.Model):
         self.agentReTravelAvg = modelCfg.getfloat('agentReTravelAvg',1.1)
 
         #parameters for radius search
+        self.staticRadius=modelCfg.getint('staticRadius')
+        print("static radius: {0}".format(self.staticRadius))
+        self.uniformRadius=self.staticRadius*2
+        print("uniform radius: {0}".format(self.uniformRadius))
         self.mu=modelCfg.getfloat('mu')
         self.dmin=modelCfg.getfloat('dmin')
         self.dmax=modelCfg.getint('dmax')
        
-        #no switch case in python - use dictionary
+        #no switch case in python - can use dictionary and switch function
         self.radiusType=modelCfg.getint('radiusType')
-        #print('radius type in model: {0}'.format(self.radiusType))
-        self.radiusTypeStr=self.switchSearchRadius(modelCfg.getint('radiusType'))
         #print("radius type switch test: {0}".format(self.radiusType2))
         
         #self.agentStartLocationFinder=modelCfg.get('agentStartLocationFinder', findStartLocationRandom)
@@ -46,6 +48,7 @@ class Model(mesa.Model):
         starts=random.sample(self.G.nodes(),self.numAgents+1)
 
         #create agent
+        #TODO give agent the number of steps one should move - distribution ~1-7
         for i in range(self.numAgents):
             a=Agent(i, self, starts[i], self.findTargetLocation(starts[i]))
             self.schedule.add(a)
@@ -103,15 +106,6 @@ class Model(mesa.Model):
         self.log.debug("Isolated roads: {0}".format(len(nx.isolates(self.G))))
         print('roadNW built, intersection size: {0}'.format(len(intersect)))
         print('roadNW built, roads size: {0}'.format(self.G.number_of_nodes()))
-
-    #no switch case in python - use dictionary
-    def switchSearchRadius(self, radiusType):
-        switcher={
-            0 : 'STATIC',
-            1 : 'UNIFORM',
-            2 : 'POWER',
-        }
-        return switcher.get(radiusType, 'STATIC')
 
     def findTargetLocation(self,road):
         mycurs = self.conn.cursor()
