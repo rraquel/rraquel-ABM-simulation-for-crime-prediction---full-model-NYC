@@ -20,7 +20,12 @@ class Model(mesa.Model):
         self.mu=modelCfg.getfloat('mu')
         self.dmin=modelCfg.getfloat('dmin')
         self.dmax=modelCfg.getint('dmax')
-        self.staticRadius=modelCfg.getint('staticRadius')
+       
+        #no switch case in python - use dictionary
+        self.radiusType=modelCfg.getint('radiusType')
+        #print('radius type in model: {0}'.format(self.radiusType))
+        self.radiusTypeStr=self.switchSearchRadius(modelCfg.getint('radiusType'))
+        #print("radius type switch test: {0}".format(self.radiusType2))
         
         #self.agentStartLocationFinder=modelCfg.get('agentStartLocationFinder', findStartLocationRandom)
         self.schedule=RandomActivation(self)
@@ -99,6 +104,15 @@ class Model(mesa.Model):
         print('roadNW built, intersection size: {0}'.format(len(intersect)))
         print('roadNW built, roads size: {0}'.format(self.G.number_of_nodes()))
 
+    #no switch case in python - use dictionary
+    def switchSearchRadius(self, radiusType):
+        switcher={
+            0 : 'STATIC',
+            1 : 'UNIFORM',
+            2 : 'POWER',
+        }
+        return switcher.get(radiusType, 'STATIC')
+
     def findTargetLocation(self,road):
         mycurs = self.conn.cursor()
         targetRoad=0
@@ -120,7 +134,7 @@ class Model(mesa.Model):
             roadId=mycurs.fetchone() #returns tuple with first row (unordered list)
             if not roadId is None:
                 targetRoad=roadId[0]
-                print("roadid in target: {0}".format(roadId[0]))
+                #print("roadid in target: {0}".format(roadId[0]))
                 return (targetRoad)
             searchRadius=searchRadius/10
 

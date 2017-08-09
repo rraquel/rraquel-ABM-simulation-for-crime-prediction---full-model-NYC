@@ -30,7 +30,7 @@ class Agent(mesa.Agent):
         try:
             #roads are represented as nodes in G
             self.way=nx.shortest_path(self.model.G,self.road,self.targetRoad,weight='length')
-            print("Agent ({0}) way: {1}".format(self.unique_id,self.way))
+            #print("Agent ({0}) way: {1}".format(self.unique_id,self.way))
         except Exception as e:
             print ("Error: One agent found no was: ",e,self.unique_id)
             self.way=[self.road,self.targetRoad]
@@ -44,7 +44,7 @@ class Agent(mesa.Agent):
         powerKm =  (1/uniformProb)*math.exp(1/beta)
 	    #levy flight gives distance in km - transform km to foot
         powerRadius = powerKm * 3280.84
-        print ("power search radius: {0}".format(powerRadius))
+        print ("power search radius: {0}".format(round(powerRadius,0)))
         return powerRadius
     
     def step(self):
