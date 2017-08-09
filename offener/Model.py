@@ -3,17 +3,25 @@ from Agent import Agent
 from mesa.time import RandomActivation
 from mesa.datacollection import DataCollector
 import networkx as nx
+import numpy as np
+import math
 import psycopg2, sys, os, time, random, logging
 
 class Model(mesa.Model):
     """ characteristics of the model."""
     def __init__(self, modelCfg):
         self.log=logging.getLogger('')
-
+        
         # Get Model parameters from config. Set small default values so errors pop up
         self.numAgents=modelCfg.getint('numAgents')
         self.agentReTravelAvg = modelCfg.getfloat('agentReTravelAvg',1.1)
 
+        #parameters for radius search
+        self.mu=modelCfg.getfloat('mu')
+        self.dmin=modelCfg.getfloat('dmin')
+        self.dmax=modelCfg.getint('dmax')
+        self.staticRadius=modelCfg.getint('staticRadius')
+        
         #self.agentStartLocationFinder=modelCfg.get('agentStartLocationFinder', findStartLocationRandom)
         self.schedule=RandomActivation(self)
         
@@ -94,11 +102,13 @@ class Model(mesa.Model):
     def findTargetLocation(self,road):
         mycurs = self.conn.cursor()
         targetRoad=0
+
         #TODO imput radius selection options - distance
         searchRadius=40000 #fixed search radius for target
         roadDistance=400 
         maxRadius=searchRadius*1.025
         minRadius=searchRadius*0.925
+
         while targetRoad==0:
             mycurs.execute("""select road_gid,t_dist from (
                 select road.gid as road_gid,ST_Distance(ST_Centroid(road.geom), ftus_coord) as t_dist from open.nyc_road_proj_final as road, ( 
@@ -110,8 +120,22 @@ class Model(mesa.Model):
             roadId=mycurs.fetchone() #returns tuple with first row (unordered list)
             if not roadId is None:
                 targetRoad=roadId[0]
+                print("roadid in target: {0}".format(roadId[0]))
                 return (targetRoad)
             searchRadius=searchRadius/10
+
+    def powerRadius(self, mu, dmin, dmax):
+        beta=1+mu
+        pmax = math.pow(dmin, -beta)
+        pmin = math.pow(dmax, -beta)
+        uniformProb=np.random.uniform(pmin, pmax)
+        #levy flight: P(x) = Math.pow(x, -1.59) - find out x? given random probability within range
+        powerKm =  (1/uniformProb)*math.exp(1/beta)
+	    #levy flight gives distance in km - transform km to foot
+        powerRadius = powerKm * 3280.84
+        print ("power search radius: {0}".format(powerRadius))
+        return powerRadius
+
 
     def step(self):
         """advance model by one step."""

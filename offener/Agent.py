@@ -1,6 +1,8 @@
 import mesa
 from mesa.time import RandomActivation
 import networkx as nx
+import numpy as np
+import math
 import sys, psycopg2, os, time, random, logging
 
 class Agent(mesa.Agent):
@@ -10,6 +12,9 @@ class Agent(mesa.Agent):
         self.pos=0
         self.road=startRoad
         self.targetRoad=targetRoad
+        
+        #call power law radius search distance
+        self.powerRadius(model.mu, model.dmin, model.dmax)
 
         #statistics
         self.seenCrimes=0 #historic crimes passed on path
@@ -30,6 +35,18 @@ class Agent(mesa.Agent):
             print ("Error: One agent found no was: ",e,self.unique_id)
             self.way=[self.road,self.targetRoad]
 
+    def powerRadius(self, mu, dmin, dmax):
+        beta=1+mu
+        pmax = math.pow(dmin, -beta)
+        pmin = math.pow(dmax, -beta)
+        uniformProb=np.random.uniform(pmin, pmax)
+        #levy flight: P(x) = Math.pow(x, -1.59) - find out x? given random probability within range
+        powerKm =  (1/uniformProb)*math.exp(1/beta)
+	    #levy flight gives distance in km - transform km to foot
+        powerRadius = powerKm * 3280.84
+        print ("power search radius: {0}".format(powerRadius))
+        return powerRadius
+    
     def step(self):
         """step: behavior for each offender"""
         #one step: walk to destination
