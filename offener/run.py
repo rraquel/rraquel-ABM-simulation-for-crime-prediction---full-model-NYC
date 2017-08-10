@@ -1,6 +1,7 @@
 import os, sys, time, configparser
 import logging
 from Model import Model
+import psycopg2, sys, os
 
 
 # Read the supplied config file or default config if none is supplied
@@ -42,8 +43,9 @@ config=""
 
 readConfig()
 logging.getLogger().info("Config read")
-
 print('start')
 createModel()
+print('model created')
+stepModel()
 
 print("end")

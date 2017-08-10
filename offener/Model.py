@@ -11,6 +11,7 @@ class Model(mesa.Model):
     """ characteristics of the model."""
     def __init__(self, modelCfg):
         self.log=logging.getLogger('')
+        self.conn=self.connectDB()
         
         # Get Model parameters from config. Set small default values so errors pop up
         self.numAgents=modelCfg.getint('numAgents')
@@ -34,7 +35,7 @@ class Model(mesa.Model):
         
         self.totalCrimes=0
 
-        self.connectDB()
+        
         self.log.info('Generating Model')
 
         #TODO data collection
@@ -44,13 +45,13 @@ class Model(mesa.Model):
         #create roadNW
         self.createRoadNetwork()
         
-        #select startingPoint
+        #select startingPoint from random sample of nodes
         starts=random.sample(self.G.nodes(),self.numAgents+1)
 
         #create agent
         #TODO give agent the number of steps one should move - distribution ~1-7
         for i in range(self.numAgents):
-            a=Agent(i, self, starts[i], self.findTargetLocation(starts[i]))
+            a=Agent(i, self, starts[i], self.radiusType)
             self.schedule.add(a)
             self.log.info("Offender created")
         print("agents created")
@@ -59,9 +60,11 @@ class Model(mesa.Model):
         try:
             self.conn= psycopg2.connect("dbname='shared' user='rraquel' host='localhost' password='Mobil4b' ")        
             self.curs=self.conn.cursor()
+            print("connected to DB")
         except Exception as e:
             self.log.error("connection to DB failed"+str(e))
             sys.exit(1)
+        return self.conn
     
     def createRoadNetwork(self):
         # SQL to select data
