@@ -25,22 +25,32 @@ def createModel():
     try: 
         modelCfg=config['model']
     except:
-        logging.getLogger().error("Problem with config. section model")
+        log.error("Problem with config. section model")
         sys.exit(1)
     model=Model(modelCfg)
 
 # Step through the model
 def stepModel():
     global model, config
-    for i in range(5):
+    #iterates for model steps
+    for i in range(config.getint('general','numSteps',fallback=1)):
         model.step()
         print("=> step {0} performed".format(i))
+    #statistics collection and data output
+    #get data as pandas data frame
+    agent_df = model.dc.get_agent_vars_dataframe()
+    model_df = model.dc.get_model_vars_dataframe()
+    print(agent_df)
+    log.info('Global stats: \n{}'.format(model_df.tail()))
+
 # Initialize variables so they can be used as global
 model=""
 config=""
 
+log=logging.getLogger('')
+
 readConfig()
-logging.getLogger().info("Config read")
+log.info("Config read")
 print('start')
 createModel()
 print('model created')

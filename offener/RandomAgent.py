@@ -15,6 +15,10 @@ class RandomAgent(mesa.Agent):
         print("startRoad: {0}".format(self.startRoad))
         self.road=self.startRoad
         self.conn=model.conn
+
+        #list of positions offender has visited
+        self.targetRoadList=[self.startRoad]
+
         #select starting position by type
 
         #selection behavior for radius type
@@ -34,6 +38,8 @@ class RandomAgent(mesa.Agent):
         self.walkedDistance=0 #distance walked in total
         #TODO create array with initial position and all targets?
         self.walkedRoads=0 
+        
+
 
 
         self.log=logging.getLogger('')
@@ -45,15 +51,21 @@ class RandomAgent(mesa.Agent):
         return random.sample(model.G.nodes(),1)[0]
 
     def searchTarget(self, road, searchRadius):
+        if road is None:
+            road=self.startRoad
+        print('searchTarget 2 current road for new target: {0}'.format(road))
         mycurs = self.conn.cursor()
         targetRoad=0
 
         #TODO imput radius selection options - distance
-        roadDistance=400 
         maxRadius=searchRadius*1.025
-        minRadius=searchRadius*0.925
+        #in repast it was set to 0.925 - error
+        minRadius=searchRadius*0.975
 
+        count=0
         while targetRoad==0:
+            count+=1
+            print('search target road iteration {}'.format(count))
             mycurs.execute("""select road_gid,t_dist from (
                 select road.gid as road_gid,ST_Distance(ST_Centroid(road.geom), ftus_coord) as t_dist from open.nyc_road_proj_final as road, ( 
                 select location_id,distance,ftus_coord from (
@@ -65,10 +77,11 @@ class RandomAgent(mesa.Agent):
             if not roadId is None:
                 targetRoad=roadId[0]
                 #print("roadid in target: {0}".format(roadId[0]))
+                self.targetRoadList.append(targetRoad)
                 return (targetRoad)
             searchRadius=searchRadius/10
             return targetRoad
-
+        
     def findMyWay(self):
         try:
             #roads are represented as nodes in G
@@ -96,12 +109,13 @@ class RandomAgent(mesa.Agent):
         for road in self.way:
             self.walkedDistance += self.model.G.node[road]['length']
             self.seenCrimes += self.model.G.node[road]['num_crimes']
-            print("Agent at distance: {0}".format(self.unique_id))
-            print("Agent {0}, seen {1} crimes, traveled {2}".format(
-            self.unique_id,self.seenCrimes,self.walkedDistance))
+            #print("Agent at distance: {0}".format(self.unique_id))
+            #print("Agent {0}, seen {1} crimes, traveled {2}".format(
+            #self.unique_id,self.seenCrimes,self.walkedDistance))
         road=self.targetRoad
         #find new target
         self.targetRoad=self.searchTarget(road, self.searchRadius)
         self.findMyWay()
+        print('agent {0}, target road list by road_id {1}'.format(self.unique_id, self.targetRoadList))
         print('step done for agent {0}'.format(self.unique_id))
         

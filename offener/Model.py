@@ -46,7 +46,7 @@ class Model(mesa.Model):
         self.log.info('Generating Model')
 
         #TODO data collection
-        #collect statistics from peragent&step (can be more)
+        #collect statistics from peragent&step (can be more) - see output in model
         self.dc=DataCollector(model_reporters={
             "agentCount":lambda m: m.schedule.get_agent_count(),
             "targetType": lambda m: m.targetType,
@@ -56,10 +56,12 @@ class Model(mesa.Model):
             "walkedRoads": lambda m: sum(map(lambda a: a.walkedRoads,m.schedule.agents))
             } ,
         agent_reporters={
+            "startRoad": lambda a: a.startRoad,
             "seenCrimes": lambda a: a.seenCrimes,
             "walkedDistance": lambda a: a.walkedDistance
+            #"searchRadius": lambda a: a.searchRadius
             })
-
+        
         #create roadNW
         self.G=self.createRoadNetwork()
         
