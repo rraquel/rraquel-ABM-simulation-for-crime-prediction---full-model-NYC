@@ -1,5 +1,7 @@
 import mesa
 from Agent import Agent
+from RandomAgent import RandomAgent
+from VenueAgent import VenueAgent
 from mesa.time import RandomActivation
 from mesa.datacollection import DataCollector
 import networkx as nx
@@ -16,6 +18,11 @@ class Model(mesa.Model):
         # Get Model parameters from config. Set small default values so errors pop up
         self.numAgents=modelCfg.getint('numAgents')
         self.agentReTravelAvg = modelCfg.getfloat('agentReTravelAvg',1.1)
+
+        #defubes target selection tpye
+        self.targetType= modelCfg.getint('targetType')
+        #defines the starting location type 
+        self.startLocationType= modelCfg.getint('startLocationType')
 
         #parameters for radius search
         self.staticRadius=modelCfg.getint('staticRadius')
@@ -40,18 +47,35 @@ class Model(mesa.Model):
 
         #TODO data collection
         #collect statistics from peragent&step (can be more)
-        self.dc=DataCollector(model_reporters={} , agent_reporters={})
+        self.dc=DataCollector(model_reporters={
+            "agentCount":lambda m: m.schedule.get_agent_count(),
+            "targetType": lambda m: m.targetType,
+            "totalCrimes": lambda m: m.totalCrimes, 
+            "seenCrimes": lambda m: sum(map(lambda a: a.seenCrimes,m.schedule.agents)),
+            "walkedDistance": lambda m: sum(map(lambda a: a.walkedDistance,m.schedule.agents)),
+            "walkedRoads": lambda m: sum(map(lambda a: a.walkedRoads,m.schedule.agents))
+            } ,
+        agent_reporters={
+            "seenCrimes": lambda a: a.seenCrimes,
+            "walkedDistance": lambda a: a.walkedDistance
+            })
 
         #create roadNW
-        self.createRoadNetwork()
+        self.G=self.createRoadNetwork()
         
-        #select startingPoint from random sample of nodes
-        starts=random.sample(self.G.nodes(),self.numAgents+1)
-
         #create agent
         #TODO give agent the number of steps one should move - distribution ~1-7
+        #TODO include start location type (to tune starting point with PLUTO info) and demographics
         for i in range(self.numAgents):
-            a=Agent(i, self, starts[i], self.radiusType)
+            if self.targetType is 0:
+                a=RandomAgent(i, self, self.radiusType)
+            elif self.targetType is 1:
+                a=VenueAgent(i, self, self.radiusType)
+            else:
+                sample=random.sample(self.G.nodes(),self.numAgents+1)
+                starts=sample[0]
+                print('print road{0}'.format(starts))
+                a=Agent(i, self, starts, self.radiusType)
             self.schedule.add(a)
             self.log.info("Offender created")
         print("agents created")
@@ -109,6 +133,7 @@ class Model(mesa.Model):
         self.log.debug("Isolated roads: {0}".format(len(nx.isolates(self.G))))
         print('roadNW built, intersection size: {0}'.format(len(intersect)))
         print('roadNW built, roads size: {0}'.format(self.G.number_of_nodes()))
+        return self.G
 
     def findTargetLocation(self,road):
         mycurs = self.conn.cursor()

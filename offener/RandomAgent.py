@@ -1,21 +1,23 @@
 import mesa
 from mesa.time import RandomActivation
+import Model
 import networkx as nx
 import numpy as np
 import math
 import sys, psycopg2, os, time, random, logging
 
-class Agent(mesa.Agent):
+class RandomAgent(mesa.Agent):
     """an Agent moving"""
-    def __init__(self, unique_id, model, startRoad, radiusType):
+    def __init__(self, unique_id, model, radiusType):
         super().__init__(unique_id, model)
         self.pos=0
-        self.startRoad=startRoad
+        self.startRoad=self.findStartLocation(model)
         print("startRoad: {0}".format(self.startRoad))
-        self.road=startRoad
+        self.road=self.startRoad
         self.conn=model.conn
-        
-        #no switch in python
+        #select starting position by type
+
+        #selection behavior for radius type
         #static
         if radiusType is 0 :
             self.searchRadius=model.staticRadius
@@ -26,17 +28,21 @@ class Agent(mesa.Agent):
         elif radiusType is 2 :
             self.searchRadius=self.powerRadius(model.mu, model.dmin, model.dmax)
         self.targetRoad=self.searchTarget(self.road, self.searchRadius)
-        #self.targetRoad=model.findTargetLocation
-        
+
         #statistics
         self.seenCrimes=0 #historic crimes passed on path
         self.walkedDistance=0 #distance walked in total
         #TODO create array with initial position and all targets?
         self.walkedRoads=0 
 
+
         self.log=logging.getLogger('')
 
         self.findMyWay()
+
+    def findStartLocation(self, model):
+        #select startingPoint from random sample of nodes
+        return random.sample(model.G.nodes(),1)[0]
 
     def searchTarget(self, road, searchRadius):
         mycurs = self.conn.cursor()
@@ -88,8 +94,8 @@ class Agent(mesa.Agent):
         """step: behavior for each offender"""
         #one step: walk to destination
         for road in self.way:
-            #self.walkedDistance += self.model.G.node[road]['length']
-            #self.seenCrimes += self.model.G.node[road]['num_crimes']
+            self.walkedDistance += self.model.G.node[road]['length']
+            self.seenCrimes += self.model.G.node[road]['num_crimes']
             print("Agent at distance: {0}".format(self.unique_id))
             print("Agent {0}, seen {1} crimes, traveled {2}".format(
             self.unique_id,self.seenCrimes,self.walkedDistance))
@@ -98,3 +104,4 @@ class Agent(mesa.Agent):
         self.targetRoad=self.searchTarget(road, self.searchRadius)
         self.findMyWay()
         print('step done for agent {0}'.format(self.unique_id))
+        

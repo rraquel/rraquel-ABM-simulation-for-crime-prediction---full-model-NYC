@@ -32,11 +32,9 @@ def createModel():
 # Step through the model
 def stepModel():
     global model, config
-    for i in range(15):
+    for i in range(5):
         model.step()
         print("=> step {0} performed".format(i))
-        logging.getLogger().info("===> Performed step {0} in {1}s".format(i,time.monotonic()-t))
-
 # Initialize variables so they can be used as global
 model=""
 config=""
