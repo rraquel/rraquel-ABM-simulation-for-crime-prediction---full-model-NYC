@@ -25,13 +25,21 @@ class RandomAgent(mesa.Agent):
         #static
         if radiusType is 0 :
             self.searchRadius=model.staticRadius
+            print('static radius Agent')
         #uniform
         elif radiusType is 1 :
             self.searchRadius=model.uniformRadius
+            print('uniform radius Agent')
         #power
         elif radiusType is 2 :
-            self.searchRadius=self.powerRadius(model.mu, model.dmin, model.dmax)
-        self.targetRoad=self.searchTarget(self.road, self.searchRadius)
+            self.mu=model.mu
+            self.dmin=model.dmin
+            self.dmax=model.dmax
+            self.searchRadius=self.powerRadius(self.mu, self.dmin, self.dmax)
+            print('power radius Agent is {0}'.format(self.searchRadius))
+        self.radiusType=radiusType
+
+        
 
         #statistics
         self.seenCrimes=0 #historic crimes passed on path
@@ -39,11 +47,10 @@ class RandomAgent(mesa.Agent):
         #TODO create array with initial position and all targets?
         self.walkedRoads=0 
         
-
-
-
         self.log=logging.getLogger('')
-
+        
+        #find new target    
+        self.targetRoad=self.searchTarget(self.road, self.searchRadius)
         self.findMyWay()
 
     def findStartLocation(self, model):
@@ -53,7 +60,7 @@ class RandomAgent(mesa.Agent):
     def searchTarget(self, road, searchRadius):
         if road is None:
             road=self.startRoad
-        print('searchTarget 2 current road for new target: {0}'.format(road))
+        print('searchTarget current road for new target: {0}'.format(road))
         mycurs = self.conn.cursor()
         targetRoad=0
 
@@ -102,9 +109,14 @@ class RandomAgent(mesa.Agent):
         powerRadius = powerKm * 3280.84
         print ("power search radius: {0}".format(round(powerRadius,0)))
         return powerRadius
+
     
     def step(self):
         """step: behavior for each offender"""
+        #select new radius for power-law
+        if self.radiusType is 2:
+            self.searchRadius=self.powerRadius(self.mu, self.dmin, self.dmax)
+            print('next power radius {0}'.format(self.radiusType))
         #one step: walk to destination
         for road in self.way:
             self.walkedDistance += self.model.G.node[road]['length']
@@ -117,5 +129,6 @@ class RandomAgent(mesa.Agent):
         self.targetRoad=self.searchTarget(road, self.searchRadius)
         self.findMyWay()
         print('agent {0}, target road list by road_id {1}'.format(self.unique_id, self.targetRoadList))
-        print('step done for agent {0}'.format(self.unique_id))
+        print('step done for agent {0}'.format(self.unique_id))      
+
         

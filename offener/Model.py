@@ -58,8 +58,8 @@ class Model(mesa.Model):
         agent_reporters={
             "startRoad": lambda a: a.startRoad,
             "seenCrimes": lambda a: a.seenCrimes,
-            "walkedDistance": lambda a: a.walkedDistance
-            #"searchRadius": lambda a: a.searchRadius
+            "walkedDistance": lambda a: a.walkedDistance,
+            "searchRadius": lambda a: a.searchRadius
             })
         
         #create roadNW
