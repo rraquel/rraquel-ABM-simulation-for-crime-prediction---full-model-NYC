@@ -49,6 +49,7 @@ class Model(mesa.Model):
         #collect statistics from peragent&step (can be more) - see output in model
         self.dc=DataCollector(model_reporters={
             "agentCount":lambda m: m.schedule.get_agent_count(),
+            "radiusType": lambda m: m.radiusType,
             "targetType": lambda m: m.targetType,
             "totalCrimes": lambda m: m.totalCrimes, 
             "seenCrimes": lambda m: sum(map(lambda a: a.seenCrimes,m.schedule.agents)),

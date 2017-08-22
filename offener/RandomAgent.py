@@ -4,6 +4,7 @@ import Model
 import networkx as nx
 import numpy as np
 import math
+import random
 import sys, psycopg2, os, time, random, logging
 
 class RandomAgent(mesa.Agent):
@@ -49,9 +50,9 @@ class RandomAgent(mesa.Agent):
         
         self.log=logging.getLogger('')
         
-        #find new target    
-        self.targetRoad=self.searchTarget(self.road, self.searchRadius)
-        self.findMyWay()
+        #find new target  
+        #self.targetRoad=None
+        #self.findMyWay()
 
     def findStartLocation(self, model):
         #select startingPoint from random sample of nodes
@@ -60,27 +61,29 @@ class RandomAgent(mesa.Agent):
     def searchTarget(self, road, searchRadius):
         if road is None:
             road=self.startRoad
-        print('searchTarget current road for new target: {0}'.format(road))
+        print('in searchTarget: current road for new target: {0}'.format(road))
         mycurs = self.conn.cursor()
         targetRoad=0
 
-        #TODO imput radius selection options - distance
         maxRadius=searchRadius*1.025
         #in repast it was set to 0.925 - error
         minRadius=searchRadius*0.975
 
+        #TODO query does not output random roads!
         count=0
         while targetRoad==0:
             count+=1
             print('search target road iteration {}'.format(count))
-            mycurs.execute("""select road_gid,t_dist from (
-                select road.gid as road_gid,ST_Distance(ST_Centroid(road.geom), ftus_coord) as t_dist from open.nyc_road_proj_final as road, ( 
-                select location_id,distance,ftus_coord from (
-                    select location_id,ST_distance(ftus_coord,(
-                        select ST_centroid(geom) from open.nyc_road_proj_final where gid={0})) as distance, ftus_coord from open.nyc_fs_venue_location) as foo 
-                where distance between {1} and {2} limit 2) as rd_table ) as bar 
-                where t_dist < {3} order by t_dist asc limit 1""".format(road,minRadius,maxRadius,searchRadius))
-            roadId=mycurs.fetchone() #returns tuple with first row (unordered list)
+            mycurs.execute("""select gid from (
+                select gid,geom from open.nyc_road_proj_final where st_dwithin(
+                (select geom from open.nyc_road_proj_final where gid={0}),geom,{1})
+                and not st_dwithin((select geom from open.nyc_road_proj_final where gid={0}) ,geom,{2})
+                ) as bar;""".format(road,maxRadius,minRadius))
+            roads=mycurs.fetchall() #returns tuple with first row (unordered list)
+            print('length of tuple: {}'.format(len(roads)))
+            print('roads element 0: {}'.format(roads[0]))
+            roadId=random.choice(roads)
+            print('new target road is: {}'.format(roadId))
             if not roadId is None:
                 targetRoad=roadId[0]
                 #print("roadid in target: {0}".format(roadId[0]))
@@ -89,14 +92,14 @@ class RandomAgent(mesa.Agent):
             searchRadius=searchRadius/10
             return targetRoad
         
-    def findMyWay(self):
+    def findMyWay(self, targetRoad):
         try:
             #roads are represented as nodes in G
-            self.way=nx.shortest_path(self.model.G,self.road,self.targetRoad,weight='length')
+            self.way=nx.shortest_path(self.model.G,self.road,targetRoad,weight='length')
             #print("Agent ({0}) way: {1}".format(self.unique_id,self.way))
         except Exception as e:
             print ("Error: One agent found no way: ",e,self.unique_id)
-            self.way=[self.road,self.targetRoad]
+            self.way=[self.road,targetRoad]
 
     def powerRadius(self, mu, dmin, dmax):
         beta=1+mu
@@ -113,21 +116,21 @@ class RandomAgent(mesa.Agent):
     
     def step(self):
         """step: behavior for each offender"""
+        print('start road: {}'.format(self.road))
         #select new radius for power-law
         if self.radiusType is 2:
             self.searchRadius=self.powerRadius(self.mu, self.dmin, self.dmax)
             print('next power radius {0}'.format(self.radiusType))
         #one step: walk to destination
+        targetRoad=self.searchTarget(self.road, self.searchRadius)
+        self.findMyWay(targetRoad)
         for road in self.way:
             self.walkedDistance += self.model.G.node[road]['length']
             self.seenCrimes += self.model.G.node[road]['num_crimes']
             #print("Agent at distance: {0}".format(self.unique_id))
             #print("Agent {0}, seen {1} crimes, traveled {2}".format(
             #self.unique_id,self.seenCrimes,self.walkedDistance))
-        road=self.targetRoad
-        #find new target
-        self.targetRoad=self.searchTarget(road, self.searchRadius)
-        self.findMyWay()
+        self.road=targetRoad
         print('agent {0}, target road list by road_id {1}'.format(self.unique_id, self.targetRoadList))
         print('step done for agent {0}'.format(self.unique_id))      
 
