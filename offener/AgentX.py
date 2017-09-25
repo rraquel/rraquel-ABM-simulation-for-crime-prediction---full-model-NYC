@@ -41,13 +41,7 @@ class AgentX(mesa.Agent):
         self.radiusType=radiusType
 
         #selection behavior for target type
-        if targetType is 0:
-            a=0
-        elif targetType is 1:
-            b=0
-        elif targetType is 2:
-            pass
-        
+        self.targetType=targetType
 
         #statistics
         self.seenCrimes=0 #historic crimes passed on path
@@ -67,30 +61,49 @@ class AgentX(mesa.Agent):
         print('in searchTarget: current road for new target: {0}'.format(road))
         mycurs = self.conn.cursor()
         targetRoad=0
-
         maxRadius=searchRadius*1.025
         #in repast it was set to 0.925 - error
         minRadius=searchRadius*0.975
-
         count=0
         while targetRoad==0:
             count+=1
-            print('search target road iteration {}'.format(count))
+            #print('search target road iteration {}'.format(count))
+            #print('target type: {0}'.format(self.targetType))
+            #select target depending on targetType: 0: Random ROAD, 1: Random VENUE, 2: Popular Venue
+            if self.targetType is 0:
+                mycurs.execute("""select gid from (
+                    select gid,geom from open.nyc_road_proj_final where st_dwithin(
+                    (select geom from open.nyc_road_proj_final where gid={0}),geom,{1})
+                    and not st_dwithin((select geom from open.nyc_road_proj_final where gid={0}) ,geom,{2})
+                    ) as bar;""".format(road,maxRadius,minRadius))
+                roads=mycurs.fetchall() #returns tuple with first row (unordered list)
+                roadTuple=random.choice(roads)
+                roadId=roadTuple[0]
+                print('roadId type: {0}'.format(type(roadId)))
+            elif self.targetType is 1:
+                mycurs.execute("""select venue_id,road_id from (
+                    select venue_id from open.nyc_fs_venue_join where st_dwithin( (
+                        select geom from open.nyc_road_proj_final where gid={0}) ,ftus_coord, {1})
+                        and not st_dwithin( (
+                            select geom from open.nyc_road_proj_final where gid={0}) ,ftus_coord, {2}))
+                            as fs left join open.nyc_road2fs_80ft r2f on r2f.location_id=fs.venue_id 
+                            where not road_id is null""".format(road,maxRadius,minRadius))
+                venues=mycurs.fetchall() #returns tuple of tuples, venue_id and road_id paired
+                venueId=random.choice(venues) #selects a random element of the tuple
+                print('venue element: {}'.format(venueId))
+                roadId=venueId[1] #selects the road_id from the chosen tuple
+            #elif self.targetType is 2:
+                #mycurs.execute()
+                #venues=mycurs.fetchall() #returns tuple with first row (unordered list)
+                #venueId=None
+            else:
             #selects all roads that have points within the radius
-            mycurs.execute("""select gid from (
-                select gid,geom from open.nyc_road_proj_final where st_dwithin(
-                (select geom from open.nyc_road_proj_final where gid={0}),geom,{1})
-                and not st_dwithin((select geom from open.nyc_road_proj_final where gid={0}) ,geom,{2})
-                ) as bar;""".format(road,maxRadius,minRadius))
-            roads=mycurs.fetchall() #returns tuple with first row (unordered list)
-            print('length of tuple: {}'.format(len(roads)))
-            print('roads element 0: {}'.format(roads[0]))
-            roadId=random.choice(roads)
+                self.log.error("targetType not within range: "+self.targetType)
             print('new target road is: {}'.format(roadId))
             if not roadId is None:
-                targetRoad=roadId[0]
+                targetRoad=roadId
                 #print("roadid in target: {0}".format(roadId[0]))
-                self.targetRoadList.append(targetRoad)
+                # self.targetRoadList.append(targetRoad)
                 return (targetRoad)
             searchRadius=searchRadius/10
             return targetRoad
@@ -126,6 +139,12 @@ class AgentX(mesa.Agent):
             print('next power radius {0}'.format(self.radiusType))
         #one step: walk to destination
         targetRoad=self.searchTarget(self.road, self.searchRadius)
+        #if self.targetType is 0:
+        #    targetRoad=self.searchTarget(self.road, self.searchRadius)
+        #if self.targetType is 1:
+        #    targetRoad=self.searchTarget(self.road, self.searchRadius)
+        #if self.targetType is 2:
+        #    targetRoad=self.searchTarget(self.road, self.searchRadius)
         self.findMyWay(targetRoad)
         for road in self.way:
             self.walkedDistance += self.model.G.node[road]['length']

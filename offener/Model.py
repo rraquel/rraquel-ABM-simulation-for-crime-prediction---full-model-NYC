@@ -1,7 +1,6 @@
 import mesa
 from Agent import Agent
 from AgentX import AgentX
-from VenueAgent import VenueAgent
 from mesa.time import RandomActivation
 from mesa.datacollection import DataCollector
 import networkx as nx
