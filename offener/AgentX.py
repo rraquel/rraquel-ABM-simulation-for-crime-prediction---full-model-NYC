@@ -7,9 +7,9 @@ import math
 import random
 import sys, psycopg2, os, time, random, logging
 
-class RandomAgent(mesa.Agent):
+class AgentX(mesa.Agent):
     """an Agent moving"""
-    def __init__(self, unique_id, model, radiusType):
+    def __init__(self, unique_id, model, radiusType, targetType):
         super().__init__(unique_id, model)
         self.pos=0
         self.startRoad=self.findStartLocation(model)
@@ -40,6 +40,13 @@ class RandomAgent(mesa.Agent):
             print('power radius Agent is {0}'.format(self.searchRadius))
         self.radiusType=radiusType
 
+        #selection behavior for target type
+        if targetType is 0:
+            a=0
+        elif targetType is 1:
+            b=0
+        elif targetType is 2:
+            pass
         
 
         #statistics
@@ -50,10 +57,6 @@ class RandomAgent(mesa.Agent):
         
         self.log=logging.getLogger('')
         
-        #find new target  
-        #self.targetRoad=None
-        #self.findMyWay()
-
     def findStartLocation(self, model):
         #select startingPoint from random sample of nodes
         return random.sample(model.G.nodes(),1)[0]
@@ -69,11 +72,11 @@ class RandomAgent(mesa.Agent):
         #in repast it was set to 0.925 - error
         minRadius=searchRadius*0.975
 
-        #TODO query does not output random roads!
         count=0
         while targetRoad==0:
             count+=1
             print('search target road iteration {}'.format(count))
+            #selects all roads that have points within the radius
             mycurs.execute("""select gid from (
                 select gid,geom from open.nyc_road_proj_final where st_dwithin(
                 (select geom from open.nyc_road_proj_final where gid={0}),geom,{1})

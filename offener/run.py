@@ -2,6 +2,7 @@ import os, sys, time, configparser
 import logging
 from Model import Model
 import psycopg2, sys, os
+from pandas import ExcelWriter
 
 
 # Read the supplied config file or default config if none is supplied
@@ -18,6 +19,16 @@ def readConfig():
         cfile = os.path.join(dir_path,'..','config','default.ini')
     config = configparser.ConfigParser()
     config.read(cfile)
+
+def writeExcel(agent_df,model_df):
+    """Create xls for later analysis"""
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    excelfile = os.path.join(dir_path,'..','output','offender.{}.xls'.format(time.strftime('%Y%m%d_%H%M%S')))
+    excelwriter = ExcelWriter(excelfile)
+    model_df.to_excel(excelwriter,sheet_name='Model')
+    agent_df.to_excel(excelwriter,sheet_name='Agent')
+    excelwriter.close()
+
 
 # Create model with it's street network, venues, agents, ...
 def createModel():
@@ -40,6 +51,7 @@ def stepModel():
     #get data as pandas data frame
     agent_df = model.dc.get_agent_vars_dataframe()
     model_df = model.dc.get_model_vars_dataframe()
+    writeExcel(agent_df,model_df)
     print(agent_df)
     log.info('Global stats: \n{}'.format(model_df.tail()))
 

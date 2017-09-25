@@ -1,6 +1,6 @@
 import mesa
 from Agent import Agent
-from RandomAgent import RandomAgent
+from AgentX import AgentX
 from VenueAgent import VenueAgent
 from mesa.time import RandomActivation
 from mesa.datacollection import DataCollector
@@ -70,10 +70,8 @@ class Model(mesa.Model):
         #TODO give agent the number of steps one should move - distribution ~1-7
         #TODO include start location type (to tune starting point with PLUTO info) and demographics
         for i in range(self.numAgents):
-            if self.targetType is 0:
-                a=RandomAgent(i, self, self.radiusType)
-            elif self.targetType is 1:
-                a=VenueAgent(i, self, self.radiusType)
+            if 0<= self.targetType <=2:
+                a=AgentX(i, self, self.radiusType, self.targetType)
             else:
                 sample=random.sample(self.G.nodes(),self.numAgents+1)
                 starts=sample[0]

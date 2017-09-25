@@ -49,10 +49,6 @@ class VenueAgent(mesa.Agent):
         
         self.log=logging.getLogger('')
         
-        #find new target    
-        self.targetRoad=self.searchTarget(self.road, self.searchRadius)
-        self.findMyWay()
-
     def findStartLocation(self, model):
         #select startingPoint from random sample of nodes
         return random.sample(model.G.nodes(),1)[0]
@@ -68,23 +64,24 @@ class VenueAgent(mesa.Agent):
         #in repast it was set to 0.925 - error
         minRadius=searchRadius*0.975
 
-        #TODO query does not output random roads!
-        #TODO get all the venues within distance
+        #TODO look at special cases for venues that are noth within 88ft from a road - defined as road_id=0
+        #therefore  need to use where not road_id is null
         count=0
-        targetRoad=0
         while targetRoad==0:
             count+=1
             print('search target road iteration {}'.format(count))
-            mycurs.execute("""select st_astext(geom) from open.nyc_road_proj_final where gid={}""".format(self.road))
-            roadLocation=mycurs.fetchall()[0][0]
-            mycurs.execute("""select gid from (
-                select gid,geom from open.nyc_road_proj_final where st_dwithin(
-                (select geom from open.nyc_road_proj_final where gid={0}),geom,{1})
-                and not st_dwithin((select geom from open.nyc_road_proj_final where gid={0}) ,geom,{2})
-                ) as bar;""".format(roadLocation,maxRadius,minRadius))
-            roadId=mycurs.fetchone() #returns tuple with first row (unordered list)
+            mycurs.execute("""select venue_id,road_id from (
+                select venue_id from open.nyc_fs_venue_join where st_dwithin( (
+                    select geom from open.nyc_road_proj_final where gid={0}) ,ftus_coord, {1})
+                    and not st_dwithin( (
+                        select geom from open.nyc_road_proj_final where gid=7) ,ftus_coord, {2}))
+                        as fs left join open.nyc_road2fs_80ft r2f on r2f.location_id=fs.venue_id 
+                        where not road_id is null""".format(road,maxRadius,minRadius))
+            setRoadVenueId=mycurs.fetchall() #returns tuple of tuples, venue_id and road_id paired
+            singleRoadVenueId=random.choice(setRoadVenueId) #selects a random element of the tuple
+            roadId=singleRoadVenueId[1] #selects the road_id from the chosen tuple
             if not roadId is None:
-                targetRoad=roadId[0]
+                targetRoad=roadId
                 #print("roadid in target: {0}".format(roadId[0]))
                 self.targetRoadList.append(targetRoad)
                 return (targetRoad)
@@ -120,16 +117,15 @@ class VenueAgent(mesa.Agent):
             self.searchRadius=self.powerRadius(self.mu, self.dmin, self.dmax)
             print('next power radius {0}'.format(self.radiusType))
         #one step: walk to destination
+        self.targetRoad=self.searchTarget(self.road, self.searchRadius)
+        self.findMyWay()
         for road in self.way:
             self.walkedDistance += self.model.G.node[road]['length']
             self.seenCrimes += self.model.G.node[road]['num_crimes']
             #print("Agent at distance: {0}".format(self.unique_id))
             #print("Agent {0}, seen {1} crimes, traveled {2}".format(
             #self.unique_id,self.seenCrimes,self.walkedDistance))
-        road=self.targetRoad
-        #find new target
-        self.targetRoad=self.searchTarget(road, self.searchRadius)
-        self.findMyWay()
+        self.road=self.targetRoad
         print('agent {0}, target road list by road_id {1}'.format(self.unique_id, self.targetRoadList))
         print('step done for agent {0}'.format(self.unique_id))      
 
