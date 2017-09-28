@@ -13,6 +13,9 @@ class Model(mesa.Model):
     def __init__(self, modelCfg):
         self.log=logging.getLogger('')
         self.conn=self.connectDB()
+        self.generalNumSteps=0
+
+        self.generalSteps=modelCfg.getint('numAgents')
         
         # Get Model parameters from config. Set small default values so errors pop up
         self.numAgents=modelCfg.getint('numAgents')
@@ -47,6 +50,7 @@ class Model(mesa.Model):
         #TODO data collection
         #collect statistics from peragent&step (can be more) - see output in model
         self.dc=DataCollector(model_reporters={
+            #"modelStepCount": lambda m: m.modelStepCount,
             "agentCount":lambda m: m.schedule.get_agent_count(),
             "radiusType": lambda m: m.radiusType,
             "targetType": lambda m: m.targetType,
@@ -56,8 +60,8 @@ class Model(mesa.Model):
             "totaltraveledDistance": lambda m: sum(map(lambda a: a.walkedDistance,m.schedule.agents)),
             "traveledRoads": lambda m: sum(map(lambda a: a.walkedRoads,m.schedule.agents)),
             "avgSearchRadius": lambda m: sum(map(lambda a: a.searchRadius,m.schedule.agents)),
-            #Todo: conditional - only calculate pasi for last step in the model!!!
-            "pai": lambda m: (((sum(map(lambda a: (a.seenCrimes+1),m.schedule.agents)))/m.totalCrimes)/(sum(map(lambda a: (a.walkedDistance+1),m.schedule.agents)))/40986771)
+            #"pai": lambda m: (((sum(map(lambda a: (a.seenCrimes+1),m.schedule.agents)))/m.totalCrimes)/(sum(map(lambda a: (a.walkedDistance+1),m.schedule.agents)))/40986771),
+            "pai2": lambda m: (((sum(map(lambda a: (a.seenCrimes+1),m.schedule.agents)))/m.totalCrimes)/(sum(map(lambda a: (a.walkedDistance+1),m.schedule.agents)))/40986771) if m.modelStepCount is (m.generalNumSteps-1) else 0
             } ,
         agent_reporters={
             "startRoad": lambda a: a.startRoad,
@@ -185,7 +189,10 @@ class Model(mesa.Model):
         return powerRadius
 
 
-    def step(self):
+    def step(self, i, numSteps):
         """advance model by one step."""
+        self.modelStepCount=i
+        self.generalNumSteps=numSteps
+        print('model step count {}'.format(self.modelStepCount))
         self.dc.collect(self)
         self.schedule.step()

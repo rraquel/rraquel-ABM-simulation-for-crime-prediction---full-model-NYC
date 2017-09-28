@@ -44,8 +44,9 @@ def createModel():
 def stepModel():
     global model, config
     #iterates for model steps
+    i=0
     for i in range(config.getint('general','numSteps',fallback=1)):
-        model.step()
+        model.step(i, config.getint('general','numSteps'))
         print("=> step {0} performed".format(i))
     #statistics collection and data output
     #get data as pandas data frame
