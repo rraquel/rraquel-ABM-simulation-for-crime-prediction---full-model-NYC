@@ -6,6 +6,7 @@ import numpy as np
 import math
 import random
 import sys, psycopg2, os, time, random, logging
+from operator import itemgetter
 
 class AgentX(mesa.Agent):
     """an Agent moving"""
@@ -46,6 +47,7 @@ class AgentX(mesa.Agent):
         #statistics
         self.seenCrimes=0 #historic crimes passed on path
         self.walkedDistance=0 #distance walked in total
+        self.crimesUnique = set() # List of seen crimes (ids)
         #TODO create array with initial position and all targets?
         self.walkedRoads=0 
         
@@ -58,7 +60,7 @@ class AgentX(mesa.Agent):
     def searchTarget(self, road, searchRadius):
         if road is None:
             road=self.startRoad
-        print('in searchTarget: current road for new target: {0}'.format(road))
+        #print('in searchTarget: current road for new target: {0}'.format(road))
         mycurs = self.conn.cursor()
         targetRoad=0
         maxRadius=searchRadius*1.025
@@ -79,7 +81,6 @@ class AgentX(mesa.Agent):
                 roads=mycurs.fetchall() #returns tuple with first row (unordered list)
                 roadTuple=random.choice(roads)
                 roadId=roadTuple[0]
-                print('roadId type: {0}'.format(type(roadId)))
             elif self.targetType is 1:
                 mycurs.execute("""select venue_id,road_id from (
                     select venue_id from open.nyc_fs_venue_join where st_dwithin( (
@@ -92,10 +93,33 @@ class AgentX(mesa.Agent):
                 venueId=random.choice(venues) #selects a random element of the tuple
                 print('venue element: {}'.format(venueId))
                 roadId=venueId[1] #selects the road_id from the chosen tuple
-            #elif self.targetType is 2:
-                #mycurs.execute()
-                #venues=mycurs.fetchall() #returns tuple with first row (unordered list)
-                #venueId=None
+            elif self.targetType is 2:
+                #orders query result by checkis_count
+                mycurs.execute("""SELECT venue_id,road_id,weighted_checkins 
+                from (SELECT venue_id, checkins_count,(checkins_count * 100.0)/temp.total_checkins as weighted_checkins
+                from (SELECT COUNT(venue_id)as total_venues, SUM(checkins_count) as total_checkins FROM open.nyc_fs_venue_join
+                where st_dwithin((select geom from open.nyc_road_proj_final where gid={0}),ftus_coord, {1})
+                and not st_dwithin((select geom from open.nyc_road_proj_final where gid={0}),ftus_coord, {2})
+                ) as temp, open.nyc_fs_venue_join
+                where st_dwithin((select geom from open.nyc_road_proj_final where gid={0}),ftus_coord, {1})
+                and not st_dwithin((select geom from open.nyc_road_proj_final where gid={0}),ftus_coord, {2}))
+                as fs left join open.nyc_road2fs_80ft r2f on r2f.location_id=fs.venue_id where not road_id is null"""
+                .format(road,maxRadius,minRadius))
+                venues=mycurs.fetchall() #returns tuple of tuples, venue_id,road_id,weighted_checkins
+                # can add - but may take up more time: order by weighted_checkins desc
+                #print("venues in priority: {}".format(venues[(len(venues))-1]))
+                #venuesSort=sorted(venues, key=itemgetter(2))
+                #print("venues in priority: {}".format(venuesSort[0]))
+                #venueId=random.choice(venues) #selects a random element of the tuple
+                #for random.choices weights= need a list of the weights - therefore convert weights to list using list comprehension
+                weightsList=[x[2] for x in venues]
+                #convert float to integer
+                weightsListInt = list(map(int, weightsList))
+                print('venue weights list : {}'.format(weightsList[0]))
+                print('venue weights list : {}'.format(weightsListInt[0]))
+                venueId=random.choices(venues, weights=weightsListInt, cum_weights=None, k=1)
+                print('venue element: {}'.format(venueId))
+                roadId=venueId[1] #selects the road_id from the chosen tuple
             else:
             #selects all roads that have points within the radius
                 self.log.error("targetType not within range: "+self.targetType)
@@ -139,21 +163,12 @@ class AgentX(mesa.Agent):
             print('next power radius {0}'.format(self.radiusType))
         #one step: walk to destination
         targetRoad=self.searchTarget(self.road, self.searchRadius)
-        #if self.targetType is 0:
-        #    targetRoad=self.searchTarget(self.road, self.searchRadius)
-        #if self.targetType is 1:
-        #    targetRoad=self.searchTarget(self.road, self.searchRadius)
-        #if self.targetType is 2:
-        #    targetRoad=self.searchTarget(self.road, self.searchRadius)
         self.findMyWay(targetRoad)
         for road in self.way:
             self.walkedDistance += self.model.G.node[road]['length']
             self.seenCrimes += self.model.G.node[road]['num_crimes']
-            #print("Agent at distance: {0}".format(self.unique_id))
-            #print("Agent {0}, seen {1} crimes, traveled {2}".format(
-            #self.unique_id,self.seenCrimes,self.walkedDistance))
+            self.walkedRoads +=1
+            self.crimesUnique = self.model.G.node[road]['crimesList']
         self.road=targetRoad
         print('agent {0}, target road list by road_id {1}'.format(self.unique_id, self.targetRoadList))
-        print('step done for agent {0}'.format(self.unique_id))      
-
-        
+        print('step done for agent {0}'.format(self.unique_id))

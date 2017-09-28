@@ -51,14 +51,19 @@ class Model(mesa.Model):
             "radiusType": lambda m: m.radiusType,
             "targetType": lambda m: m.targetType,
             "totalCrimes": lambda m: m.totalCrimes, 
-            "seenCrimes": lambda m: sum(map(lambda a: a.seenCrimes,m.schedule.agents)),
-            "walkedDistance": lambda m: sum(map(lambda a: a.walkedDistance,m.schedule.agents)),
-            "walkedRoads": lambda m: sum(map(lambda a: a.walkedRoads,m.schedule.agents))
+            #is this the average seen crimes over all the agents?
+            "totalpassedCrimes": lambda m: sum(map(lambda a: a.seenCrimes,m.schedule.agents)),
+            "totaltraveledDistance": lambda m: sum(map(lambda a: a.walkedDistance,m.schedule.agents)),
+            "traveledRoads": lambda m: sum(map(lambda a: a.walkedRoads,m.schedule.agents)),
+            "avgSearchRadius": lambda m: sum(map(lambda a: a.searchRadius,m.schedule.agents)),
+            #Todo: conditional - only calculate pasi for last step in the model!!!
+            "pai": lambda m: (((sum(map(lambda a: (a.seenCrimes+1),m.schedule.agents)))/m.totalCrimes)/(sum(map(lambda a: (a.walkedDistance+1),m.schedule.agents)))/40986771)
             } ,
         agent_reporters={
             "startRoad": lambda a: a.startRoad,
-            "seenCrimes": lambda a: a.seenCrimes,
-            "walkedDistance": lambda a: a.walkedDistance,
+            "passedCrimes": lambda a: a.seenCrimes,
+            "traveledDistance": lambda a: a.walkedDistance,
+            "passedCrimesUnique": lambda a: a.crimesUnique,
             "searchRadius": lambda a: a.searchRadius
             })
         
@@ -97,6 +102,7 @@ class Model(mesa.Model):
         # from open.nyc_road_attributes as ra: length [2], crimes_2015 [3]
         # join tables using road_id into gid
         
+        roadLength=0
         #crimes_2015: n crime to 1 road mapping
         
         self.curs.execute("""select intersection_id,r.gid,length,crimes_2015 from 
@@ -118,7 +124,11 @@ class Model(mesa.Model):
             intersect[line[0]].add(line[1])
             self.totalCrimes+=line[3]
             #add road, length and crimes as node info in graph
-            self.G.add_node(line[1], length=line[2], num_crimes=line[3])
+            #self.G.add_node(line[1], length=line[2], num_crimes=line[3])
+            # TODO Parameter: Assumptions Humans walk 300 feet in 60s
+            self.G.add_node(line[1],length=line[2],num_crimes=line[3],crimesList=set())
+            #self.G.node[line[1]]['crimesList'].add(line[3])
+            roadLength+=line[2]
         self.log.debug("Found {} intersections".format(len(intersect)))
         #build edges with information on nodes (roads)
         # loops over each intersection in intersect[]     
@@ -133,6 +143,8 @@ class Model(mesa.Model):
         self.log.debug("Isolated roads: {0}".format(len(nx.isolates(self.G))))
         print('roadNW built, intersection size: {0}'.format(len(intersect)))
         print('roadNW built, roads size: {0}'.format(self.G.number_of_nodes()))
+        print('road lenght total: {}'.format(roadLength))
+        print('road lenght total: {}'.format(type(roadLength)))
         return self.G
 
     def findTargetLocation(self,road):
