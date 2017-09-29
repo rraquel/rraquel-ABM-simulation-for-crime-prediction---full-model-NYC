@@ -1,3 +1,6 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
 import mesa
 from Agent import Agent
 from AgentX import AgentX

@@ -1,9 +1,12 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
 import os, sys, time, configparser
 import logging
 from Model import Model
 import psycopg2, sys, os
 from pandas import ExcelWriter
-
+from mesa.batchrunner import BatchRunner
 
 # Read the supplied config file or default config if none is supplied
 def readConfig():
