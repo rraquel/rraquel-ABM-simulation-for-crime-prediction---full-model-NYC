@@ -8,7 +8,7 @@ import networkx as nx
 import numpy as np
 import math
 import sys, psycopg2, os, time, random, logging
-#from random import choices
+from random import choices
 from operator import itemgetter
 
 class AgentX(mesa.Agent):
@@ -123,7 +123,7 @@ class AgentX(mesa.Agent):
                 weightsListInt = list(map(int, weightsList))
                 #print('venue weights list : {}'.format(weightsList[0]))
                 #print('venue weights list : {}'.format(weightsListInt[0]))
-                venue=random.choices(venues, weights=weightsListInt, cum_weights=None, k=1)
+                venue=choices(venues, weights=weightsListInt, cum_weights=None, k=1)
                 #print('venue id: {}'.format(type(venue)))
                 #print('venue id: {}'.format(venue[0][0]))
                 mycurs.execute("""SELECT road_id, venue_id FROM (SELECT venue_id FROM open.nyc_fs_venue_join WHERE venue_id={0})
