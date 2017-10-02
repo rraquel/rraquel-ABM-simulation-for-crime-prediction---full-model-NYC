@@ -8,7 +8,7 @@ import networkx as nx
 import numpy as np
 import math
 import sys, psycopg2, os, time, random, logging
-from random import choices
+#from random import choices
 from operator import itemgetter
 
 class AgentX(mesa.Agent):
