@@ -13,16 +13,27 @@ from operator import itemgetter
 
 class AgentX(mesa.Agent):
     """an Agent moving"""
-    def __init__(self, unique_id, model, radiusType, targetType):
+    def __init__(self, unique_id, model, radiusType, targetType, startLocationType, agentTravelAvg):
         super().__init__(unique_id, model)
         self.pos=0
-        self.startRoad=self.findStartLocation(model)
-        print("startRoad: {0}".format(self.startRoad))
-        self.road=self.startRoad
-        self.conn=model.conn
+
+        #agent travel steps average until returning home
+        self.agentTravelAvg=agentTravelAvg
+        self.agentTravelTrip=np.random.uniform(1, (self.agentTravelAvg*2)-1)
+        print('new uniform trip travel distribution value: {}'.format(self.agentTravelTrip))
+        self.tripCount=0
+        self.newStart=0
 
         #list of positions offender has visited
-        self.targetRoadList=[self.startRoad]
+        self.targetRoadList=[]
+
+        #start location choice
+        self.startLocationType=startLocationType
+        self.startRoad=self.findStartLocation()
+
+        self.road=self.startRoad
+        self.conn=model.conn
+        
 
         #select starting position by type
 
@@ -33,7 +44,12 @@ class AgentX(mesa.Agent):
             print('static radius Agent')
         #uniform
         elif radiusType is 1 :
-            self.searchRadius=model.uniformRadius
+            #minimal distance from 2.5km to foot
+            self.pmin=model.dmin*3280.84
+            #uniform radius: self.uniformRadius=self.staticRadius*2
+            self.pmax=model.uniformRadius
+            self.searchRadius=np.random.uniform(self.pmin, self.pmax)
+            #print('uniformProbability number: {}'.format(uniformProb))
             print('uniform radius Agent')
         #power
         elif radiusType is 2 :
@@ -55,10 +71,41 @@ class AgentX(mesa.Agent):
         self.walkedRoads=0 
         
         self.log=logging.getLogger('')
+
+    def findStartLocation(self):
+        if self.startLocationType is 0:
+            startRoad=self.findStartRandom(model)
+        elif self.startLocationType is 1:
+            startRoad=self.findStartResidence()
+        else:
+            #defalut
+            startRoad=self.findStartRandom(model)
+        print("startRoad: {0}".format(startRoad))
+        self.targetRoadList.append(startRoad)
+        return startRoad
         
-    def findStartLocation(self, model):
-        #select startingPoint from random sample of nodes
+    def findStartRandom(self, model):
+        """select startingPoint from random sample of nodes"""
         return random.sample(model.G.nodes(),1)[0]
+
+    def findStartResidence(self):
+        """Select startRoad within Residential Areas from PlutoMap"""
+        #TODO change nyc_road2pluto and query
+        mycurs = self.model.conn.cursor()
+        mycurs.execute("""select distinct(r2p.road_id) from open.nyc_road2pluto_80ft r2p
+                left join open.nyc_pluto_areas p on r2p.gid = p.gid""")
+        starts = mycurs.fetchall()
+        startRoadTuple=random.choice(starts)
+        startRoad=startRoadTuple[0]
+        #print('start road in PLUTO: {}'.format(startRoad))
+        return startRoad
+
+    def resetAgent(self):
+        self.tripCount=0
+        self.targetRoadList.append(self.startRoad)
+        print('reset agent')
+        return self.startRoad
+
 
     def searchTarget(self, road, searchRadius):
         if road is None:
@@ -142,7 +189,7 @@ class AgentX(mesa.Agent):
             if not roadId is None:
                 targetRoad=roadId
                 #print("roadid in target: {0}".format(roadId[0]))
-                # self.targetRoadList.append(targetRoad)
+                self.targetRoadList.append(targetRoad)
                 return (targetRoad)
             searchRadius=searchRadius/10
             return targetRoad
@@ -171,14 +218,39 @@ class AgentX(mesa.Agent):
     
     def step(self):
         """step: behavior for each offender"""
-        print('start road: {}'.format(self.road))
+        #print('start road: {}'.format(self.road))
         #select new radius for power-law
+        #uniform distr. radius
+        if self.radiusType is 1:
+            self.searchRadius=np.random.uniform(self.pmin, self.pmax)
+            #print('next uniform distr. radius {0}'.format(self.radiusType))
+            #power radius
         if self.radiusType is 2:
             self.searchRadius=self.powerRadius(self.mu, self.dmin, self.dmax)
-            print('next power radius {0}'.format(self.radiusType))
-        #one step: walk to destination
-        targetRoad=self.searchTarget(self.road, self.searchRadius)
-        self.findMyWay(targetRoad)
+            #print('next power radius {0}'.format(self.radiusType))
+        #rest agent to start at new location
+        if self.newStart is 1:
+            self.startRoad=self.findStartLocation()
+            print('new start road: {}'.format(self.startRoad))
+            targetRoad=self.startRoad
+            self.agentTravelTrip=np.random.uniform(1, (self.agentTravelAvg*2)-1)
+            print('new uniform trip travel distribution value: {}'.format(self.agentTravelTrip))
+            self.newStart=0
+            self.tripCount=0
+        #last step before agent starts at new location
+        if self.agentTravelTrip >0 and (self.tripCount+1)>self.agentTravelTrip:
+            targetRoad=self.resetAgent()
+            self.newStart=1
+            self.tripCount+=1
+            self.findMyWay(targetRoad)
+            print('target road in reset Agent is: {}'.format(targetRoad))
+        #normal step for agent to find target and way
+        else:
+            #one step: walk to destination
+            targetRoad=self.searchTarget(self.road, self.searchRadius)
+            self.tripCount+=1
+            print('agent {0}, trip count: {1}, trip avg: {2}'.format(self.unique_id, self.tripCount, self.agentTravelAvg))
+            self.findMyWay(targetRoad)
         for road in self.way:
             self.walkedDistance += self.model.G.node[road]['length']
             self.seenCrimes += self.model.G.node[road]['num_crimes']

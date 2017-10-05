@@ -48,7 +48,7 @@ def stepModel():
     global model, config
     #iterates for model steps
     i=0
-    for i in range(config.getint('general','numSteps',fallback=1)):
+    for i in range(config.getint('general','numSteps', fallback=1)):
         model.step(i, config.getint('general','numSteps'))
         print("=> step {0} performed".format(i))
     #statistics collection and data output
@@ -58,6 +58,16 @@ def stepModel():
     writeExcel(agent_df,model_df)
     print(agent_df)
     log.info('Global stats: \n{}'.format(model_df.tail()))
+
+#Batchrunner
+#fixed_params={"numSteps": 5, "roadBoundingBoxRadius": 80, "staticRadius": 40000, "mu": 0.6, "dmin": 2.5, "dmax": 530}
+#variable_params={"numAgents": range (4, 5), "startLocationType": range(0, 1), "targetType": range(0, 1), "radiusType": range(0,2)}
+
+#batch_run=BatchRunner(Model, fixed_params, variable_params, max_steps=10
+#)
+# model_reporters=("numAngents": lambda m: model.schedule.get_agent_count)
+#batch_run.run_all()
+
 
 # Initialize variables so they can be used as global
 model=""

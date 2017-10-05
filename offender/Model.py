@@ -14,6 +14,9 @@ import psycopg2, sys, os, time, random, logging
 class Model(mesa.Model):
     """ characteristics of the model."""
     def __init__(self, modelCfg):
+        #for batch runner: instance attribute running in Model class - enables conditional shut off of the model once a condition is met.
+        self.running = True
+
         self.log=logging.getLogger('')
         self.conn=self.connectDB()
         self.generalNumSteps=0
@@ -22,7 +25,7 @@ class Model(mesa.Model):
         
         # Get Model parameters from config. Set small default values so errors pop up
         self.numAgents=modelCfg.getint('numAgents')
-        self.agentReTravelAvg = modelCfg.getfloat('agentReTravelAvg',1.1)
+        self.agentTravelAvg = modelCfg.getfloat('agentTravelAvg')
 
         #defubes target selection tpye
         self.targetType= modelCfg.getint('targetType')
@@ -65,6 +68,7 @@ class Model(mesa.Model):
             "avgSearchRadius": lambda m: sum(map(lambda a: a.searchRadius,m.schedule.agents)),
             #"pai": lambda m: (((sum(map(lambda a: (a.seenCrimes+1),m.schedule.agents)))/m.totalCrimes)/(sum(map(lambda a: (a.walkedDistance+1),m.schedule.agents)))/40986771),
             "pai2": lambda m: (((sum(map(lambda a: (a.seenCrimes+1),m.schedule.agents)))/m.totalCrimes)/(sum(map(lambda a: (a.walkedDistance+1),m.schedule.agents)))/40986771) if m.modelStepCount is (m.generalNumSteps-1) else 0
+            #"SD_distance": lambda m: (sqrt(lambda a: a.walkedDistance - (sum(map(a.walkedDistance,m.schedule.agents))/self.numAgents)))
             } ,
         agent_reporters={
             "startRoad": lambda a: a.startRoad,
@@ -82,7 +86,7 @@ class Model(mesa.Model):
         #TODO include start location type (to tune starting point with PLUTO info) and demographics
         for i in range(self.numAgents):
             if 0<= self.targetType <=2:
-                a=AgentX(i, self, self.radiusType, self.targetType)
+                a=AgentX(i, self, self.radiusType, self.targetType, self.startLocationType, self.agentTravelAvg)
             else:
                 sample=random.sample(self.G.nodes(),self.numAgents+1)
                 starts=sample[0]
@@ -196,6 +200,6 @@ class Model(mesa.Model):
         """advance model by one step."""
         self.modelStepCount=i
         self.generalNumSteps=numSteps
-        print('model step count {}'.format(self.modelStepCount))
+        #print('==> model step count {}'.format(self.modelStepCount))
         self.dc.collect(self)
         self.schedule.step()
