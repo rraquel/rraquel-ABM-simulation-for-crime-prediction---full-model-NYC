@@ -13,24 +13,20 @@ from operator import itemgetter
 
 class AgentX(mesa.Agent):
     """an Agent moving"""
-    def __init__(self, unique_id, model, radiusType, targetType, startLocationType, agentTravelAvg):
+    def __init__(self, unique_id, model, radiusType, targetType, startLocationType, agentReturn):
         super().__init__(unique_id, model)
         self.pos=0
 
         #agent travel steps average until returning home
-        self.agentTravelAvg=agentTravelAvg
-        self.agentTravelTrip=np.random.uniform(1, (self.agentTravelAvg*2)-1)
-        print('new uniform trip travel distribution value: {}'.format(self.agentTravelTrip))
-        self.tripCount=0
-        self.newStart=0
+        self.agentReturn=agentReturn
+        self.agentTravelAvg=model.agentTravelAvg     
 
         #list of positions offender has visited
         self.targetRoadList=[]
 
         #start location choice
         self.startLocationType=startLocationType
-        self.startRoad=self.findStartLocation()
-
+        self.startRoad=self.newAgent(model)
         self.road=self.startRoad
         self.conn=model.conn
         
@@ -71,8 +67,24 @@ class AgentX(mesa.Agent):
         self.walkedRoads=0 
         
         self.log=logging.getLogger('')
+    
+    def newAgent (self, model):
+        self.startRoad=self.findStartLocation(model)
+        print('new start road: {}'.format(self.startRoad))
+        if self.agentReturn is 1:
+            self.agentTravelTrips=np.random.uniform(1, (self.agentTravelAvg*2)-1)
+            print('new uniform trip travel distribution value: {}'.format(self.agentTravelTrips))
+        self.tripCount=0
+        self.newStart=0
+        return self.startRoad
 
-    def findStartLocation(self):
+    def returnAgent(self):
+        self.targetRoadList.append(self.startRoad)
+        print('reset agent')
+        return self.startRoad
+
+
+    def findStartLocation(self, model):
         if self.startLocationType is 0:
             startRoad=self.findStartRandom(model)
         elif self.startLocationType is 1:
@@ -99,13 +111,6 @@ class AgentX(mesa.Agent):
         startRoad=startRoadTuple[0]
         #print('start road in PLUTO: {}'.format(startRoad))
         return startRoad
-
-    def resetAgent(self):
-        self.tripCount=0
-        self.targetRoadList.append(self.startRoad)
-        print('reset agent')
-        return self.startRoad
-
 
     def searchTarget(self, road, searchRadius):
         if road is None:
@@ -230,16 +235,11 @@ class AgentX(mesa.Agent):
             #print('next power radius {0}'.format(self.radiusType))
         #rest agent to start at new location
         if self.newStart is 1:
-            self.startRoad=self.findStartLocation()
-            print('new start road: {}'.format(self.startRoad))
-            targetRoad=self.startRoad
-            self.agentTravelTrip=np.random.uniform(1, (self.agentTravelAvg*2)-1)
-            print('new uniform trip travel distribution value: {}'.format(self.agentTravelTrip))
-            self.newStart=0
-            self.tripCount=0
+            self.startRoad=newAgent(model)
+            print('Agent new start, print newstart, should be set to 0 {}'.format(newStart))
         #last step before agent starts at new location
-        if self.agentTravelTrip >0 and (self.tripCount+1)>self.agentTravelTrip:
-            targetRoad=self.resetAgent()
+        if self.agentReturn is 1 and (self.tripCount+1)>self.agentTravelTrips:
+            targetRoad=self.returnAgent()
             self.newStart=1
             self.tripCount+=1
             self.findMyWay(targetRoad)

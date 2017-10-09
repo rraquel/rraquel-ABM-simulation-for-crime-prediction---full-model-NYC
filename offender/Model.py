@@ -13,7 +13,7 @@ import psycopg2, sys, os, time, random, logging
 
 class Model(mesa.Model):
     """ characteristics of the model."""
-    def __init__(self, modelCfg):
+    def __init__(self, numAgents, radiusType, targetType, startLocationType, agentReturn):
         #for batch runner: instance attribute running in Model class - enables conditional shut off of the model once a condition is met.
         self.running = True
 
@@ -21,28 +21,34 @@ class Model(mesa.Model):
         self.conn=self.connectDB()
         self.generalNumSteps=0
 
-        self.generalSteps=modelCfg.getint('numAgents')
+        self.generalSteps=numAgents
         
         # Get Model parameters from config. Set small default values so errors pop up
-        self.numAgents=modelCfg.getint('numAgents')
-        self.agentTravelAvg = modelCfg.getfloat('agentTravelAvg')
-
+        self.numAgents=numAgents
+        #infinite trip number or limited to average: 0 or 1
+        self.agentReturn=agentReturn
+        #NYC average trips
+        self.agentTravelAvg = 3.79
         #defubes target selection tpye
-        self.targetType= modelCfg.getint('targetType')
+        self.targetType=targetType
         #defines the starting location type 
-        self.startLocationType= modelCfg.getint('startLocationType')
-
+        #self.startLocationType= modelCfg.getint('startLocationType')
+        self.startLocationType=startLocationType
         #parameters for radius search
-        self.staticRadius=modelCfg.getint('staticRadius')
+        #self.staticRadius=modelCfg.getint('staticRadius')
+        self.staticRadius=40000
         print("static radius: {0}".format(self.staticRadius))
         self.uniformRadius=self.staticRadius*2
         print("uniform radius: {0}".format(self.uniformRadius))
-        self.mu=modelCfg.getfloat('mu')
-        self.dmin=modelCfg.getfloat('dmin')
-        self.dmax=modelCfg.getint('dmax')
-       
+        #mu for power law distribution - for NYC
+        self.mu=0.6
+        #min distance to travel in NYC in km
+        self.dmin=2.5
+        #max distance to travel in NYC in km
+        self.dmax=530
+        
         #no switch case in python - can use dictionary and switch function
-        self.radiusType=modelCfg.getint('radiusType')
+        self.radiusType=radiusType
         #print("radius type switch test: {0}".format(self.radiusType2))
         
         #self.agentStartLocationFinder=modelCfg.get('agentStartLocationFinder', findStartLocationRandom)
@@ -86,7 +92,7 @@ class Model(mesa.Model):
         #TODO include start location type (to tune starting point with PLUTO info) and demographics
         for i in range(self.numAgents):
             if 0<= self.targetType <=2:
-                a=AgentX(i, self, self.radiusType, self.targetType, self.startLocationType, self.agentTravelAvg)
+                a=AgentX(i, self, self.radiusType, self.targetType, self.startLocationType, self.agentReturn)
             else:
                 sample=random.sample(self.G.nodes(),self.numAgents+1)
                 starts=sample[0]
@@ -196,10 +202,11 @@ class Model(mesa.Model):
         return powerRadius
 
 
-    def step(self, i, numSteps):
+    #def step(self, i, numSteps):
+    def step(self):
         """advance model by one step."""
-        self.modelStepCount=i
-        self.generalNumSteps=numSteps
+        self.generalNumSteps+=1
+        self.modelStepCount=self.generalNumSteps
         #print('==> model step count {}'.format(self.modelStepCount))
         self.dc.collect(self)
         self.schedule.step()
