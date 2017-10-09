@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import mesa
-from Agent import Agent
 from AgentX import AgentX
 from mesa.time import RandomActivation
 from mesa.datacollection import DataCollector
