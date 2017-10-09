@@ -25,33 +25,38 @@ class Model(mesa.Model):
         
         # Get Model parameters from config. Set small default values so errors pop up
         self.numAgents=modelCfg.getint('numAgents')
+        self.log.info('Number of Agents: {}'.format(self.numAgents))
         self.agentTravelAvg = modelCfg.getfloat('agentTravelAvg')
 
         #defubes target selection tpye
         self.targetType= modelCfg.getint('targetType')
+        if self.targetType>2:
+           self.log.critical("Target type in ini-file is out of range: {}".format(self.targetType))
+           raise SystemExit(1)
         #defines the starting location type 
         self.startLocationType= modelCfg.getint('startLocationType')
+        if self.startLocationType>1:
+            self.log.critical("Starting location type is out of range {}".format(self.startLocationType))
 
         #parameters for radius search
         self.staticRadius=modelCfg.getint('staticRadius')
-        print("static radius: {0}".format(self.staticRadius))
         self.uniformRadius=self.staticRadius*2
-        print("uniform radius: {0}".format(self.uniformRadius))
-        self.mu=modelCfg.getfloat('mu')
-        self.dmin=modelCfg.getfloat('dmin')
-        self.dmax=modelCfg.getint('dmax')
+        self.mu=0.6
+        self.dmin=2.5
+        self.dmax=530
        
         #no switch case in python - can use dictionary and switch function
         self.radiusType=modelCfg.getint('radiusType')
-        #print("radius type switch test: {0}".format(self.radiusType2))
-        
+        if self.radiusType>2:
+            self.log.critical("Radius type in ini-file is out of range: {}".format(self.radiusType))
+            raise SystemExit(1)
+                    
         #self.agentStartLocationFinder=modelCfg.get('agentStartLocationFinder', findStartLocationRandom)
         self.schedule=RandomActivation(self)
         
         self.totalCrimes=0
 
-        
-        self.log.info('Generating Model')
+        self.log.info("Generating Model")
 
         #TODO data collection
         #collect statistics from peragent&step (can be more) - see output in model
@@ -74,7 +79,7 @@ class Model(mesa.Model):
             "startRoad": lambda a: a.startRoad,
             "passedCrimes": lambda a: a.seenCrimes,
             "traveledDistance": lambda a: a.walkedDistance,
-            "passedCrimesUnique": lambda a: a.crimesUnique,
+            #"passedCrimesUnique": lambda a: a.crimesUnique,
             "searchRadius": lambda a: a.searchRadius
             })
         
@@ -85,22 +90,20 @@ class Model(mesa.Model):
         #TODO give agent the number of steps one should move - distribution ~1-7
         #TODO include start location type (to tune starting point with PLUTO info) and demographics
         for i in range(self.numAgents):
-            if 0<= self.targetType <=2:
+            try:
                 a=AgentX(i, self, self.radiusType, self.targetType, self.startLocationType, self.agentTravelAvg)
-            else:
-                sample=random.sample(self.G.nodes(),self.numAgents+1)
-                starts=sample[0]
-                print('print road{0}'.format(starts))
-                a=Agent(i, self, starts, self.radiusType)
-            self.schedule.add(a)
-            self.log.info("Offender created")
-        print("agents created")
+                self.schedule.add(a)
+                self.log.info("Offender created")
+            except:
+                self.log.critical("Agents could not be created")
+                raise SystemExit(1)
+        self.log.info("{} agents created".format(self.numAgents))
 
     def connectDB(self):
         try:
             self.conn= psycopg2.connect("dbname='shared' user='rraquel' host='localhost' password='Mobil4b' ")        
             self.curs=self.conn.cursor()
-            print("connected to DB")
+            self.log.info("connected to DB")
         except Exception as e:
             self.log.error("connection to DB failed"+str(e))
             sys.exit(1)
@@ -152,49 +155,9 @@ class Model(mesa.Model):
                         self.G.add_edge(road, road2)
         self.log.debug("Length of  G: roads: {0}, intersections: {1}".format(self.G.number_of_nodes(), self.G.number_of_edges))
         self.log.debug("Isolated roads: {0}".format(len(nx.isolates(self.G))))
-        print('roadNW built, intersection size: {0}'.format(len(intersect)))
-        print('roadNW built, roads size: {0}'.format(self.G.number_of_nodes()))
-        print('road lenght total: {}'.format(roadLength))
-        print('road lenght total: {}'.format(type(roadLength)))
+        self.log.info("roadNW built, intersection size: {0}".format(len(intersect)))
+        self.log.info("roadNW built, roads size: {0}".format(self.G.number_of_nodes()))
         return self.G
-
-    def findTargetLocation(self,road):
-        mycurs = self.conn.cursor()
-        targetRoad=0
-
-        #TODO imput radius selection options - distance
-        searchRadius=40000 #fixed search radius for target
-        roadDistance=400 
-        maxRadius=searchRadius*1.025
-        minRadius=searchRadius*0.925
-
-        while targetRoad==0:
-            mycurs.execute("""select road_gid,t_dist from (
-                select road.gid as road_gid,ST_Distance(ST_Centroid(road.geom), ftus_coord) as t_dist from open.nyc_road_proj_final as road, ( 
-                select location_id,distance,ftus_coord from (
-                    select location_id,ST_distance(ftus_coord,(
-                        select ST_centroid(geom) from open.nyc_road_proj_final where gid={0})) as distance, ftus_coord from open.nyc_fs_venue_location) as foo 
-                where distance between {1} and {2} limit 2) as rd_table ) as bar 
-                where t_dist < {3} order by t_dist asc limit 1""".format(road,minRadius,maxRadius,searchRadius))
-            roadId=mycurs.fetchone() #returns tuple with first row (unordered list)
-            if not roadId is None:
-                targetRoad=roadId[0]
-                #print("roadid in target: {0}".format(roadId[0]))
-                return (targetRoad)
-            searchRadius=searchRadius/10
-
-    def powerRadius(self, mu, dmin, dmax):
-        beta=1+mu
-        pmax = math.pow(dmin, -beta)
-        pmin = math.pow(dmax, -beta)
-        uniformProb=np.random.uniform(pmin, pmax)
-        #levy flight: P(x) = Math.pow(x, -1.59) - find out x? given random probability within range
-        powerKm =  (1/uniformProb)*math.exp(1/beta)
-	    #levy flight gives distance in km - transform km to foot
-        powerRadius = powerKm * 3280.84
-        print ("power search radius: {0}".format(powerRadius))
-        return powerRadius
-
 
     def step(self, i, numSteps):
         """advance model by one step."""
