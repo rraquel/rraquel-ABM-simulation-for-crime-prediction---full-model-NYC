@@ -37,6 +37,11 @@ class Model(mesa.Model):
         self.startLocationType= modelCfg.getint('startLocationType')
         if self.startLocationType>1:
             self.log.critical("Starting location type is out of range {}".format(self.startLocationType))
+        
+        self.centerAttract=modelCfg.getint('centerAttract')
+        if self.startLocationType>1:
+            self.log.critical("Center attractiveness aout of range {}".format(self.centerAttract))
+
 
         #parameters for radius search
         self.staticRadius=modelCfg.getint('staticRadius')
@@ -91,7 +96,7 @@ class Model(mesa.Model):
         #TODO include start location type (to tune starting point with PLUTO info) and demographics
         for i in range(self.numAgents):
             try:
-                a=AgentX(i, self, self.radiusType, self.targetType, self.startLocationType, self.agentTravelAvg)
+                a=AgentX(i, self, self.radiusType, self.targetType, self.startLocationType, self.agentTravelAvg, self.centerAttract)
                 self.schedule.add(a)
                 self.log.info("Offender created")
             except:
@@ -144,6 +149,7 @@ class Model(mesa.Model):
             #self.G.node[line[1]]['crimesList'].add(line[3])
             roadLength+=line[2]
         self.log.debug("Found {} intersections".format(len(intersect)))
+        self.log.debug("roadlenght: {}".format(roadLength))
         #build edges with information on nodes (roads)
         # loops over each intersection in intersect[]     
         for interKey in intersect.keys():
@@ -153,7 +159,7 @@ class Model(mesa.Model):
                 for road2 in intersect[interKey]:
                     if not road==road2:
                         self.G.add_edge(road, road2)
-        self.log.debug("Length of  G: roads: {0}, intersections: {1}".format(self.G.number_of_nodes(), self.G.number_of_edges))
+        self.log.debug("Number of  G: roads: {0}, intersections: {1}".format(self.G.number_of_nodes(), self.G.number_of_edges))
         self.log.debug("Isolated roads: {0}".format(len(nx.isolates(self.G))))
         self.log.info("roadNW built, intersection size: {0}".format(len(intersect)))
         self.log.info("roadNW built, roads size: {0}".format(self.G.number_of_nodes()))
