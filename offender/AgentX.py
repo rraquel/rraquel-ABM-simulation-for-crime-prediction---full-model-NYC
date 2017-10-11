@@ -141,9 +141,11 @@ class AgentX(mesa.Agent):
                     roads=mycurs.fetchall() #returns tuple with first row (unordered list)
                     roadTuple=random.choice(roads)
                     #create list with weights
-                    weightsList=[x[2] for x in roads]
+                    weightsList=[x[1] for x in roads]
+                    print('weightsList: {}'.format(weightsList[0]))
                     #convert float to integer
                     weightsListInt = list(map(int, weightsList))
+                    print('weightsListInt: {}'.format(weightsListInt[0]))
                     roadTuplePriority=random.choices(roads, weights=weightsListInt, cum_weights=None, k=1)
                     print('weights for roads: {}'.format(roadTuplePriority))
                     roadId=roadTuple[0]
@@ -167,9 +169,10 @@ class AgentX(mesa.Agent):
                                 where not road_id is null""".format(road,maxRadius,minRadius))
                     venues=mycurs.fetchall() #returns tuple of tuples, venue_id and road_id paired
                     #print('venues in target type 1 and center ctiy: {}'.format(venues[0]))
-                    weightsList=[x[1] for x in venues]
-                    #print('wheightslist element: {}'.format(weightsList[0]))
-                    weightsListInt = list(map(int, weightsList))
+                    weightsList=[x[2] for x in venues]
+                    print('weightsList: {}'.format(weightsList[0]))
+                    weightsListInt=[int(i) for i in weightsList]
+                    self.log.debug("weightlistInt: {}".format(weightsListInt[0]))
                     venue=choices(venues, weights=weightsListInt, k=1)
                     #print('venue id: {}'.format(venue[0]))
                     venueId=venue[0][0]
@@ -205,12 +208,11 @@ class AgentX(mesa.Agent):
                     weight1=[x[2] for x in venues]
                     weight2=[x[4] for x in venues]
                     #convert decimal.Decimal to float
-                    weight2=[float(i) for i in weight2]
+                    weight2=[float(i*100) for i in weight2]
                     combinedWeights=[i*j for i,j in zip(weight1,weight2)]
-                    print('combined weights: {}'.format(combinedWeights[0]))
+                    self.log.debug('combined weights: {}'.format(combinedWeights[0]))
                     #convert float to integer
-                    weightsListInt = list(map(int, combinedWeights))
-                    print('venue weights list : {}'.format(weightsListInt[0]))
+                    #weightsListInt = list(map(int, combinedWeights))
                     venue=choices(venues, weights=combinedWeights, k=1)
                     print('venue: {}'.format(venue))
                     venueId=venue[0][0]
@@ -234,7 +236,7 @@ class AgentX(mesa.Agent):
                     weightsList=[x[1] for x in venues]
                     #convert float to integer
                     weightsListInt = list(map(int, weightsList))
-                    #print('venue weights list : {}'.format(weightsList[0]))
+                    print('venue weights list : {}'.format(weightsList[0]))
                     print('venue weights list : {}'.format(weightsListInt[0]))
                     venue=choices(venues, weights=weightsListInt, k=1)
                     print('venue: {}'.format(venue))

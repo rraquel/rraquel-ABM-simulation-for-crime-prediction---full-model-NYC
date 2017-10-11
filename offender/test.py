@@ -3,7 +3,10 @@ import random
 import sys, psycopg2, os, time, random, logging
 import networkx as nx
 from random import choices
-from pandas import DataFrame
+import pandas as pd
+import numpy as np
+import pylab as pl
+
 
 
 
@@ -61,20 +64,29 @@ def createRoadNetwork():
                         G.add_edge(road, road2)
         return G
 
-print('start')
-totalCrimes=0
-count=100
-Resultingweights=[]
-ResultingVenues=[]
-conn=connectDB()
-curs = conn.cursor()
+def venues_checkin():
+    curs.execute("""select venue_id,road_id, weight_center from (
+                            select venue_id,weight_center from open.nyc_fs_venue_join_weight_to_center WHERE st_dwithin( (
+                                select geom from open.nyc_road_proj_final where gid={0}) ,ftus_coord, {1})
+                                and not st_dwithin( (
+                                    select geom from open.nyc_road_proj_final where gid={0}) ,ftus_coord, {2}))
+                                    as fs left join open.nyc_road2fs_80ft r2f on r2f.location_id=fs.venue_id 
+                                    where not road_id is null""".format(7,41000,40000))
+    venues=curs.fetchall() #returns tuple of tuples, venue_id and road_id paired
+    #print('venues in target type 1 and center ctiy: {}'.format(venues[0]))
+    weightsList=[x[2] for x in venues]
+    #print('wheightslist element: {}'.format(weightsList[0]))
+    weightsListInt = list(map(int, weightsList))
+    #print('weightlist: {}'.format(weightsListInt))
+    venue=choices(venues, weights=weightsListInt, k=1)
+    #print('venue id: {}'.format(venue[0]))
+    venueId=venue[0][0]
+    roadId=venue[0][1]
+    weight=venue[0][2]
+    #print('venue checkin: {}'.format(weight))
+    return [venueId,weight]
 
-G=createRoadNetwork()
-print('start')
-
-while count is not 0:
-    road=random.sample(G.nodes(),1)[0]
-    count-=1
+def venues_combinedWeights():
     curs.execute("""SELECT venue_id, road_id, weight_center, checkins_count, weighted_checkins FROM(
     SELECT venue_id, weight_center, checkins_count,(checkins_count * 100.0)/temp.total_checkins as weighted_checkins
     from (SELECT COUNT(venue_id)as total_venues, SUM(checkins_count) as total_checkins FROM open.nyc_fs_venue_join
@@ -84,24 +96,56 @@ while count is not 0:
     where st_dwithin((select geom from open.nyc_road_proj_final where gid={0}),ftus_coord, {1})
     and not st_dwithin((select geom from open.nyc_road_proj_final where gid={0}),ftus_coord, {2}))
     AS fs LEFT JOIN open.nyc_road2fs_80ft r2f on r2f.location_id=fs.venue_id WHERE NOT road_id is null"""
-    .format(road,41000,40000))
+    .format(7,41000,40000))
     venues=curs.fetchall() #returns tuple of tuples, venue_id,weighted_checkins
     #venueId=random.choice(venues) #selects a random element of the tuple
     #for random.choices weights= need a list of the weights - therefore convert weights to list using list comprehension
     weight1=[x[2] for x in venues]
+    weight1Int=[int(i*100000) for i in weight1]
     weight2=[x[4] for x in venues]
+    weight2Int=[int(i*100000) for i in weight2]
     #convert decimal.Decimal to float
     weight2=[float(i) for i in weight2]
-    combinedWeights=[i*j for i,j in zip(weight1,weight2)]
-    #print('combined weights: {}'.format(combinedWeights[0]))
+    combinedWeights=[int(i*j*100000) for i,j in zip(weight1,weight2)]
+    print('combined weights: {}'.format(combinedWeights[0]))
     #convert float to integer
-    #weightsListInt = list(map(int, combinedWeights))
+    #combinedWeightsInt = list(map(int, combinedWeights))
     venue=choices(venues, weights=combinedWeights, k=1)
-    #print('venue: {}'.format(venue))
+    print('venue combined: {}'.format(venue))
     venueId=venue[0][0]
-    roadId=venue[0][1]
-    ResultingVenues.append(venue[0])
-    Resultingweights.append(combinedWeights)
-df = DataFrame({'weights list': Resultingweights, 'Resulting venues': ResultingVenues})
-df.to_excel('test.xlsx', sheet_name='sheet1', index=False)
+    return venueId
+
+print('start')
+totalCrimes=0
+count=1000
+weightsListInt=[]
+resultingweights=[]
+resultingVenues=[]
+resultingWeightCenter=[]
+resultingWeightedCheckin=[]
+conn=connectDB()
+curs = conn.cursor()
+
+G=createRoadNetwork()
+print('start')
+
+while count is not 0:
+    #road=random.sample(G.nodes(),1)[0]
+    count-=1
+    venue=venues_checkin()
+    venueId=venue[0]
+    weight=venue[1]
+    resultingVenues.append(venueId)
+    resultingweights.append(weight)
+
+#pl.hist(resultingVenues)
+pl.hist(resultingweights)
+pl.show() 
+ 
+"""
+df =pd.DataFrame({'weights list': Resultingweights, 'Resulting venues': ResultingVenues})
+writer=pd.ExcelWriter('test.xlsx', engine='xlsxwriter')
+df.to_excel(writer, sheet_name='sheet1', index=False)
+writer.save()
 print('resulting weights: {}'.format(Resultingweights))
+"""
