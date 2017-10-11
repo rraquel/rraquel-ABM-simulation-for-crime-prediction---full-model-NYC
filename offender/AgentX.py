@@ -202,23 +202,16 @@ class AgentX(mesa.Agent):
                     venues=mycurs.fetchall() #returns tuple of tuples, venue_id,weighted_checkins
                     #venueId=random.choice(venues) #selects a random element of the tuple
                     #for random.choices weights= need a list of the weights - therefore convert weights to list using list comprehension
-                    weightsList=[x[1] for x in venues]
                     weight1=[x[2] for x in venues]
                     weight2=[x[4] for x in venues]
-                    print('weight 1: {}'.format(type(weight1)))
-                    print('weight 2: {}'.format(type(weight2)))
                     #convert decimal.Decimal to float
                     weight2=[float(i) for i in weight2]
-
-
-                    #TODO: Doesn't work
-                    weightTotal=[[x*1.0*weight1 for x in y]for y in weight2*1.0]
-                    print('weight total: {}'.format(weightTotal[1]))
+                    combinedWeights=[i*j for i,j in zip(weight1,weight2)]
+                    print('combined weights: {}'.format(combinedWeights[0]))
                     #convert float to integer
-                    weightsListInt = list(map(int, weightsList))
-                    #print('venue weights list : {}'.format(weightsList[0]))
+                    weightsListInt = list(map(int, combinedWeights))
                     print('venue weights list : {}'.format(weightsListInt[0]))
-                    venue=choices(venues, weights=weightsListInt, k=1)
+                    venue=choices(venues, weights=combinedWeights, k=1)
                     print('venue: {}'.format(venue))
                     venueId=venue[0][0]
                     roadId=venue[0][1]
