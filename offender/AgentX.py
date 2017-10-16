@@ -8,10 +8,7 @@ import networkx as nx
 import numpy as np
 import math
 import sys, psycopg2, os, time, random, logging
-#from random import choices
 from operator import itemgetter
-
-#TODO allow targettype 2 with choices!!!!!!!!
 
 class AgentX(mesa.Agent):
     """an Agent moving"""
@@ -143,14 +140,18 @@ class AgentX(mesa.Agent):
                     roads=mycurs.fetchall() #returns tuple with first row (unordered list)
                     roadTuple=random.choice(roads)
                     #create list with weights
+                    roadsList=[x[0] for x in roads]
                     weightsList=[x[1] for x in roads]
-                    print('weightsList: {}'.format(weightsList[0]))
-                    #convert float to integer
-                    weightsListInt = list(map(int, weightsList))
-                    print('weightsListInt: {}'.format(weightsListInt[0]))
-                    roadTuplePriority=random.choices(roads, weights=weightsListInt, cum_weights=None, k=1)
-                    print('weights for roads: {}'.format(roadTuplePriority))
-                    roadId=roadTuple[0]
+                    pWeightList=[]
+                    sumWeightList=sum(weightsList)
+                    for value in weightsList:
+                        pWeightList.append(value/sumWeightList)
+                    self.log.debug('weightlist p sum: {}'.format(sum(pWeightList)))
+                    roadIdNp=np.random.choice(roadsList, 1, True, pWeightList)
+                    print(roadIdNp)
+                    roadId=roadIdNp[0]
+                    print(type(roadId))
+                    print('initial road: {0}, target road id: {1}'.format(road, roadId))
                 else:
                     mycurs.execute("""select gid from (
                         select gid,weight_center,geom from open.nyc_road_weight_to_center where st_dwithin(
@@ -164,22 +165,27 @@ class AgentX(mesa.Agent):
                 if self.centerAttract is 1:
                     mycurs.execute("""select venue_id,road_id, weight_center from (
                         select venue_id,weight_center from open.nyc_fs_venue_join_weight_to_center WHERE st_dwithin( (
-                            select geom from open.nyc_road_proj_final where gid={0}) ,ftus_coord, {1})
-                            and not st_dwithin( (
-                                select geom from open.nyc_road_proj_final where gid={0}) ,ftus_coord, {2}))
-                                as fs left join open.nyc_road2fs_80ft r2f on r2f.location_id=fs.venue_id 
-                                where not road_id is null""".format(road,maxRadius,minRadius))
+                        select geom from open.nyc_road_proj_final where gid={0}) ,ftus_coord, {1})
+                        and not st_dwithin( (
+                        select geom from open.nyc_road_proj_final where gid={0}) ,ftus_coord, {2}))
+                        as fs left join open.nyc_road2fs_80ft r2f on r2f.location_id=fs.venue_id 
+                        where not road_id is null""".format(road,maxRadius,minRadius))
                     venues=mycurs.fetchall() #returns tuple of tuples, venue_id and road_id paired
                     #print('venues in target type 1 and center ctiy: {}'.format(venues[0]))
+                    venuesList=[x[0] for x in venues]
+                    roadsList=[x[1] for x in venues]
                     weightsList=[x[2] for x in venues]
                     print('weightsList: {}'.format(weightsList[0]))
-                    weightsListInt=[int(i) for i in weightsList]
-                    self.log.debug("weightlistInt: {}".format(weightsListInt[0]))
-                    venue=choices(venues, weights=weightsListInt, k=1)
-                    #print('venue id: {}'.format(venue[0]))
-                    venueId=venue[0][0]
-                    roadId=venue[0][1]
-                    self.log.debug('venueID: {0}, roadId: {1}, Tuple: {2}'.format(venueId,roadId,venue[0]))           
+                    pWeightList=[]
+                    sumWeightList=sum(weightsList)
+                    for value in weightsList:
+                        pWeightList.append(value/sumWeightList)
+                    print('p weightlist: {}'.format(pWeightList[0]))
+                    self.log.debug('weightlist p sum: {}'.format(sum(pWeightList)))
+                    roadIdNp=np.random.choice(roadsList, 1, True, pWeightList)
+                    roadId=roadIdNp[0]
+                    #TODO how to find venue for roadId in venues tuple- without SQL query
+                    print('venue id: {}'.format(venueId))      
                 else:
                     mycurs.execute("""select venue_id,road_id from (
                         select venue_id from open.nyc_fs_venue_join where st_dwithin( (
@@ -193,7 +199,6 @@ class AgentX(mesa.Agent):
                     self.log.debug("venue ID element: {}".format(venueId))
                     roadId=venueId[1] #selects the road_id from the chosen tuple
             elif self.targetType is 2:
-<<<<<<< HEAD
                 if self.centerAttract is 1:
                     mycurs.execute("""SELECT venue_id, road_id, weight_center, checkins_count, weighted_checkins FROM(
                     SELECT venue_id, weight_center, checkins_count,(checkins_count * 100.0)/temp.total_checkins as weighted_checkins
@@ -210,16 +215,19 @@ class AgentX(mesa.Agent):
                     #for random.choices weights= need a list of the weights - therefore convert weights to list using list comprehension
                     weight1=[x[2] for x in venues]
                     weight2=[x[4] for x in venues]
+                    roadsList=[x[1] for x in venues]
                     #convert decimal.Decimal to float
                     weight2=[float(i*100) for i in weight2]
                     combinedWeights=[i*j for i,j in zip(weight1,weight2)]
                     self.log.debug('combined weights: {}'.format(combinedWeights[0]))
-                    #convert float to integer
-                    #weightsListInt = list(map(int, combinedWeights))
-                    venue=choices(venues, weights=combinedWeights, k=1)
-                    print('venue: {}'.format(venue))
-                    venueId=venue[0][0]
-                    roadId=venue[0][1]
+                    pWeightList=[]
+                    sumWeightList=sum(combinedWeights)
+                    for value in combinedWeights:
+                        pWeightList.append(value/sumWeightList)
+                    print('p weightlist: {}'.format(pWeightList[0]))
+                    self.log.debug('weightlist p sum: {}'.format(sum(pWeightList)))
+                    roadIdNp=np.random.choice(roadsList, 1, True, pWeightList)
+                    roadId=roadIdNp[0]
                     #self.log.debug('roadId from popular venues: {0} with type: {1}'.format(roadId, type(roadId)))
                 else:
                     #TODO until venues mapping is cleared !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -246,47 +254,6 @@ class AgentX(mesa.Agent):
                     venueId=venue[0][0]
                     roadId=venue[0][1]
                     #self.log.debug('roadId from popular venues: {0} with type: {1}'.format(roadId, type(roadId)))
-=======
-                #TODO until venues mapping is cleared !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                roadId=None
-                count2=0
-                #orders query result by checkis_count
-                mycurs.execute("""SELECT venue_id, road_id, checkins_count, weighted_checkins FROM(
-                SELECT venue_id, checkins_count,(checkins_count * 100.0)/temp.total_checkins as weighted_checkins
-                from (SELECT COUNT(venue_id)as total_venues, SUM(checkins_count) as total_checkins FROM open.nyc_fs_venue_join
-                where st_dwithin((select geom from open.nyc_road_proj_final where gid={0}),ftus_coord, {1})
-                and not st_dwithin((select geom from open.nyc_road_proj_final where gid={0}),ftus_coord, {2})
-                ) as temp, open.nyc_fs_venue_join
-                where st_dwithin((select geom from open.nyc_road_proj_final where gid={0}),ftus_coord, {1})
-                and not st_dwithin((select geom from open.nyc_road_proj_final where gid={0}),ftus_coord, {2}))
-                AS fs LEFT JOIN open.nyc_road2fs_80ft r2f on r2f.location_id=fs.venue_id WHERE NOT road_id is null"""
-                .format(road,maxRadius,minRadius))
-                venues=mycurs.fetchall() #returns tuple of tuples, venue_id,weighted_checkins
-                # can add - but may take up more time: order by weighted_checkins desc
-                #print("venues in priority: {}".format(venues[(len(venues))-1]))
-                #venuesSort=sorted(venues, key=itemgetter(2))
-                #print("venues in priority: {}".format(venuesSort[0]))
-                #venueId=random.choice(venues) #selects a random element of the tuple
-                #for random.choices weights= need a list of the weights - therefore convert weights to list using list comprehension
-                weightsList=[x[1] for x in venues]
-                #convert float to integer
-                weightsListInt = list(map(int, weightsList))
-                #print('venue weights list : {}'.format(weightsList[0]))
-                #print('venue weights list : {}'.format(weightsListInt[0]))
-                #venue=choices(venues, weights=weightsListInt, cum_weights=None, k=1)
-                venue=302300
-                #print('venue id: {}'.format(type(venue)))
-                #print('venue id: {}'.format(venue[0][0]))
-                mycurs.execute("""SELECT road_id, venue_id FROM (SELECT venue_id FROM open.nyc_fs_venue_join WHERE venue_id={0})
-                AS fs LEFT JOIN open.nyc_road2fs_80ft r2f ON r2f.location_id=fs.venue_id"""
-                .format(venue[0][0])
-                )
-                roadIds=mycurs.fetchall()
-                #print('fetchall type roadId from popular venues: {}'.format(type(roadIds)))
-                roadIdTuple=random.choice(roadIds) #selects the road_id from the possible roads for the venue - it is a list (one element only) of tuples (road_id - venue_id)
-                roadId=roadIdTuple[0]
-                #print('roadId from popular venues: {0} with type: {1}'.format(roadId, type(roadId)))
->>>>>>> d6ede3d1de52fe48a09747ef0a663ebe2d0511ac
             if not roadId is None:
                 targetRoad=roadId
                 #print("roadid in target: {0}".format(roadId[0]))
@@ -304,7 +271,7 @@ class AgentX(mesa.Agent):
                 self.walkedDistance += self.model.G.node[road]['length']
                 self.seenCrimes += self.model.G.node[road]['num_crimes']
                 self.walkedRoads +=1
-                self.crimesUnique = self.model.G.node[road]['crimesList']
+                #self.crimesUnique = self.model.G.node[road]['crimesList']
         except Exception as e:
             print ("Error: One agent found no way: ",e,self.unique_id)
             self.log.critical("Error: One agent found no way: ",e,self.unique_id)

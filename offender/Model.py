@@ -145,8 +145,9 @@ class Model(mesa.Model):
             #self.G.add_node(line[1], length=line[2], num_crimes=line[3])
             # TODO Parameter: Assumptions Humans walk 300 feet in 60s
             self.G.add_node(line[1],length=line[2],num_crimes=line[3],crimesList=set())
-            #self.G.node[line[1]]['crimesList'].add(line[3])
-            roadLength+=line[2]
+            self.G.node[line[1]]['crimesList'].add(line[3])
+        #for r in self.G.nodes_iter():
+            #roadLength+=self.G.node[r]['length']
         self.log.debug("Found {} intersections".format(len(intersect)))
         self.log.debug("roadlenght: {}".format(roadLength))
         #build edges with information on nodes (roads)
