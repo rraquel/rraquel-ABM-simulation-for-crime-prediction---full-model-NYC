@@ -50,13 +50,13 @@ def stepModel():
     i=0
     for i in range(config.getint('general','numSteps', fallback=1)):
         model.step(i, config.getint('general','numSteps'))
-       self.log.debug("=> step {0} performed".format(i))
+        log.debug("=> step {0} performed".format(i))
     #statistics collection and data output
     #get data as pandas data frame
     agent_df = model.dc.get_agent_vars_dataframe()
     model_df = model.dc.get_model_vars_dataframe()
     writeExcel(agent_df,model_df)
-    self.log.debug(agent_df)
+    log.debug(agent_df)
     log.info('Global stats: \n{}'.format(model_df.tail()))
 
 #Batchrunner
@@ -74,13 +74,13 @@ model=""
 config=""
 
 log=logging.getLogger('')
-logging.basicConfig(stream=sys.stdout, level=logging.CRITICAL)
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 readConfig()
 log.info("Config read")
-self.log.CRITICAL('start')
+print('start')
 createModel()
-self.log.CRITICAL('model created')
+print('model created')
 stepModel()
 
-self.log.CRITICAL("end")
+print("end")
