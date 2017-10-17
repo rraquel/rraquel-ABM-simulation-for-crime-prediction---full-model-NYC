@@ -24,7 +24,7 @@ class AgentX(mesa.Agent):
             self.agentTravelTripList=[self.agentTravelTrip]
         else:
             self.agentTravelTrip=0
-        print('new uniform trip travel distribution value: {}'.format(self.agentTravelTrip))
+        self.log.debug('new uniform trip travel distribution value: {}'.format(self.agentTravelTrip))
         self.tripCount=0
         self.newStart=0
 
@@ -104,7 +104,7 @@ class AgentX(mesa.Agent):
         starts = mycurs.fetchall()
         startRoadTuple=random.choice(starts)
         startRoad=startRoadTuple[0]
-        print('start road in PLUTO: {}'.format(startRoad))
+        self.log.debug('start road in PLUTO: {}'.format(startRoad))
         return startRoad
 
     def resetAgent(self):
@@ -148,10 +148,7 @@ class AgentX(mesa.Agent):
                         pWeightList.append(value/sumWeightList)
                     self.log.debug('weightlist p sum: {}'.format(sum(pWeightList)))
                     roadIdNp=np.random.choice(roadsList, 1, True, pWeightList)
-                    print(roadIdNp)
                     roadId=roadIdNp[0]
-                    print(type(roadId))
-                    print('initial road: {0}, target road id: {1}'.format(road, roadId))
                 else:
                     mycurs.execute("""select gid from (
                         select gid,weight_center,geom from open.nyc_road_weight_to_center where st_dwithin(
@@ -175,12 +172,10 @@ class AgentX(mesa.Agent):
                     venuesList=[x[0] for x in venues]
                     roadsList=[x[1] for x in venues]
                     weightsList=[x[2] for x in venues]
-                    print('weightsList: {}'.format(weightsList[0]))
                     pWeightList=[]
                     sumWeightList=sum(weightsList)
                     for value in weightsList:
                         pWeightList.append(value/sumWeightList)
-                    print('p weightlist: {}'.format(pWeightList[0]))
                     self.log.debug('weightlist p sum: {}'.format(sum(pWeightList)))
                     roadIdNp=np.random.choice(roadsList, 1, True, pWeightList)
                     roadId=roadIdNp[0]
@@ -223,7 +218,6 @@ class AgentX(mesa.Agent):
                     sumWeightList=sum(combinedWeights)
                     for value in combinedWeights:
                         pWeightList.append(value/sumWeightList)
-                    print('p weightlist: {}'.format(pWeightList[0]))
                     self.log.debug('weightlist p sum: {}'.format(sum(pWeightList)))
                     roadIdNp=np.random.choice(roadsList, 1, True, pWeightList)
                     roadId=roadIdNp[0]
@@ -246,10 +240,7 @@ class AgentX(mesa.Agent):
                     weightsList=[x[1] for x in venues]
                     #convert float to integer
                     weightsListInt = list(map(int, weightsList))
-                    print('venue weights list : {}'.format(weightsList[0]))
-                    print('venue weights list : {}'.format(weightsListInt[0]))
                     venue=choices(venues, weights=weightsListInt, k=1)
-                    print('venue: {}'.format(venue))
                     venueId=venue[0][0]
                     roadId=venue[0][1]
                     #self.log.debug('roadId from popular venues: {0} with type: {1}'.format(roadId, type(roadId)))
@@ -271,7 +262,7 @@ class AgentX(mesa.Agent):
                 self.seenCrimes += self.model.G.node[road]['num_crimes']
                 self.walkedRoads +=1
         except Exception as e:
-            print ("Error: One agent found no way: ",e,self.unique_id)
+            self.log.warning("Error: One agent found no way: ",e,self.unique_id)
             self.log.critical("Error: One agent found no way: ",e,self.unique_id)
             self.way=[self.road,targetRoad]
         
