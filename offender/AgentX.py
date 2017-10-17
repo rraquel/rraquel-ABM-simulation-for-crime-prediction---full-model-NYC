@@ -185,7 +185,6 @@ class AgentX(mesa.Agent):
                     roadIdNp=np.random.choice(roadsList, 1, True, pWeightList)
                     roadId=roadIdNp[0]
                     #TODO how to find venue for roadId in venues tuple- without SQL query
-                    print('venue id: {}'.format(venueId))      
                 else:
                     mycurs.execute("""select venue_id,road_id from (
                         select venue_id from open.nyc_fs_venue_join where st_dwithin( (
@@ -271,7 +270,6 @@ class AgentX(mesa.Agent):
                 self.walkedDistance += self.model.G.node[road]['length']
                 self.seenCrimes += self.model.G.node[road]['num_crimes']
                 self.walkedRoads +=1
-                #self.crimesUnique = self.model.G.node[road]['crimesList']
         except Exception as e:
             print ("Error: One agent found no way: ",e,self.unique_id)
             self.log.critical("Error: One agent found no way: ",e,self.unique_id)
