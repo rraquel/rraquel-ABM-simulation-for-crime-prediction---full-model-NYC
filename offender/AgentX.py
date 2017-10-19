@@ -71,6 +71,13 @@ class AgentX(mesa.Agent):
 
         #statistics
         self.crimes=Counter()
+        self.crimesBurglary=Counter()
+        self.crimesRobbery=Counter()
+        self.crimesLarceny=Counter()
+        self.crimesAssault=Counter()
+        self.crimesLarcenymotor=Counter()
+        self.crimesRape=Counter()
+
         self.uniqueCrimes=0
         self.cummCrimes=0
         self.walkedDistance=0 #distance walked in total
@@ -231,10 +238,29 @@ class AgentX(mesa.Agent):
                 self.log.debug('radius enlarge count: {}'.format(count))
             return targetRoad
     
-    def crimesOnRoad (self, road):
+    def crimesOnRoad (self, road, type):
         mycurs = self.conn.cursor()
-        mycurs.execute("""SELECT object_id from open.nyc_road2police_incident_5ft WHERE road_id ={}"""
-        .format(road))
+        if type is 0:
+            mycurs.execute("""SELECT object_id from open.nyc_road2police_incident_5ft WHERE road_id ={}"""
+            .format(road))
+        if type is 1:
+            mycurs.execute("""SELECT object_id from open.nyc_road2police_incident_5ft_BURGLARY WHERE road_id ={}"""
+            .format(road))
+        elif type is 2:
+            mycurs.execute("""SELECT object_id from open.nyc_road2police_incident_5ft_ROBBERY WHERE road_id ={}"""
+            .format(road))
+        elif type is 3:
+            mycurs.execute("""SELECT object_id from open.nyc_road2police_incident_5ft_LARCENY WHERE road_id ={}"""
+            .format(road))
+        elif type is 4:
+            mycurs.execute("""SELECT object_id from open.nyc_road2police_incident_5ft_ASSAULT WHERE road_id ={}"""
+            .format(road))
+        elif type is 5:
+            mycurs.execute("""SELECT object_id from open.nyc_road2police_incident_5ft_LARCENY_MOTOR WHERE road_id ={}"""
+            .format(road))
+        elif type is 6:
+            mycurs.execute("""SELECT object_id from open.nyc_road2police_incident_5ft_RAPE WHERE road_id ={}"""
+            .format(road))
         crimes=mycurs.fetchall()
         crimes2=[]
         for crime in crimes:
@@ -250,10 +276,15 @@ class AgentX(mesa.Agent):
             #print("Agent ({0}) way: {1}".format(self.unique_id,self.way))
             for road in self.way:
                 self.walkedDistance += self.model.G.node[road]['length']
-                crimes=Counter(self.crimesOnRoad(road))
-                self.crimes=self.crimes +crimes
-                #self.cummCrimes = [item for sublist in self.cummCrimes for item in sublist]
-                #counter=Counter(self.cummCrimes) 
+                #crimes=Counter(self.crimesOnRoad(road, 0)
+                self.crimes+= +Counter(self.crimesOnRoad(road, 0))
+                self.crimesBurglary+=Counter(self.crimesOnRoad(road, 1))
+                self.crimesRobbery+=Counter(self.crimesOnRoad(road, 2))
+                self.crimesLarceny+=Counter(self.crimesOnRoad(road, 3))
+                self.crimesAssault+=Counter(self.crimesOnRoad(road, 4))
+                self.crimesLarcenymotor+=Counter(self.crimesOnRoad(road, 5))
+                self.crimesRape+=Counter(self.crimesOnRoad(road, 6))
+                print('rape: {}'.format(self.Rape))
                 self.walkedRoads +=1
         except Exception as e:
             self.log.warning("Error: One agent found no way: agent id {0}, startRoad: {1}, targetRoad {2} ".format(self.unique_id, self.startRoad, targetRoad))

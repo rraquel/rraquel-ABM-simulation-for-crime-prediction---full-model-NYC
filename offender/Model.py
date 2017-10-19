@@ -76,6 +76,20 @@ class Model(mesa.Model):
             "traveledRoads": lambda m: sum(map(lambda a: a.walkedRoads,m.schedule.agents)),
             "cummCrimes": lambda m: sum(map(lambda a: a.cummCrimes,m.schedule.agents)),
             "uniqueCrimes": lambda m: sum(map(lambda a: a.uniqueCrimes,m.schedule.agents)),
+
+            "BurglaryCumm": lambda m: sum(map(lambda a: sum(a.crimesBurglary.values()),m.schedule.agents)),
+            "BurglaryUniq": lambda m: sum(map(lambda a: len(list(a.crimesBurglary)),m.schedule.agents)),
+            "RobberyCumm": lambda m: sum(map(lambda a: sum(a.crimesRobbery.values()),m.schedule.agents)),
+            "RobberyUniq": lambda m: sum(map(lambda a: len(list(a.crimesRobbery)),m.schedule.agents)),
+            "LarcenyCumm": lambda m: sum(map(lambda a: sum(a.crimesLarceny.values()),m.schedule.agents)),
+            "LarcenyUniq": lambda m: sum(map(lambda a: len(list(a.crimesLarceny)),m.schedule.agents)),
+            "LarcenyMotorCumm": lambda m: sum(map(lambda a: sum(a.crimesLarcenymotor.values()),m.schedule.agents)),
+            "LarcenyMotorUnique": lambda m: sum(map(lambda a: len(list(a.crimesLarcenymotor)),m.schedule.agents)),       
+            "AssaultCumm": lambda m: sum(map(lambda a: sum(a.crimesAssault.values()),m.schedule.agents)),
+            "AssaultUnique": lambda m: sum(map(lambda a: len(list(a.crimesAssault)),m.schedule.agents)),
+            "RapeCumm": lambda m: sum(map(lambda a: sum(a.crimesRape.values()),m.schedule.agents)),
+            "RapeUnique": lambda m: sum(map(lambda a: len(list(a.crimesRape)),m.schedule.agents)),
+
             "avgSearchRadius": lambda m: sum(map(lambda a: a.searchRadius,m.schedule.agents)),
             "cummPai": lambda m: (((sum(map(lambda a: (a.uniqueCrimes),m.schedule.agents)))/m.totalCrimes)/(sum(map(lambda a: (a.walkedDistance+1),m.schedule.agents)))/40986771) if m.modelStepCount is (m.generalNumSteps-1) else 0,
             "uniquePai2": lambda m: (((sum(map(lambda a: (a.cummCrimes),m.schedule.agents)))/m.totalCrimes)/(sum(map(lambda a: (a.walkedDistance+1),m.schedule.agents)))/40986771) if m.modelStepCount is (m.generalNumSteps-1) else 0
