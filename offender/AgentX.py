@@ -187,7 +187,7 @@ class AgentX(mesa.Agent):
                         select geom from open.nyc_road_proj_final where gid={0}) ,ftus_coord, {1})
                         and not st_dwithin( (
                         select geom from open.nyc_road_proj_final where gid={0}) ,ftus_coord, {2}))
-                        as fs left join open.nyc_road2fs_80ft r2f on r2f.location_id=fs.venue_id 
+                        as fs left join open.nyc_road2fs_near2 r2f on r2f.fs_id=fs.venue_id 
                         where not road_id is null""".format(road,maxRadius,minRadius))
                     roads=mycurs.fetchall() #returns tuple of tuples, venue_id and road_id paired
                 else:
@@ -277,14 +277,13 @@ class AgentX(mesa.Agent):
             for road in self.way:
                 self.walkedDistance += self.model.G.node[road]['length']
                 #crimes=Counter(self.crimesOnRoad(road, 0)
-                self.crimes+= +Counter(self.crimesOnRoad(road, 0))
+                self.crimes+=Counter(self.crimesOnRoad(road, 0))
                 self.crimesBurglary+=Counter(self.crimesOnRoad(road, 1))
                 self.crimesRobbery+=Counter(self.crimesOnRoad(road, 2))
                 self.crimesLarceny+=Counter(self.crimesOnRoad(road, 3))
                 self.crimesAssault+=Counter(self.crimesOnRoad(road, 4))
                 self.crimesLarcenymotor+=Counter(self.crimesOnRoad(road, 5))
                 self.crimesRape+=Counter(self.crimesOnRoad(road, 6))
-                print('rape: {}'.format(self.Rape))
                 self.walkedRoads +=1
         except Exception as e:
             self.log.warning("Error: One agent found no way: agent id {0}, startRoad: {1}, targetRoad {2} ".format(self.unique_id, self.startRoad, targetRoad))
