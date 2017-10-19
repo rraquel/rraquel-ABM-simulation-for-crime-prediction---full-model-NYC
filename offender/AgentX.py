@@ -9,6 +9,7 @@ import numpy as np
 import math
 import sys, psycopg2, os, time, random, logging
 from operator import itemgetter
+from collections import Counter
 
 class AgentX(mesa.Agent):
     """an Agent moving"""
@@ -69,9 +70,10 @@ class AgentX(mesa.Agent):
         self.targetType=targetType
 
         #statistics
-        self.seenCrimes=0 #historic crimes passed on path
+        self.crimes=Counter()
+        self.uniqueCrimes=0
+        self.cummCrimes=0
         self.walkedDistance=0 #distance walked in total
-        self.crimesUnique = set() # List of seen crimes (ids)
         #TODO create array with initial position and all targets?
         self.walkedRoads=0 
         
@@ -228,7 +230,18 @@ class AgentX(mesa.Agent):
             if count>1:
                 self.log.debug('radius enlarge count: {}'.format(count))
             return targetRoad
-        
+    
+    def crimesOnRoad (self, road):
+        mycurs = self.conn.cursor()
+        mycurs.execute("""SELECT object_id from open.nyc_road2police_incident_5ft WHERE road_id ={}"""
+        .format(road))
+        crimes=mycurs.fetchall()
+        crimes2=[]
+        for crime in crimes:
+            crimes2.append(crime[0])
+        #self.log.debug('crimes2: {0}, length: {1}'.format(crimes2, len(crimes2)))
+        return crimes2
+
     def findMyWay(self, targetRoad):
         self.log.debug('search radius: {}'.format(self.searchRadius))
         try:
@@ -237,7 +250,10 @@ class AgentX(mesa.Agent):
             #print("Agent ({0}) way: {1}".format(self.unique_id,self.way))
             for road in self.way:
                 self.walkedDistance += self.model.G.node[road]['length']
-                self.seenCrimes += self.model.G.node[road]['num_crimes']
+                crimes=Counter(self.crimesOnRoad(road))
+                self.crimes=self.crimes +crimes
+                #self.cummCrimes = [item for sublist in self.cummCrimes for item in sublist]
+                #counter=Counter(self.cummCrimes) 
                 self.walkedRoads +=1
         except Exception as e:
             self.log.warning("Error: One agent found no way: agent id {0}, startRoad: {1}, targetRoad {2} ".format(self.unique_id, self.startRoad, targetRoad))
@@ -294,5 +310,7 @@ class AgentX(mesa.Agent):
             self.log.info("agent {0}, trip count: {1}, trip avg: {2}, number of trips: {3}".format(self.unique_id, self.tripCount, self.agentTravelAvg, self.agentTravelTrip))
             self.findMyWay(targetRoad)
         self.road=targetRoad
+        self.cummCrimes=sum(self.crimes.values())
+        self.uniqueCrimes=len(list(self.crimes))
         self.log.info("agent {0}, target road list by road_id {1}".format(self.unique_id, self.targetRoadList))
         self.log.info("step done for agent {0}".format(self.unique_id))

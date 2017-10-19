@@ -57,8 +57,9 @@ class Model(mesa.Model):
                     
         #self.agentStartLocationFinder=modelCfg.get('agentStartLocationFinder', findStartLocationRandom)
         self.schedule=RandomActivation(self)
-        
-        self.totalCrimes=0
+
+
+        self.totalCrimes=self.totalCrimes()
 
         self.log.info("Generating Model")
 
@@ -71,19 +72,20 @@ class Model(mesa.Model):
             "targetType": lambda m: m.targetType,
             "totalCrimes": lambda m: m.totalCrimes, 
             #is this the average seen crimes over all the agents?
-            "totalpassedCrimes": lambda m: sum(map(lambda a: a.seenCrimes,m.schedule.agents)),
             "totaltraveledDistance": lambda m: sum(map(lambda a: a.walkedDistance,m.schedule.agents)),
             "traveledRoads": lambda m: sum(map(lambda a: a.walkedRoads,m.schedule.agents)),
+            "cummCrimes": lambda m: sum(map(lambda a: a.cummCrimes,m.schedule.agents)),
+            "uniqueCrimes": lambda m: sum(map(lambda a: a.uniqueCrimes,m.schedule.agents)),
             "avgSearchRadius": lambda m: sum(map(lambda a: a.searchRadius,m.schedule.agents)),
-            #"pai": lambda m: (((sum(map(lambda a: (a.seenCrimes+1),m.schedule.agents)))/m.totalCrimes)/(sum(map(lambda a: (a.walkedDistance+1),m.schedule.agents)))/40986771),
-            "pai2": lambda m: (((sum(map(lambda a: (a.seenCrimes+1),m.schedule.agents)))/m.totalCrimes)/(sum(map(lambda a: (a.walkedDistance+1),m.schedule.agents)))/40986771) if m.modelStepCount is (m.generalNumSteps-1) else 0
+            "cummPai": lambda m: (((sum(map(lambda a: (a.uniqueCrimes),m.schedule.agents)))/m.totalCrimes)/(sum(map(lambda a: (a.walkedDistance+1),m.schedule.agents)))/40986771) if m.modelStepCount is (m.generalNumSteps-1) else 0,
+            "uniquePai2": lambda m: (((sum(map(lambda a: (a.cummCrimes),m.schedule.agents)))/m.totalCrimes)/(sum(map(lambda a: (a.walkedDistance+1),m.schedule.agents)))/40986771) if m.modelStepCount is (m.generalNumSteps-1) else 0
             #"SD_distance": lambda m: (sqrt(lambda a: a.walkedDistance - (sum(map(a.walkedDistance,m.schedule.agents))/self.numAgents)))
             } ,
         agent_reporters={
             "startRoad": lambda a: a.startRoad,
-            "passedCrimes": lambda a: a.seenCrimes,
             "traveledDistance": lambda a: a.walkedDistance,
-            #"passedCrimesUnique": lambda a: a.crimesUnique,
+            "cummCrimes": lambda m:  a.cummCrimes,
+            "uniqueCrimes": lambda m: a.uniqueCrimes,
             "searchRadius": lambda a: a.searchRadius
             })
         
@@ -140,12 +142,11 @@ class Model(mesa.Model):
                 intersect[line[0]]=set()
             #add current road_id to key
             intersect[line[0]].add(line[1])
-            self.totalCrimes+=line[3]
+            
             #add road, length and crimes as node info in graph
             #self.G.add_node(line[1], length=line[2], num_crimes=line[3])
             # TODO Parameter: Assumptions Humans walk 300 feet in 60s
-            self.G.add_node(line[1],length=line[2],num_crimes=line[3],crimesList=set())
-            self.G.node[line[1]]['crimesList'].add(line[3])
+            self.G.add_node(line[1],length=line[2])
         #for r in self.G.nodes_iter():
             #roadLength+=self.G.node[r]['length']
         self.log.debug("Found {} intersections".format(len(intersect)))
@@ -161,9 +162,16 @@ class Model(mesa.Model):
                         self.G.add_edge(road, road2)
         self.log.debug("Number of  G: roads: {0}, intersections: {1}".format(self.G.number_of_nodes(), self.G.number_of_edges))
         self.log.debug("Isolated roads: {0}".format(len(nx.isolates(self.G))))
-        self.log.info("roadNW built, intersection size: {0}".format(len(intersect)))
-        self.log.info("roadNW built, roads size: {0}".format(self.G.number_of_nodes()))
+        #self.log.info("roadNW built, intersection size: {0}".format(len(intersect)))
+        #self.log.info("roadNW built, roads size: {0}".format(self.G.number_of_nodes()))
         return self.G
+
+    def totalCrimes(self):
+        self.curs.execute("""SELECT COUNT(object_id) from open.nyc_road2police_incident_5ft""")
+        crimesCount=self.curs.fetchall()
+        self.log.info("total number of crimes: {}".format(crimesCount[0][0]))
+        return crimesCount[0][0]
+
 
     def step(self, i, numSteps):
         """advance model by one step."""

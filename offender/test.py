@@ -6,7 +6,7 @@ from random import choices
 import pandas as pd
 import numpy as np
 import pylab as pl
-
+from collections import Counter
 
 
 
@@ -117,7 +117,7 @@ def venues_combinedWeights():
 
 print('start')
 totalCrimes=0
-count=1000
+count=1
 weightsListInt=[]
 resultingweights=[]
 resultingVenues=[]
@@ -149,3 +149,7 @@ df.to_excel(writer, sheet_name='sheet1', index=False)
 writer.save()
 print('resulting weights: {}'.format(Resultingweights))
 """
+
+a=['apple', 'mandarine', 'apple']
+counter=Counter(a)
+print('counter: {}'.format(counter))
