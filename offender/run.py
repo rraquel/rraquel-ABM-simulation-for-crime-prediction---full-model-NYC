@@ -75,8 +75,8 @@ model=""
 config=""
 
 log=logging.getLogger('')
-#logging.basicConfig(stream=sys.stdout, level=logging.CRITICAL)
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+logging.basicConfig(stream=sys.stdout, level=logging.CRITICAL)
+#logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 readConfig()
 log.info("Config read")
