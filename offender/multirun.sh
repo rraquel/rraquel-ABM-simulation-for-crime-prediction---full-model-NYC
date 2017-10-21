@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 for i in config/perftest1/*.ini; do
