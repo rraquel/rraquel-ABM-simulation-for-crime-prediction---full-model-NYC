@@ -70,8 +70,11 @@ class Model(mesa.Model):
             "agentCount":lambda m: m.schedule.get_agent_count(),
             "radiusType": lambda m: m.radiusType,
             "targetType": lambda m: m.targetType,
+            "centerAttract": lambda m: m.centerAttract,
+            "startLocation": lambda m: m.startLocationType,
+            "avgSearchRadius": lambda m: sum(map(lambda a: a.searchRadius,m.schedule.agents)),
             "totalCrimes": lambda m: m.totalCrimes, 
-            #is this the average seen crimes over all the agents?
+
             "totaltraveledDistance": lambda m: sum(map(lambda a: a.walkedDistance,m.schedule.agents)),
             "traveledRoads": lambda m: sum(map(lambda a: a.walkedRoads,m.schedule.agents)),
             "cummCrimes": lambda m: sum(map(lambda a: a.cummCrimes,m.schedule.agents)),
@@ -89,8 +92,7 @@ class Model(mesa.Model):
             "AssaultUnique": lambda m: sum(map(lambda a: len(list(a.crimesAssault)),m.schedule.agents)),
             "RapeCumm": lambda m: sum(map(lambda a: sum(a.crimesRape.values()),m.schedule.agents)),
             "RapeUnique": lambda m: sum(map(lambda a: len(list(a.crimesRape)),m.schedule.agents)),
-
-            "avgSearchRadius": lambda m: sum(map(lambda a: a.searchRadius,m.schedule.agents)),
+           
             "cummPai": lambda m: (((sum(map(lambda a: (a.uniqueCrimes),m.schedule.agents)))/m.totalCrimes)/(sum(map(lambda a: (a.walkedDistance+1),m.schedule.agents)))/40986771) if m.modelStepCount is (m.generalNumSteps-1) else 0,
             "uniquePai2": lambda m: (((sum(map(lambda a: (a.cummCrimes),m.schedule.agents)))/m.totalCrimes)/(sum(map(lambda a: (a.walkedDistance+1),m.schedule.agents)))/40986771) if m.modelStepCount is (m.generalNumSteps-1) else 0
             #"SD_distance": lambda m: (sqrt(lambda a: a.walkedDistance - (sum(map(a.walkedDistance,m.schedule.agents))/self.numAgents)))

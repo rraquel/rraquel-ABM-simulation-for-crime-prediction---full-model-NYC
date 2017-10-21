@@ -154,40 +154,11 @@ a=['apple', 'mandarine', 'apple']
 counter=Counter(a)
 print('counter: {}'.format(counter))
 
-time=datetime.now().time()
-print('start at: {}'.format(time))
-mycurs = self.conn.cursor()
-if type is 0:
-    curs.execute("""SELECT object_id from open.nyc_road2police_incident_5ft WHERE road_id ={}"""
-    .format(road))
-if type is 1:
-     curs.execute("""SELECT object_id from open.nyc_road2police_incident_5ft_BURGLARY WHERE road_id ={}"""
-            .format(road))
-elif type is 2:
-    curs.execute("""SELECT object_id from open.nyc_road2police_incident_5ft_ROBBERY WHERE road_id ={}"""
-            .format(road))
-elif type is 3:
-    curs.execute("""SELECT object_id from open.nyc_road2police_incident_5ft_LARCENY WHERE road_id ={}"""
-            .format(road))
-elif type is 4:
-    curs.execute("""SELECT object_id from open.nyc_road2police_incident_5ft_ASSAULT WHERE road_id ={}"""
-            .format(road))
-elif type is 5:
-    curs.execute("""SELECT object_id from open.nyc_road2police_incident_5ft_LARCENY_MOTOR WHERE road_id ={}"""
-            .format(road))
-elif type is 6:
-    curs.execute("""SELECT object_id from open.nyc_road2police_incident_5ft_RAPE WHERE road_id ={}"""
-            .format(road))
-crimes=mycurs.fetchall()
 
-time=datetime.now().time()
-print('end at: {}'.format(time))
-
-
-time=datetime.now().time()
-print('start at: {}'.format(time))
-mycurs = self.conn.cursor()
 road=7
+time=datetime.now().time()
+print('start at: {}'.format(time))
+mycurs = self.conn.cursor()
 if type is 0:
     curs.execute("""SELECT object_id from open.nyc_road2police_incident_5ft WHERE road_id ={}"""
     .format(road))
@@ -213,3 +184,16 @@ crimes=mycurs.fetchall()
 
 time=datetime.now().time()
 print('end at: {}'.format(time))
+
+
+time=datetime.now().time()
+print('start at: {}'.format(time))
+mycurs = self.conn.cursor()
+    curs.execute("""SELECT object_id from open.nyc_road2police_incident_5ft_types WHERE road_id ={}"""
+    .format(road))
+crimes=mycurs.fetchall()
+print()
+
+time=datetime.now().time()
+print('end at: {}'.format(time))
+

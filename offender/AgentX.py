@@ -196,7 +196,7 @@ class AgentX(mesa.Agent):
                             select geom from open.nyc_road_proj_final where gid={0}) ,ftus_coord, {1})
                             and not st_dwithin( (
                                 select geom from open.nyc_road_proj_final where gid={0}) ,ftus_coord, {2}))
-                                as fs left join open.nyc_road2fs_80ft r2f on r2f.location_id=fs.venue_id 
+                                as fs left join open.nyc_road2fs_near2 r2f on r2f.fs_id=fs.venue_id 
                                 where not road_id is null""".format(road,maxRadius,minRadius))
                     roads=mycurs.fetchall() #returns tuple of tuples, venue_id and road_id paired
             elif self.targetType is 2:
@@ -209,7 +209,7 @@ class AgentX(mesa.Agent):
                     ) as temp, open.nyc_fs_venue_join_weight_to_center
                     where st_dwithin((select geom from open.nyc_road_proj_final where gid={0}),ftus_coord, {1})
                     and not st_dwithin((select geom from open.nyc_road_proj_final where gid={0}),ftus_coord, {2}))
-                    AS fs LEFT JOIN open.nyc_road2fs_80ft r2f on r2f.location_id=fs.venue_id WHERE NOT road_id is null"""
+                    AS fs LEFT JOIN open.nyc_road2fs_near2 r2f on r2f.fs_id=fs.venue_id WHERE NOT road_id is null"""
                     .format(road,maxRadius,minRadius))
                     roads=mycurs.fetchall() #returns tuple of tuples, venue_id,weighted_checkins
                 else:
@@ -222,7 +222,7 @@ class AgentX(mesa.Agent):
                     ) as temp, open.nyc_fs_venue_join
                     where st_dwithin((select geom from open.nyc_road_proj_final where gid={0}),ftus_coord, {1})
                     and not st_dwithin((select geom from open.nyc_road_proj_final where gid={0}),ftus_coord, {2}))
-                    AS fs LEFT JOIN open.nyc_road2fs_80ft r2f on r2f.location_id=fs.venue_id WHERE NOT road_id is null"""
+                    AS fs LEFT JOIN open.nyc_road2fs_near2 r2f on r2f.fs_id=fs.venue_id WHERE NOT road_id is null"""
                     .format(road,maxRadius,minRadius))
                     roads=mycurs.fetchall() #returns tuple of tuples, venue_id,weighted_checkins
             roadId=self.weightedChoice(roads)
