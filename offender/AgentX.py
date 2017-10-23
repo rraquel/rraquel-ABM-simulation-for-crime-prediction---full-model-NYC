@@ -28,13 +28,15 @@ class AgentX(mesa.Agent):
         self.log.debug('num trips travel distribution value: {}'.format(self.agentTravelTrip))
         self.tripCount=0
         self.newStart=0
-
+        self.crimes=[]
+        for i in range(6):
+            self.crimes.append([])
         #list of positions offender has visited
         self.targetRoadList=[]
         
         self.conn=model.conn
       
-        
+
         ##select starting position by type
         self.startLocationType=startLocationType
         self.startRoad=self.findStartLocation()
@@ -45,56 +47,42 @@ class AgentX(mesa.Agent):
 
         #selection behavior for radius type
         #static
-        self.radiusType=radiusType
 
-        if radiusType is 0 :
-            self.searchRadius=model.staticRadius
-            self.log.info("static radius Agent")
-        #uniform
-        elif radiusType is 1 :
-            #minimal distance from 2.5km to foot
-            self.pmin=model.dmin*3280.84
-            #uniform radius: self.uniformRadius=self.staticRadius*2
-            self.pmax=model.uniformRadius
-            self.searchRadius=np.random.uniform(self.pmin, self.pmax)
-            #print('uniformProbability number: {}'.format(uniformProb))
-            self.log.info("uniform radius Agent")
-        #power
-        elif radiusType is 2 :
-            self.mu=model.mu
-            self.dmin=model.dmin
-            self.dmax=model.dmax
-            self.searchRadius=self.powerRadius(self.mu, self.dmin, self.dmax)
-            self.log.info("power radius Agent is {}".format(self.searchRadius))    
+        self.radiusType=radiusType
+        self.staticRadius=model.staticRadius
+        #uniform radius
+        #minimal distance from 2.5km to foot
+        self.pmin=model.dmin*3280.84
+        #uniform radius: self.uniformRadius=self.staticRadius*2
+        self.pmax=model.uniformRadius
+        #power radius
+        self.mu=model.mu
+        self.dmin=model.dmin
+        self.dmax=model.dmax
+
+        self.searchRadius=self.radius()
         #selection behavior for target type
         self.targetType=targetType
 
         #statistics
-        self.crimes=Counter()
+        #self.crimes=Counter()
         self.crimesBurglary=Counter()
         self.crimesRobbery=Counter()
         self.crimesLarceny=Counter()
         self.crimesAssault=Counter()
         self.crimesLarcenymotor=Counter()
-        self.crimesRape=Counter()
 
-        self.uniqueCrimes=0
-        self.cummCrimes=0
+        #self.uniqueCrimes=0
+        #self.cummCrimes=0
         self.walkedDistance=0 #distance walked in total
         #TODO create array with initial position and all targets?
         self.walkedRoads=0 
         
         self.log=logging.getLogger('')
 
+
     def findStartLocation(self):
-        if self.startLocationType is 0:
-            startRoad=self.findStartRandom()
-        elif self.startLocationType is 1:
-            startRoad=self.findStartResidence()
-        else:
-            #defalut
-            startRoad=self.findStartRandom()
-            self.log.critical("Start location type is out of range: {}".format(self.startLocationType))
+        startRoad=getattr(self, self.model.startLocationType)()
         self.log.debug("startRaod: {0}".format(startRoad))
         self.targetRoadList.append(startRoad)
         return startRoad
@@ -121,10 +109,36 @@ class AgentX(mesa.Agent):
         self.log.debug("reset agent")
         return self.startRoad
 
-    def weightedChoice(self, roads):
+    def radius(self):
+        print('radius')
+        return(getattr(self, self.model.radiusType)())
+
+    def staticR(self):
+        self.log.info("static radius Agent")
+        return self.staticRadius
+
+    def uniformR(self):
+        #minimal distance from 2.5km to foot
+        radius=np.random.uniform(self.pmin, self.pmax)
+        self.log.info("uniform radius Agent: {}".format(radius))
+        return (np.random.uniform(self.pmin, self.pmax))
+
+    def powerR(self):
+        beta=1+self.mu
+        pmax = math.pow(self.dmin, -beta)
+        pmin = math.pow(self.dmax, -beta)
+        uniformProb=np.random.uniform(pmin, pmax)
+        #levy flight: P(x) = Math.pow(x, -1.59) - find out x? given random probability within range
+        powerKm =  (1/uniformProb)*math.exp(1/beta)
+	    #levy flight gives distance in km - transform km to foot
+        radius=powerKm * 3280.84
+        self.log.debug("power search radius: {0}".format(round(radius,0)))
+        return radius
+
+    def weightedChoice(self, roads, road):
         #TODO bring weihts to same scale!!!
         if not roads:
-            self.log.critical('no roads, probably target venue has no road')
+            self.log.critical('no roads, probably target venue has no road: {}'.format(road))
             roadId=None   
         elif (len(roads[0]) is 1):
             road=random.choice(roads)
@@ -187,7 +201,7 @@ class AgentX(mesa.Agent):
                         select geom from open.nyc_road_proj_final where gid={0}) ,ftus_coord, {1})
                         and not st_dwithin( (
                         select geom from open.nyc_road_proj_final where gid={0}) ,ftus_coord, {2}))
-                        as fs left join open.nyc_road2fs_near2 r2f on r2f.fs_id=fs.venue_id 
+                        as fs left join open.nyc_road2fs_near r2f on r2f.fs_id=fs.venue_id 
                         where not road_id is null""".format(road,maxRadius,minRadius))
                     roads=mycurs.fetchall() #returns tuple of tuples, venue_id and road_id paired
                 else:
@@ -196,7 +210,7 @@ class AgentX(mesa.Agent):
                             select geom from open.nyc_road_proj_final where gid={0}) ,ftus_coord, {1})
                             and not st_dwithin( (
                                 select geom from open.nyc_road_proj_final where gid={0}) ,ftus_coord, {2}))
-                                as fs left join open.nyc_road2fs_near2 r2f on r2f.fs_id=fs.venue_id 
+                                as fs left join open.nyc_road2fs_near r2f on r2f.fs_id=fs.venue_id 
                                 where not road_id is null""".format(road,maxRadius,minRadius))
                     roads=mycurs.fetchall() #returns tuple of tuples, venue_id and road_id paired
             elif self.targetType is 2:
@@ -209,7 +223,7 @@ class AgentX(mesa.Agent):
                     ) as temp, open.nyc_fs_venue_join_weight_to_center
                     where st_dwithin((select geom from open.nyc_road_proj_final where gid={0}),ftus_coord, {1})
                     and not st_dwithin((select geom from open.nyc_road_proj_final where gid={0}),ftus_coord, {2}))
-                    AS fs LEFT JOIN open.nyc_road2fs_near2 r2f on r2f.fs_id=fs.venue_id WHERE NOT road_id is null"""
+                    AS fs LEFT JOIN open.nyc_road2fs_near r2f on r2f.fs_id=fs.venue_id WHERE NOT road_id is null"""
                     .format(road,maxRadius,minRadius))
                     roads=mycurs.fetchall() #returns tuple of tuples, venue_id,weighted_checkins
                 else:
@@ -222,10 +236,10 @@ class AgentX(mesa.Agent):
                     ) as temp, open.nyc_fs_venue_join
                     where st_dwithin((select geom from open.nyc_road_proj_final where gid={0}),ftus_coord, {1})
                     and not st_dwithin((select geom from open.nyc_road_proj_final where gid={0}),ftus_coord, {2}))
-                    AS fs LEFT JOIN open.nyc_road2fs_near2 r2f on r2f.fs_id=fs.venue_id WHERE NOT road_id is null"""
+                    AS fs LEFT JOIN open.nyc_road2fs_near r2f on r2f.fs_id=fs.venue_id WHERE NOT road_id is null"""
                     .format(road,maxRadius,minRadius))
                     roads=mycurs.fetchall() #returns tuple of tuples, venue_id,weighted_checkins
-            roadId=self.weightedChoice(roads)
+            roadId=self.weightedChoice(roads, road)
             if not roadId is None:
                 targetRoad=roadId
                 #print("roadid in target: {0}".format(roadId[0]))
@@ -238,35 +252,14 @@ class AgentX(mesa.Agent):
                 self.log.debug('radius enlarge count: {}'.format(count))
             return targetRoad
     
-    def crimesOnRoad (self, road, type):
+    def crimesOnRoad (self, road):
         mycurs = self.conn.cursor()
-        if type is 0:
-            mycurs.execute("""SELECT object_id from open.nyc_road2police_incident_5ft WHERE road_id ={}"""
-            .format(road))
-        if type is 1:
-            mycurs.execute("""SELECT object_id from open.nyc_road2police_incident_5ft_BURGLARY WHERE road_id ={}"""
-            .format(road))
-        elif type is 2:
-            mycurs.execute("""SELECT object_id from open.nyc_road2police_incident_5ft_ROBBERY WHERE road_id ={}"""
-            .format(road))
-        elif type is 3:
-            mycurs.execute("""SELECT object_id from open.nyc_road2police_incident_5ft_LARCENY WHERE road_id ={}"""
-            .format(road))
-        elif type is 4:
-            mycurs.execute("""SELECT object_id from open.nyc_road2police_incident_5ft_ASSAULT WHERE road_id ={}"""
-            .format(road))
-        elif type is 5:
-            mycurs.execute("""SELECT object_id from open.nyc_road2police_incident_5ft_LARCENY_MOTOR WHERE road_id ={}"""
-            .format(road))
-        elif type is 6:
-            mycurs.execute("""SELECT object_id from open.nyc_road2police_incident_5ft_RAPE WHERE road_id ={}"""
-            .format(road))
-        crimes=mycurs.fetchall()
-        crimes2=[]
-        for crime in crimes:
-            crimes2.append(crime[0])
-        #self.log.debug('crimes2: {0}, length: {1}'.format(crimes2, len(crimes2)))
-        return crimes2
+        mycurs.execute("""SELECT object_id, off_type from open.nyc_road2police_incident_5ft_types WHERE road_id ={}"""
+        .format(road))
+        rows=mycurs.fetchall()          
+        for crime in rows:
+            crimetype=crime[1]
+            self.crimes[crimetype].append(crime[0])
 
     def findMyWay(self, targetRoad):
         self.log.debug('search radius: {}'.format(self.searchRadius))
@@ -276,45 +269,19 @@ class AgentX(mesa.Agent):
             #print("Agent ({0}) way: {1}".format(self.unique_id,self.way))
             for road in self.way:
                 self.walkedDistance += self.model.G.node[road]['length']
-                #crimes=Counter(self.crimesOnRoad(road, 0)
-                self.crimes+=Counter(self.crimesOnRoad(road, 0))
-                self.crimesBurglary+=Counter(self.crimesOnRoad(road, 1))
-                self.crimesRobbery+=Counter(self.crimesOnRoad(road, 2))
-                self.crimesLarceny+=Counter(self.crimesOnRoad(road, 3))
-                self.crimesAssault+=Counter(self.crimesOnRoad(road, 4))
-                self.crimesLarcenymotor+=Counter(self.crimesOnRoad(road, 5))
-                self.crimesRape+=Counter(self.crimesOnRoad(road, 6))
+                self.crimesOnRoad(road)
                 self.walkedRoads +=1
         except Exception as e:
             self.log.warning("Error: One agent found no way: agent id {0}, startRoad: {1}, targetRoad {2} ".format(self.unique_id, self.startRoad, targetRoad))
             self.way=[self.road,targetRoad]
-        
-
-    def powerRadius(self, mu, dmin, dmax):
-        beta=1+mu
-        pmax = math.pow(dmin, -beta)
-        pmin = math.pow(dmax, -beta)
-        uniformProb=np.random.uniform(pmin, pmax)
-        #levy flight: P(x) = Math.pow(x, -1.59) - find out x? given random probability within range
-        powerKm =  (1/uniformProb)*math.exp(1/beta)
-	    #levy flight gives distance in km - transform km to foot
-        powerRadius = powerKm * 3280.84
-        self.log.debug("power search radius: {0}".format(round(powerRadius,0)))
-        return powerRadius
-
     
     def step(self):
         """step: behavior for each offender"""
         #print('start road: {}'.format(self.road))
         #select new radius for power-law
         #uniform distr. radius
-        if self.radiusType is 1:
-            self.searchRadius=np.random.uniform(self.pmin, self.pmax)
-            #print('next uniform distr. radius {0}'.format(self.radiusType))
-            #power radius
-        if self.radiusType is 2:
-            self.searchRadius=self.powerRadius(self.mu, self.dmin, self.dmax)
-            #print('next power radius {0}'.format(self.radiusType))
+        self.searchRadius=self.radius()
+        #print('next power radius {0}'.format(self.radiusType))
         #rest agent to start at new location
         if self.newStart is 1:
             self.startRoad=self.findStartLocation()
@@ -340,7 +307,19 @@ class AgentX(mesa.Agent):
             self.log.info("agent {0}, trip count: {1}, trip avg: {2}, number of trips: {3}".format(self.unique_id, self.tripCount, self.agentTravelAvg, self.agentTravelTrip))
             self.findMyWay(targetRoad)
         self.road=targetRoad
-        self.cummCrimes=sum(self.crimes.values())
-        self.uniqueCrimes=len(list(self.crimes))
+        #self.cummCrimes=sum(self.crimes.val
+        #self.uniqueCrimes=len(list(self.crimes))
         self.log.info("agent {0}, target road list by road_id {1}".format(self.unique_id, self.targetRoadList))
         self.log.info("step done for agent {0}".format(self.unique_id))
+    
+    def cummCrimes(self):
+        c=0
+        for i in range(len(self.crimes)):
+            c += len(self.crimes[i])
+        return(c)
+
+    def uniqueCrimes(self):
+        c=0
+        for i in range(len(self.crimes)):
+            c += len(set(self.crimes[i]))
+        return(c)

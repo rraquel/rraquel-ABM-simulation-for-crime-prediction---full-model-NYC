@@ -33,14 +33,9 @@ class Model(mesa.Model):
            self.log.critical("Target type in ini-file is out of range: {}".format(self.targetType))
            raise SystemExit(1)
         #defines the starting location type 
-        self.startLocationType= modelCfg.getint('startLocationType')
-        if self.startLocationType>1:
-            self.log.critical("Starting location type is out of range {}".format(self.startLocationType))
+        self.startLocationType= modelCfg.get('startLocationType')
         
         self.centerAttract=modelCfg.getint('centerAttract')
-        if self.startLocationType>1:
-            self.log.critical("Center attractiveness aout of range {}".format(self.centerAttract))
-
 
         #parameters for radius search
         self.staticRadius=modelCfg.getint('staticRadius')
@@ -50,11 +45,8 @@ class Model(mesa.Model):
         self.dmax=530
        
         #no switch case in python - can use dictionary and switch function
-        self.radiusType=modelCfg.getint('radiusType')
-        if self.radiusType>2:
-            self.log.critical("Radius type in ini-file is out of range: {}".format(self.radiusType))
-            raise SystemExit(1)
-                    
+        self.radiusType=modelCfg.get('radiusType')
+
         #self.agentStartLocationFinder=modelCfg.get('agentStartLocationFinder', findStartLocationRandom)
         self.schedule=RandomActivation(self)
 
@@ -77,31 +69,29 @@ class Model(mesa.Model):
 
             "totaltraveledDistance": lambda m: sum(map(lambda a: a.walkedDistance,m.schedule.agents)),
             "traveledRoads": lambda m: sum(map(lambda a: a.walkedRoads,m.schedule.agents)),
-            "cummCrimes": lambda m: sum(map(lambda a: a.cummCrimes,m.schedule.agents)),
-            "uniqueCrimes": lambda m: sum(map(lambda a: a.uniqueCrimes,m.schedule.agents)),
+            "cummCrimes": lambda m: sum(map(lambda a: a.cummCrimes(),m.schedule.agents)),
+            "uniqueCrimes": lambda m: sum(map(lambda a: a.uniqueCrimes(),m.schedule.agents)),
 
-            "BurglaryCumm": lambda m: sum(map(lambda a: sum(a.crimesBurglary.values()),m.schedule.agents)),
-            "BurglaryUniq": lambda m: sum(map(lambda a: len(list(a.crimesBurglary)),m.schedule.agents)),
-            "RobberyCumm": lambda m: sum(map(lambda a: sum(a.crimesRobbery.values()),m.schedule.agents)),
-            "RobberyUniq": lambda m: sum(map(lambda a: len(list(a.crimesRobbery)),m.schedule.agents)),
-            "LarcenyCumm": lambda m: sum(map(lambda a: sum(a.crimesLarceny.values()),m.schedule.agents)),
-            "LarcenyUniq": lambda m: sum(map(lambda a: len(list(a.crimesLarceny)),m.schedule.agents)),
-            "LarcenyMotorCumm": lambda m: sum(map(lambda a: sum(a.crimesLarcenymotor.values()),m.schedule.agents)),
-            "LarcenyMotorUnique": lambda m: sum(map(lambda a: len(list(a.crimesLarcenymotor)),m.schedule.agents)),       
-            "AssaultCumm": lambda m: sum(map(lambda a: sum(a.crimesAssault.values()),m.schedule.agents)),
-            "AssaultUnique": lambda m: sum(map(lambda a: len(list(a.crimesAssault)),m.schedule.agents)),
-            "RapeCumm": lambda m: sum(map(lambda a: sum(a.crimesRape.values()),m.schedule.agents)),
-            "RapeUnique": lambda m: sum(map(lambda a: len(list(a.crimesRape)),m.schedule.agents)),
+            "BurglaryCumm": lambda m: sum(map(lambda a: len(a.crimes[1]),m.schedule.agents)),
+            "BurglaryUniq": lambda m: sum(map(lambda a: len(set(a.crimes[1])),m.schedule.agents)),
+            "RobberyCumm": lambda m: sum(map(lambda a: len(a.crimes[2]),m.schedule.agents)),
+            "RobberyUniq": lambda m: sum(map(lambda a: len(set(a.crimes[2])),m.schedule.agents)),
+            "LarcenyCumm": lambda m: sum(map(lambda a: len(a.crimes[3]),m.schedule.agents)),
+            "LarcenyUniq": lambda m: sum(map(lambda a: len(set(a.crimes[3])),m.schedule.agents)),
+            "LarcenyMotorCumm": lambda m: sum(map(lambda a: len(a.crimes[5]),m.schedule.agents)),
+            "LarcenyMotorUnique": lambda m: sum(map(lambda a: len(set(a.crimes[5])),m.schedule.agents)),       
+            "AssaultCumm": lambda m: sum(map(lambda a: len(a.crimes[4]),m.schedule.agents)),
+            "AssaultUnique": lambda m: sum(map(lambda a: len(set(a.crimes[4])),m.schedule.agents)),
            
-            "cummPai": lambda m: (((sum(map(lambda a: (a.uniqueCrimes),m.schedule.agents)))/m.totalCrimes)/(sum(map(lambda a: (a.walkedDistance+1),m.schedule.agents)))/40986771) if m.modelStepCount is (m.generalNumSteps-1) else 0,
-            "uniquePai2": lambda m: (((sum(map(lambda a: (a.cummCrimes),m.schedule.agents)))/m.totalCrimes)/(sum(map(lambda a: (a.walkedDistance+1),m.schedule.agents)))/40986771) if m.modelStepCount is (m.generalNumSteps-1) else 0
+            "cummPai": lambda m: (((sum(map(lambda a: (a.uniqueCrimes()),m.schedule.agents)))/m.totalCrimes)/(sum(map(lambda a: (a.walkedDistance+1),m.schedule.agents)))/40986771) if m.modelStepCount is (m.generalNumSteps-1) else 0,
+            "uniquePai2": lambda m: (((sum(map(lambda a: (a.cummCrimes()),m.schedule.agents)))/m.totalCrimes)/(sum(map(lambda a: (a.walkedDistance+1),m.schedule.agents)))/40986771) if m.modelStepCount is (m.generalNumSteps-1) else 0
             #"SD_distance": lambda m: (sqrt(lambda a: a.walkedDistance - (sum(map(a.walkedDistance,m.schedule.agents))/self.numAgents)))
             } ,
         agent_reporters={
             "current Road": lambda a: a.road,
             "traveledDistance": lambda a: a.walkedDistance,
-            "cummCrimes": lambda m:  a.cummCrimes,
-            "uniqueCrimes": lambda m: a.uniqueCrimes,
+            "cummCrimes": lambda m:  a.cummCrimes(),
+            "uniqueCrimes": lambda m: a.uniqueCrimes(),
             "searchRadius": lambda a: a.searchRadius
             })
         
@@ -116,8 +106,8 @@ class Model(mesa.Model):
                 a=AgentX(i, self, self.radiusType, self.targetType, self.startLocationType, self.agentTravelAvg, self.centerAttract)
                 self.schedule.add(a)
                 self.log.info("Offender created")
-            except:
-                self.log.critical("Agents could not be created")
+            except Exception as e:
+                self.log.critical("Agents could not be created: " + str(e))
                 raise SystemExit(1)
         self.log.info("{} agents created".format(self.numAgents))
 
