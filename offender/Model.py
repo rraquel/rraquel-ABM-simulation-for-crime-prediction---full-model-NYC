@@ -98,7 +98,7 @@ class Model(mesa.Model):
             #"SD_distance": lambda m: (sqrt(lambda a: a.walkedDistance - (sum(map(a.walkedDistance,m.schedule.agents))/self.numAgents)))
             } ,
         agent_reporters={
-            "startRoad": lambda a: a.startRoad,
+            "current Road": lambda a: a.road,
             "traveledDistance": lambda a: a.walkedDistance,
             "cummCrimes": lambda m:  a.cummCrimes,
             "uniqueCrimes": lambda m: a.uniqueCrimes,
@@ -125,7 +125,7 @@ class Model(mesa.Model):
         try:
             self.conn= psycopg2.connect("dbname='shared' user='rraquel' host='localhost' password='Mobil4b' ")        
             self.curs=self.conn.cursor()
-            self.log.info("connected to DB")
+            #self.log.info("connected to DB")
         except Exception as e:
             self.log.error("connection to DB failed"+str(e))
             sys.exit(1)
@@ -165,7 +165,7 @@ class Model(mesa.Model):
             self.G.add_node(line[1],length=line[2])
         #for r in self.G.nodes_iter():
             #roadLength+=self.G.node[r]['length']
-        self.log.debug("Found {} intersections".format(len(intersect)))
+        #self.log.debug("Found {} intersections".format(len(intersect)))
         self.log.debug("roadlenght: {}".format(roadLength))
         #build edges with information on nodes (roads)
         # loops over each intersection in intersect[]     
@@ -185,7 +185,7 @@ class Model(mesa.Model):
     def totalCrimes(self):
         self.curs.execute("""SELECT COUNT(object_id) from open.nyc_road2police_incident_5ft""")
         crimesCount=self.curs.fetchall()
-        self.log.info("total number of crimes: {}".format(crimesCount[0][0]))
+        #self.log.info("total number of crimes: {}".format(crimesCount[0][0]))
         return crimesCount[0][0]
 
 

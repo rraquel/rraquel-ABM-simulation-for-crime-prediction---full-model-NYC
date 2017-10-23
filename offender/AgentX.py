@@ -25,7 +25,7 @@ class AgentX(mesa.Agent):
             self.agentTravelTripList=[self.agentTravelTrip]
         else:
             self.agentTravelTrip=0
-        self.log.debug('new uniform trip travel distribution value: {}'.format(self.agentTravelTrip))
+        self.log.debug('num trips travel distribution value: {}'.format(self.agentTravelTrip))
         self.tripCount=0
         self.newStart=0
 
