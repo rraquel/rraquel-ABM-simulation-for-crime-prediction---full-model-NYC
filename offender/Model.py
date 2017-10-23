@@ -28,14 +28,9 @@ class Model(mesa.Model):
         self.agentTravelAvg = modelCfg.getfloat('agentTravelAvg')
 
         #defubes target selection tpye
-        self.targetType= modelCfg.getint('targetType')
-        if self.targetType>2:
-           self.log.critical("Target type in ini-file is out of range: {}".format(self.targetType))
-           raise SystemExit(1)
+        self.targetType= modelCfg.get('targetType')
         #defines the starting location type 
         self.startLocationType= modelCfg.get('startLocationType')
-        
-        self.centerAttract=modelCfg.getint('centerAttract')
 
         #parameters for radius search
         self.staticRadius=modelCfg.getint('staticRadius')
@@ -62,7 +57,6 @@ class Model(mesa.Model):
             "agentCount":lambda m: m.schedule.get_agent_count(),
             "radiusType": lambda m: m.radiusType,
             "targetType": lambda m: m.targetType,
-            "centerAttract": lambda m: m.centerAttract,
             "startLocation": lambda m: m.startLocationType,
             "avgSearchRadius": lambda m: sum(map(lambda a: a.searchRadius,m.schedule.agents)),
             "totalCrimes": lambda m: m.totalCrimes, 
@@ -103,7 +97,7 @@ class Model(mesa.Model):
         #TODO include start location type (to tune starting point with PLUTO info) and demographics
         for i in range(self.numAgents):
             try:
-                a=AgentX(i, self, self.radiusType, self.targetType, self.startLocationType, self.agentTravelAvg, self.centerAttract)
+                a=AgentX(i, self, self.radiusType, self.targetType, self.startLocationType, self.agentTravelAvg)
                 self.schedule.add(a)
                 self.log.info("Offender created")
             except Exception as e:
