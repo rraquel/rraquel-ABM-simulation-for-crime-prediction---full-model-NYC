@@ -11,6 +11,7 @@ import sys, psycopg2, os, time, random, logging
 from operator import itemgetter
 from collections import Counter
 
+
 class AgentX(mesa.Agent):
     """an Agent moving"""
     def __init__(self, unique_id, model, radiusType, targetType, startLocationType, agentTravelAvg):

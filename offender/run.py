@@ -8,6 +8,7 @@ import psycopg2, sys, os
 from pandas import ExcelWriter
 from mesa.batchrunner import BatchRunner
 from datetime import datetime
+from collections import Counter
 
 # Read the supplied config file or default config if none is supplied
 def readConfig():

@@ -9,6 +9,8 @@ import networkx as nx
 import numpy as np
 import math
 import psycopg2, sys, os, time, random, logging
+from collections import Counter
+
 
 class Model(mesa.Model):
     """ characteristics of the model."""
@@ -47,12 +49,17 @@ class Model(mesa.Model):
         self.schedule=RandomActivation(self)
 
         self.allCrimes={}
+        self.burglaryCount=1
+        self.robberyCouunt=1
+        self.larcenyCount=1
+        self.larcenyMCount=1
+        self.assualtCount=1
+        self.totalCrimes=1
         self.createCrimes()
         self.log.info("time after createCrimes: {}".format(str(time.monotonic()-self.t)))
         if self.allCrimes is None:
             self.log.critical("no crimes loaded")
-        #cannot be 0 due to division in pai
-        self.totalCrimes=1
+
         #self.totalCrimes=self.totalCrimes()
 
         self.log.info("Generating Model")
@@ -67,8 +74,14 @@ class Model(mesa.Model):
             "startLocation": lambda m: m.startLocationType,
             "avgSearchRadius": lambda m: sum(map(lambda a: a.searchRadius,m.schedule.agents)),
             "totalCrimes": lambda m: m.totalCrimes, 
+            "totBurglary": lambda m: m.burglaryCount,
+            "totRobbery": lambda m:m.robberyCouunt,
+            "totLarceny": lambda m: m.larcenyCount,
+            "totLarcenyM": lambda m: m.larcenyMCount,
+            "totAssualt": lambda m: m.assualtCount,
 
             "totaltraveledDistance": lambda m: sum(map(lambda a: a.walkedDistance,m.schedule.agents)),
+
             "traveledRoads": lambda m: sum(map(lambda a: a.walkedRoads,m.schedule.agents)),
             "cummCrimes": lambda m: sum(map(lambda a: a.cummCrimes(),m.schedule.agents)),
             "uniqueCrimes": lambda m: sum(map(lambda a: a.uniqueCrimes(),m.schedule.agents)),
@@ -176,10 +189,13 @@ class Model(mesa.Model):
 
     def createCrimes(self):
         self.mycurs.execute("""SELECT * from open.nyc_road2police_incident_5ft_types_Jun WHERE NOT off_type is NULL""")
+        #Burglary 1, robbery 2, grand Larceny 3, assualt 4, grand larceny motor 5
         rows=self.mycurs.fetchall()
         self.totalCrimes=len(rows)
         self.log.info("total number of crimes {}".format(self.totalCrimes))
-        roadCrime={}   
+        roadCrime={} 
+        typeList=[]  
+        typeCounter=Counter()
         #print(rows[0])
         crimeCount=0
         for line in rows:  
@@ -188,6 +204,7 @@ class Model(mesa.Model):
             crime=line[1]
             crimetype1=line[2]
             crimetype=line[3]
+            typeList.append(crimetype)
             #tuple with crime and crimetype
             tup=(crime,crimetype,crimetype1)
             crimes.append(tup)
@@ -198,6 +215,13 @@ class Model(mesa.Model):
                 newvalue=existingvalue+crimes
                 roadCrime[road]=newvalue
                 #print(roadCrime)
+        typeCounter=Counter(typeList)
+        self.burglaryCount=typeCounter[1]
+        self.robberyCouunt=typeCounter[2]
+        self.larcenyCount=typeCounter[3]
+        self.larcenyMCount=typeCounter[5]
+        self.assualtCount=typeCounter[4]
+        self.totalCrimes=sum(typeCounter.values())
         self.allCrimes=roadCrime
                
 
