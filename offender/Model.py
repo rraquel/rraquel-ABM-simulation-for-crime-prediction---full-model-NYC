@@ -45,8 +45,10 @@ class Model(mesa.Model):
         #self.agentStartLocationFinder=modelCfg.get('agentStartLocationFinder', findStartLocationRandom)
         self.schedule=RandomActivation(self)
 
-
-        self.totalCrimes=self.totalCrimes()
+        self.allCrimes={}
+        self.createCrimes()
+        #cannot be 0 due to division in pai
+        self.totalCrimes=1
 
         self.log.info("Generating Model")
 
@@ -108,7 +110,7 @@ class Model(mesa.Model):
     def connectDB(self):
         try:
             self.conn= psycopg2.connect("dbname='shared' user='rraquel' host='localhost' password='Mobil4b' ")        
-            self.curs=self.conn.cursor()
+            self.mycurs=self.conn.cursor()
             #self.log.info("connected to DB")
         except Exception as e:
             self.log.error("connection to DB failed"+str(e))
@@ -125,12 +127,12 @@ class Model(mesa.Model):
         roadLength=0
         #crimes_2015: n crime to 1 road mapping
         
-        self.curs.execute("""select intersection_id,r.gid,length,crimes_2015 from 
+        self.mycurs.execute("""select intersection_id,r.gid,length,crimes_2015 from 
             open.nyc_intersection2road i2r
             left join open.nyc_road_proj_final r on i2r.road_id = r. gid
             left join open.nyc_road_attributes ra on ra.road_id=r.gid""")
         #fetch all values into tuple
-        interRoad=self.curs.fetchall()
+        interRoad=self.mycurs.fetchall()
         #dictionary {} -  a Key and a value, in this case a key and a set() of values -unordered collection
         intersect={}
         self.G=nx.Graph()
@@ -166,9 +168,38 @@ class Model(mesa.Model):
         #self.log.info("roadNW built, roads size: {0}".format(self.G.number_of_nodes()))
         return self.G
 
+    def createCrimes(self):
+        self.mycurs.execute("""SELECT * from open.nyc_road2police_incident_5ft_types_Jun WHERE NOT off_type is NULL""")
+        rows=self.mycurs.fetchall()
+        self.totalCrimes=len(rows)
+        print(self.totalCrimes)
+        roadCrime={}   
+        #print(rows[0])
+        crimeCount=0
+        for line in rows:  
+            crimes=[]            
+            road=line[0]
+            crime=line[1]
+            crimetype1=line[2]
+            crimetype=line[3]
+            #tuple with crime and crimetype
+            tup=(crime,crimetype,crimetype1)
+            crimes.append(tup)
+            if roadCrime.get(road) is None:
+                roadCrime[road]=crimes
+            else:
+                existingvalue=roadCrime[road]
+                newvalue=existingvalue+crimes
+                roadCrime[road]=newvalue
+                #print(roadCrime)
+        self.allCrimes=roadCrime
+        #print('roadCrime: {}'.format(roadCrime[82159]))
+                
+
+
     def totalCrimes(self):
-        self.curs.execute("""SELECT COUNT(object_id) from open.nyc_road2police_incident_5ft""")
-        crimesCount=self.curs.fetchall()
+        self.mycurs.execute("""SELECT COUNT(object_id) from open.nyc_road2police_incident_5ft""")
+        crimesCount=self.mycurs.fetchall()
         #self.log.info("total number of crimes: {}".format(crimesCount[0][0]))
         return crimesCount[0][0]
 
