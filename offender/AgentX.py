@@ -88,17 +88,23 @@ class AgentX(mesa.Agent):
         return random.sample(self.model.G.nodes(),1)[0]
 
     def findStartResidence(self):
-        """Select startRoad within Residential Areas from PlutoMap"""
-        #TODO change nyc_road2pluto and query
-        mycurs = self.model.conn.cursor()
-        #TODO only residential areas!!
-        mycurs.execute("""select distinct(r2p.road_id) from open.nyc_road2pluto_80ft r2p
-                left join open.nyc_pluto_areas p on r2p.gid = p.gid""")
-        starts = mycurs.fetchall()
-        startRoadTuple=random.choice(starts)
-        startRoad=startRoadTuple[0]
+        #"""Select startRoad within Residential Areas from PlutoMap"""
+        #mycurs = self.model.conn.cursor()
+        #TODO make table instead of join
+        #mycurs.execute("""select distinct(r2p.road_id) from open.nyc_road2pluto_80ft r2p
+        #        left join open.nyc_pluto_areas p on r2p.gid = p.gid
+        #        WHERE (p.landuse='01' OR p.landuse='02' OR p.landuse='03' OR p.landuse='04')""")
+        #mycurs.execute("""select distinct(r2p.gid),census_population_weight from open.nyc_road2pluto_80ft r2p
+        #        left join open.nyc_pluto_areas p on r2p.gid = p.gid
+        #        WHERE (p.landuse='01' OR p.landuse='02' OR p.landuse='03' OR p.landuse='04') AND (census_population_weight IS NOT NULL)""")
+        #starts = mycurs.fetchall()
+        #print(starts[0])
+        #startRoadTuple=random.choice(starts)
+        #startRoad=startRoadTuple[0]
+        #startRoad=self.weightedChoice(starts, 0)
         #self.log.debug('start road in PLUTO: {}'.format(startRoad))
-        return startRoad
+        #return startRoad
+        return random.sample(self.model.G.nodes(),1)[0]
 
     def resetAgent(self):
         self.tripCount=0
@@ -137,7 +143,7 @@ class AgentX(mesa.Agent):
 
     def randomRoad(self, road, mycurs, maxRadius, minRadius):
         mycurs.execute("""select gid from (
-            select gid,weight_center,geom from open.nyc_road_weight_to_center where st_dwithin(
+            select gid,geom from open.nyc_road_weight_to_center where st_dwithin(
             (select geom from open.nyc_road_weight_to_center where gid={0}),geom,{1})
             and not st_dwithin((select geom from open.nyc_road_weight_to_center where gid={0}) ,geom,{2})
             ) as bar;""".format(road,maxRadius,minRadius))
@@ -253,7 +259,7 @@ class AgentX(mesa.Agent):
             roadId=road[0]
         else:
             roadsList=[x[0] for x in roads]
-            weightList=[x[1] for x in roads]
+            weightList=[x[1] for x in roads if x != None]
             if (len(roads[0])>2): #×or if self.targetType=2
                 weightList2=[x[2] for x in roads]
                 #bring both weights to same scala

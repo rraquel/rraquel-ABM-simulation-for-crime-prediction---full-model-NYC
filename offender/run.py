@@ -4,11 +4,10 @@
 import os, sys, time, configparser
 import logging
 from Model import Model
-import psycopg2, sys, os
+import psycopg2, sys, os, time
 from pandas import ExcelWriter
 from mesa.batchrunner import BatchRunner
 from datetime import datetime
-from collections import Counter
 
 # Read the supplied config file or default config if none is supplied
 def readConfig():
@@ -76,17 +75,17 @@ model=""
 config=""
 
 log=logging.getLogger('')
-#logging.basicConfig(stream=sys.stdout, level=logging.CRITICAL)
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+logging.basicConfig(stream=sys.stdout, level=logging.CRITICAL)
+#logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+
+t=time.monotonic()
+log.info("start of model {}".format(str(time.monotonic()-t)))
 
 readConfig()
 log.info("Config read")
-time=datetime.now().time()
-print('start at: {}'.format(time))
-datetime.now().time()
+
 createModel()
-time=datetime.now().time()
-print('model created at: {}'.format(time))
+log.info("end of model {}".format(str(time.monotonic()-t)))
+
 stepModel()
-time=datetime.now().time()
-print('end at: {}'.format(time))
+log.info("end of model {}".format(str(time.monotonic()-t)))

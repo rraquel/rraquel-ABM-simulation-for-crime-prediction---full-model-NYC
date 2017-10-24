@@ -50,7 +50,7 @@ class Model(mesa.Model):
 
         self.allCrimes={}
         self.burglaryCount=1
-        self.robberyCouunt=1
+        self.robberyCount=1
         self.larcenyCount=1
         self.larcenyMCount=1
         self.assualtCount=1
@@ -61,6 +61,7 @@ class Model(mesa.Model):
             self.log.critical("no crimes loaded")
 
         #self.totalCrimes=self.totalCrimes()
+        self.totalRoadDistance=40986771
 
         self.log.info("Generating Model")
 
@@ -75,7 +76,7 @@ class Model(mesa.Model):
             "avgSearchRadius": lambda m: sum(map(lambda a: a.searchRadius,m.schedule.agents)),
             "totalCrimes": lambda m: m.totalCrimes, 
             "totBurglary": lambda m: m.burglaryCount,
-            "totRobbery": lambda m:m.robberyCouunt,
+            "totRobbery": lambda m:m.robberyCount,
             "totLarceny": lambda m: m.larcenyCount,
             "totLarcenyM": lambda m: m.larcenyMCount,
             "totAssualt": lambda m: m.assualtCount,
@@ -97,8 +98,21 @@ class Model(mesa.Model):
             "AssaultCumm": lambda m: sum(map(lambda a: len(a.crimes[4]),m.schedule.agents)),
             "AssaultUnique": lambda m: sum(map(lambda a: len(set(a.crimes[4])),m.schedule.agents)),
            
-            "cummPai": lambda m: (((sum(map(lambda a: (a.uniqueCrimes()),m.schedule.agents)))/m.totalCrimes)/(sum(map(lambda a: (a.walkedDistance+1),m.schedule.agents)))/40986771) if m.modelStepCount is (m.generalNumSteps-1) else 0,
-            "uniquePai2": lambda m: (((sum(map(lambda a: (a.cummCrimes()),m.schedule.agents)))/m.totalCrimes)/(sum(map(lambda a: (a.walkedDistance+1),m.schedule.agents)))/40986771) if m.modelStepCount is (m.generalNumSteps-1) else 0
+            "cummPai2": lambda m: (((sum(map(lambda a: (a.cummCrimes()),m.schedule.agents)))/m.totalCrimes)/(sum(map(lambda a: (a.walkedDistance+1),m.schedule.agents)))/m.totalRoadDistance) if m.modelStepCount is (m.generalNumSteps-1) else 0,
+            "uniqPai": lambda m: (((sum(map(lambda a: (a.uniqueCrimes()),m.schedule.agents)))/m.totalCrimes)/(sum(map(lambda a: (a.walkedDistance+1),m.schedule.agents)))/m.totalRoadDistance) if m.modelStepCount is (m.generalNumSteps-1) else 0,
+             #"SD_distance": lambda m: (sqrt(lambda a: a.walkedDistance - (sum(map(a.walkedDistance,m.schedule.agents))/self.numAgents)))
+
+            "cummPaiBurglary": lambda m: (((sum(map(lambda a: (sum(map(lambda a: len(a.crimes[1]),m.schedule.agents))),m.schedule.agents)))/m.burglaryCount)/(sum(map(lambda a: (a.walkedDistance+1),m.schedule.agents)))/m.totalRoadDistance) if m.modelStepCount is (m.generalNumSteps-1) else 0,
+            "uniquePaiBurglary": lambda m: (((sum(map(lambda a: (sum(map(lambda a: len(set(a.crimes[1])),m.schedule.agents))),m.schedule.agents)))/m.burglaryCount)/(sum(map(lambda a: (a.walkedDistance+1),m.schedule.agents)))/m.totalRoadDistance) if m.modelStepCount is (m.generalNumSteps-1) else 0,
+            "cummPaiRobbery": lambda m: (((sum(map(lambda a: (sum(map(lambda a: len(a.crimes[2]),m.schedule.agents))),m.schedule.agents)))/m.robberyCount)/(sum(map(lambda a: (a.walkedDistance+1),m.schedule.agents)))/m.totalRoadDistance) if m.modelStepCount is (m.generalNumSteps-1) else 0,
+            "uniquePaiRobbery": lambda m: (((sum(map(lambda a: (sum(map(lambda a: len(set(a.crimes[2])),m.schedule.agents))),m.schedule.agents)))/m.robberyCount)/(sum(map(lambda a: (a.walkedDistance+1),m.schedule.agents)))/m.totalRoadDistance) if m.modelStepCount is (m.generalNumSteps-1) else 0,
+            "cummPaiLarceny": lambda m: (((sum(map(lambda a: (sum(map(lambda a: len(a.crimes[3]),m.schedule.agents))),m.schedule.agents)))/m.larcenyCount)/(sum(map(lambda a: (a.walkedDistance+1),m.schedule.agents)))/m.totalRoadDistance) if m.modelStepCount is (m.generalNumSteps-1) else 0,
+            "uniquePaiLarceny": lambda m: (((sum(map(lambda a: (sum(map(lambda a: len(set(a.crimes[3])),m.schedule.agents))),m.schedule.agents)))/m.larcenyCount)/(sum(map(lambda a: (a.walkedDistance+1),m.schedule.agents)))/m.totalRoadDistance) if m.modelStepCount is (m.generalNumSteps-1) else 0,
+            "cummPaiLarcenyM": lambda m: (((sum(map(lambda a: (sum(map(lambda a: len(a.crimes[5]),m.schedule.agents))),m.schedule.agents)))/m.larcenyMCount)/(sum(map(lambda a: (a.walkedDistance+1),m.schedule.agents)))/m.totalRoadDistance) if m.modelStepCount is (m.generalNumSteps-1) else 0,
+            "uniquePaiLarcneyM": lambda m: (((sum(map(lambda a: (sum(map(lambda a: len(set(a.crimes[5])),m.schedule.agents))),m.schedule.agents)))/m.larcenyMCount)/(sum(map(lambda a: (a.walkedDistance+1),m.schedule.agents)))/m.totalRoadDistance) if m.modelStepCount is (m.generalNumSteps-1) else 0,
+            "cummPaiAssault": lambda m: (((sum(map(lambda a: (sum(map(lambda a: len(a.crimes[4]),m.schedule.agents))),m.schedule.agents)))/m.assualtCount)/(sum(map(lambda a: (a.walkedDistance+1),m.schedule.agents)))/m.totalRoadDistance) if m.modelStepCount is (m.generalNumSteps-1) else 0,
+            "uniquePaiAssault": lambda m: (((sum(map(lambda a: (sum(map(lambda a: len(set(a.crimes[4])),m.schedule.agents))),m.schedule.agents)))/m.assualtCount)/(sum(map(lambda a: (a.walkedDistance+1),m.schedule.agents)))/m.totalRoadDistance) if m.modelStepCount is (m.generalNumSteps-1) else 0,
+                                                       
             #"SD_distance": lambda m: (sqrt(lambda a: a.walkedDistance - (sum(map(a.walkedDistance,m.schedule.agents))/self.numAgents)))
             } ,
         agent_reporters={
@@ -217,7 +231,7 @@ class Model(mesa.Model):
                 #print(roadCrime)
         typeCounter=Counter(typeList)
         self.burglaryCount=typeCounter[1]
-        self.robberyCouunt=typeCounter[2]
+        self.robberyCount=typeCounter[2]
         self.larcenyCount=typeCounter[3]
         self.larcenyMCount=typeCounter[5]
         self.assualtCount=typeCounter[4]
@@ -235,7 +249,7 @@ class Model(mesa.Model):
 
     def step(self, i, numSteps):
         """advance model by one step."""
-        self.log.info("time before step: {}".format(str(time.monotonic()-self.t)))
+        #self.log.info("time before step: {}".format(str(time.monotonic()-self.t)))
         self.modelStepCount=i
         self.generalNumSteps=numSteps
         #print('==> model step count {}'.format(self.modelStepCount))
