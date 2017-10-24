@@ -25,7 +25,7 @@ class AgentX(mesa.Agent):
             self.agentTravelTripList=[self.agentTravelTrip]
         else:
             self.agentTravelTrip=0
-        self.log.debug('num trips travel distribution value: {}'.format(self.agentTravelTrip))
+        #self.log.debug('num trips travel distribution value: {}'.format(self.agentTravelTrip))
         self.tripCount=0
         self.newStart=0
         self.crimes=[]
@@ -58,7 +58,7 @@ class AgentX(mesa.Agent):
         self.targetType=targetType
 
         self.allCrimes=model.allCrimes
-        
+
         #statistics
         #self.crimes=Counter()
         self.crimesBurglary=Counter()
@@ -78,7 +78,7 @@ class AgentX(mesa.Agent):
 
     def findStartLocation(self):
         startRoad=getattr(self, self.model.startLocationType)()
-        self.log.debug("startRaod: {0}".format(startRoad))
+        #self.log.debug("startRoad: {0}".format(startRoad))
         self.targetRoadList.append(startRoad)
         return startRoad
         
@@ -96,13 +96,13 @@ class AgentX(mesa.Agent):
         starts = mycurs.fetchall()
         startRoadTuple=random.choice(starts)
         startRoad=startRoadTuple[0]
-        self.log.debug('start road in PLUTO: {}'.format(startRoad))
+        #self.log.debug('start road in PLUTO: {}'.format(startRoad))
         return startRoad
 
     def resetAgent(self):
         self.tripCount=0
         self.targetRoadList.append(self.startRoad)
-        self.log.debug("reset agent")
+        #self.log.debug("reset agent")
         return self.startRoad
 
     def radius(self):
@@ -141,7 +141,7 @@ class AgentX(mesa.Agent):
             and not st_dwithin((select geom from open.nyc_road_weight_to_center where gid={0}) ,geom,{2})
             ) as bar;""".format(road,maxRadius,minRadius))
         roads=mycurs.fetchall() #returns tuple with first row (unordered list)
-        self.log.debug('random Road')
+        #self.log.debug('random Road')
         return roads
 
     def randomRoadCenter(self, road, mycurs, maxRadius, minRadius):
@@ -152,7 +152,7 @@ class AgentX(mesa.Agent):
             and not st_dwithin((select geom from open.nyc_road_weight_to_center where gid={0}) ,geom,{2})
             ) as bar;""".format(road,maxRadius,minRadius))
         roads=mycurs.fetchall() #returns tuple with first row (unordered list)
-        self.log.debug('random Road Center')
+        #self.log.debug('random Road Center')
         return roads
 
     def randomVenue(self, road, mycurs, maxRadius, minRadius):
@@ -165,7 +165,7 @@ class AgentX(mesa.Agent):
             as fs left join open.nyc_road2fs_near r2f on r2f.fs_id=fs.venue_id 
             where not road_id is null""".format(road,maxRadius,minRadius))
         roads=mycurs.fetchall() #returns tuple of tuples, venue_id and road_id paired
-        self.log.debug('random Venue')        
+        #self.log.debug('random Venue')        
         return roads    
 
     def randomVenueCenter(self, road, mycurs,  maxRadius, minRadius):
@@ -178,7 +178,7 @@ class AgentX(mesa.Agent):
             as fs left join open.nyc_road2fs_near r2f on r2f.fs_id=fs.venue_id 
             where not road_id is null""".format(road,maxRadius,minRadius))
         roads=mycurs.fetchall() #returns tuple of tuples, venue_id and road_id paired
-        self.log.debug('random Venue Center')        
+        #self.log.debug('random Venue Center')        
         return roads
 
     def popularVenue(self, road, mycurs, maxRadius, minRadius):
@@ -194,7 +194,7 @@ class AgentX(mesa.Agent):
             AS fs LEFT JOIN open.nyc_road2fs_near r2f on r2f.fs_id=fs.venue_id WHERE NOT road_id is null"""
             .format(road,maxRadius,minRadius))
         roads=mycurs.fetchall() #returns tuple of tuples, venue_id,weighted_checkins
-        self.log.debug('popular Venue') 
+        #self.log.debug('popular Venue') 
         return roads
 
     def popularVenueCenter(self, road, mycurs, maxRadius, minRadius):
@@ -210,7 +210,7 @@ class AgentX(mesa.Agent):
             AS fs LEFT JOIN open.nyc_road2fs_near r2f on r2f.fs_id=fs.venue_id WHERE NOT road_id is null"""
             .format(road,maxRadius,minRadius))
         roads=mycurs.fetchall() #returns tuple of tuples, venue_id,weighted_checkins
-        self.log.debug('popular Venue Center') 
+        #self.log.debug('popular Venue Center') 
         return roads
 
     def searchTarget(self, road, searchRadius):
@@ -258,12 +258,12 @@ class AgentX(mesa.Agent):
                 #bring both weights to same scala
                 weightList2=[float(i*100) for i in weightList2]
                 weightList=[i*j for i,j in zip(weightList,weightList2)]
-                self.log.debug('combined weights: {}'.format(weightList[0]))
+                #self.log.debug('combined weights: {}'.format(weightList[0]))
             pWeightList=[]
             sumWeightList=sum(weightList)
             for value in weightList:
                 pWeightList.append(value/sumWeightList)
-            self.log.debug('weightlist p sum: {}'.format(sum(pWeightList)))
+            #self.log.debug('weightlist p sum: {}'.format(sum(pWeightList)))
             roadIdNp=np.random.choice(roadsList, 1, True, pWeightList)
             roadId=roadIdNp[0]  
         return roadId
@@ -285,10 +285,11 @@ class AgentX(mesa.Agent):
                 crime=item[0]
                 self.crimes[crimetype].append(crime)               
         except:
-            self.log.debug("road has no crime")
+            #self.log.debug("road has no crime")
+            pass
 
     def findMyWay(self, targetRoad):
-        self.log.debug('search radius: {}'.format(self.searchRadius))
+        #self.log.debug('search radius: {}'.format(self.searchRadius))
         try:
             #roads are represented as nodes in G
             self.way=nx.shortest_path(self.model.G,self.road,targetRoad,weight='length')
@@ -312,11 +313,11 @@ class AgentX(mesa.Agent):
         #rest agent to start at new location
         if self.newStart is 1:
             self.startRoad=self.findStartLocation()
-            self.log.debug("new start road: {}".format(self.startRoad))
+            #self.log.debug("new start road: {}".format(self.startRoad))
             targetRoad=self.startRoad
             self.agentTravelTrip=np.random.uniform(1, (self.agentTravelAvg*2)-1)
             self.agentTravelTripList.append(self.agentTravelTrip)
-            self.log.debug("agent {0} travel trip count list {1}".format(self.unique_id,self.agentTravelTripList))
+            #self.log.debug("agent {0} travel trip count list {1}".format(self.unique_id,self.agentTravelTripList))
             self.newStart=0
             self.tripCount=0
         #last step before agent starts at new location
@@ -325,19 +326,19 @@ class AgentX(mesa.Agent):
             self.newStart=1
             self.tripCount+=1
             self.findMyWay(targetRoad)
-            self.log.debug("target road in reset Agent is: {}".format(targetRoad))
+            #self.log.debug("target road in reset Agent is: {}".format(targetRoad))
         #normal step for agent to find target and way
         else:
             #one step: walk to destination
             targetRoad=self.searchTarget(self.road, self.searchRadius)
             self.tripCount+=1
-            self.log.info("agent {0}, trip count: {1}, trip avg: {2}, number of trips: {3}".format(self.unique_id, self.tripCount, self.agentTravelAvg, self.agentTravelTrip))
+            #self.log.info("agent {0}, trip count: {1}, trip avg: {2}, number of trips: {3}".format(self.unique_id, self.tripCount, self.agentTravelAvg, self.agentTravelTrip))
             self.findMyWay(targetRoad)
         self.road=targetRoad
         #self.cummCrimes=sum(self.crimes.val
         #self.uniqueCrimes=len(list(self.crimes))
-        self.log.info("agent {0}, target road list by road_id {1}".format(self.unique_id, self.targetRoadList))
-        self.log.info("step done for agent {0}".format(self.unique_id))
+        #self.log.info("agent {0}, target road list by road_id {1}".format(self.unique_id, self.targetRoadList))
+        self.log.info("step done for agent {0}, time {1}".format(self.unique_id,str(time.monotonic()-self.model.t)))
     
     def cummCrimes(self):
         c=0

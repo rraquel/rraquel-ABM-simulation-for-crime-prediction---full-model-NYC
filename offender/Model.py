@@ -14,6 +14,7 @@ class Model(mesa.Model):
     """ characteristics of the model."""
     def __init__(self, modelCfg):
         #for batch runner: instance attribute running in Model class - enables conditional shut off of the model once a condition is met.
+        self.t=time.monotonic()
         self.running = True
 
         self.log=logging.getLogger('')
@@ -47,6 +48,7 @@ class Model(mesa.Model):
 
         self.allCrimes={}
         self.createCrimes()
+        self.log.info("time after createCrimes: {}".format(str(time.monotonic()-self.t)))
         if self.allCrimes is None:
             self.log.critical("no crimes loaded")
         #cannot be 0 due to division in pai
@@ -96,6 +98,7 @@ class Model(mesa.Model):
         
         #create roadNW
         self.G=self.createRoadNetwork()
+        self.log.info("time after roadNW: {}".format(str(time.monotonic()-self.t)))
         
         #create agent
         #TODO give agent the number of steps one should move - distribution ~1-7
@@ -104,11 +107,11 @@ class Model(mesa.Model):
             try:
                 a=AgentX(i, self, self.radiusType, self.targetType, self.startLocationType, self.agentTravelAvg)
                 self.schedule.add(a)
-                self.log.info("Offender created")
+                #self.log.info("Offender created")
             except Exception as e:
                 self.log.critical("Agents could not be created: " + str(e))
                 raise SystemExit(1)
-        self.log.info("{} agents created".format(self.numAgents))
+        self.log.info("{0} agents created, time {1}".format(self.numAgents,str(time.monotonic()-self.t)))
 
     def connectDB(self):
         try:
@@ -155,7 +158,7 @@ class Model(mesa.Model):
         #for r in self.G.nodes_iter():
             #roadLength+=self.G.node[r]['length']
         #self.log.debug("Found {} intersections".format(len(intersect)))
-        self.log.debug("roadlenght: {}".format(roadLength))
+        #self.log.debug("roadlenght: {}".format(roadLength))
         #build edges with information on nodes (roads)
         # loops over each intersection in intersect[]     
         for interKey in intersect.keys():
@@ -208,6 +211,7 @@ class Model(mesa.Model):
 
     def step(self, i, numSteps):
         """advance model by one step."""
+        self.log.info("time before step: {}".format(str(time.monotonic()-self.t)))
         self.modelStepCount=i
         self.generalNumSteps=numSteps
         #print('==> model step count {}'.format(self.modelStepCount))
