@@ -57,6 +57,8 @@ class AgentX(mesa.Agent):
         #selection behavior for target type
         self.targetType=targetType
 
+        self.allCrimes=model.allCrimes
+        
         #statistics
         #self.crimes=Counter()
         self.crimesBurglary=Counter()
@@ -266,14 +268,24 @@ class AgentX(mesa.Agent):
             roadId=roadIdNp[0]  
         return roadId
     
-    def crimesOnRoad (self, road):
-        mycurs = self.conn.cursor()
-        mycurs.execute("""SELECT object_id, off_type from open.nyc_road2police_incident_5ft_types_Jun WHERE road_id ={}"""
-        .format(road))
-        rows=mycurs.fetchall()          
-        for crime in rows:
-            crimetype=crime[1]
-            self.crimes[crimetype].append(crime[0])
+    #def crimesOnRoad (self, road):
+    #    mycurs = self.conn.cursor()
+    #    mycurs.execute("""SELECT object_id, off_type from open.nyc_road2police_incident_5ft_types_Jun WHERE road_id ={}"""
+    #    .format(road))
+    #    rows=mycurs.fetchall()          
+    #    for crime in rows:
+    #        crimetype=crime[1]
+    #        self.crimes[crimetype].append(crime[0])
+    
+    def crimesOnRoad(self, road):
+        try:
+            attributList=self.allCrimes[road]
+            for item in attributList:
+                crimetype=item[1]
+                crime=item[0]
+                self.crimes[crimetype].append(crime)               
+        except:
+            self.log.debug("road has no crime")
 
     def findMyWay(self, targetRoad):
         self.log.debug('search radius: {}'.format(self.searchRadius))

@@ -47,8 +47,11 @@ class Model(mesa.Model):
 
         self.allCrimes={}
         self.createCrimes()
+        if self.allCrimes is None:
+            self.log.critical("no crimes loaded")
         #cannot be 0 due to division in pai
         self.totalCrimes=1
+        #self.totalCrimes=self.totalCrimes()
 
         self.log.info("Generating Model")
 
@@ -172,7 +175,7 @@ class Model(mesa.Model):
         self.mycurs.execute("""SELECT * from open.nyc_road2police_incident_5ft_types_Jun WHERE NOT off_type is NULL""")
         rows=self.mycurs.fetchall()
         self.totalCrimes=len(rows)
-        print(self.totalCrimes)
+        self.log.info("total number of crimes {}".format(self.totalCrimes))
         roadCrime={}   
         #print(rows[0])
         crimeCount=0
@@ -193,8 +196,7 @@ class Model(mesa.Model):
                 roadCrime[road]=newvalue
                 #print(roadCrime)
         self.allCrimes=roadCrime
-        #print('roadCrime: {}'.format(roadCrime[82159]))
-                
+               
 
 
     def totalCrimes(self):
