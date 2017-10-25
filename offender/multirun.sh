@@ -10,7 +10,7 @@ for i in config/pretest/test1.ini config/pretest/test2.ini config/pretest/test3.
 done
 
 #offender/run.py blubb.ini | at now + 7 hours
-
+"""
 while true; do
   NUMPROCS=`ps -ef| grep run.py | wc -l`
   if [$NUMPROCS -le 1]; then
@@ -23,6 +23,8 @@ done
   fi
   sleep 10
 done
-  
+
+ """"
+
  # ./multirun.sh |at now + 7 hours
   
