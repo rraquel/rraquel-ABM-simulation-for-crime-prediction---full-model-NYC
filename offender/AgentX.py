@@ -72,7 +72,7 @@ class AgentX(mesa.Agent):
 
         #self.uniqueCrimes=0
         #self.cummCrimes=0
-        self.walkedDistance=0 #distance walked in total
+        self.walkedDistance=1 #distance walked in total
         #TODO create array with initial position and all targets?
         self.walkedRoads=0 
         
@@ -94,7 +94,6 @@ class AgentX(mesa.Agent):
         #self.log.debug('weightlist p sum: {}'.format(sum(pWeightList)))
         roadIdNp=np.random.choice(self.residentRoads, 1, True, self.residentRoadsWeight)
         startRoad=roadIdNp[0]
-        print(startRoad)
         return startRoad
 
     def resetAgent(self):
@@ -333,8 +332,6 @@ class AgentX(mesa.Agent):
             #self.log.info("agent {0}, trip count: {1}, trip avg: {2}, number of trips: {3}".format(self.unique_id, self.tripCount, self.agentTravelAvg, self.agentTravelTrip))
             self.findMyWay(targetRoad)
         self.road=targetRoad
-        #self.cummCrimes=sum(self.crimes.val
-        #self.uniqueCrimes=len(list(self.crimes))
         #self.log.info("agent {0}, target road list by road_id {1}".format(self.unique_id, self.targetRoadList))
         self.log.info("step done for agent {0}, time {1}".format(self.unique_id,str(time.monotonic()-self.model.t)))
     
@@ -347,5 +344,52 @@ class AgentX(mesa.Agent):
     def uniqueCrimes(self):
         c=0
         for i in range(len(self.crimes)):
-            c += len(set(self.crimes[i]))
+            len(set(self.crimes[i]))
+        return(c)
+
+    def cummBurglary(self):
+        c=0
+        c += len(self.crimes[1])
+        return(c)
+
+    def uniqBurglary(self):
+        c=0
+        c += len(set(self.crimes[1]))
+        return(c)
+
+    def cummRobbery(self):
+        c=0
+        c += len(self.crimes[2])
+        return(c)
+
+    def uniqRobbery(self):
+        c=0
+        c += len(set(self.crimes[2]))
+        return(c)
+    def cummLarceny(self):
+        c=0
+        c += len(self.crimes[3])
+        return(c)
+
+    def uniqLarceny(self):
+        c=0
+        c += len(set(self.crimes[3]))
+        return(c)
+    def cummLarcenyM(self):
+        c=0
+        c += len(self.crimes[5])
+        return(c)
+
+    def uniqLarcenyM(self):
+        c=0
+        c += len(set(self.crimes[5]))
+        return(c)
+    def cummAssault(self):
+        c=0
+        c += len(self.crimes[4])
+        return(c)
+
+    def uniqAssault(self):
+        c=0
+        c += len(set(self.crimes[4]))
         return(c)
