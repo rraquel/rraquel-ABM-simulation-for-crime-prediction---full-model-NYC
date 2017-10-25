@@ -48,6 +48,7 @@ class Model(mesa.Model):
         #self.agentStartLocationFinder=modelCfg.get('agentStartLocationFinder', findStartLocationRandom)
         self.schedule=RandomActivation(self)
 
+        #build crimes
         self.allCrimes={}
         self.burglaryCount=1
         self.robberyCount=1
@@ -60,7 +61,13 @@ class Model(mesa.Model):
         if self.allCrimes is None:
             self.log.critical("no crimes loaded")
 
-        #self.totalCrimes=self.totalCrimes()
+        #build residential area
+        self.totalresidentialRoads=1
+        self.residentRoads=[]
+        self.residentRoadsWeight=[]
+        self.createResidential()
+
+
         self.totalRoadDistance=40986771
 
         self.log.info("Generating Model")
@@ -237,14 +244,23 @@ class Model(mesa.Model):
         self.assualtCount=typeCounter[4]
         self.totalCrimes=sum(typeCounter.values())
         self.allCrimes=roadCrime
-               
-
-
-    def totalCrimes(self):
-        self.mycurs.execute("""SELECT COUNT(object_id) from open.nyc_road2police_incident_5ft""")
-        crimesCount=self.mycurs.fetchall()
-        #self.log.info("total number of crimes: {}".format(crimesCount[0][0]))
-        return crimesCount[0][0]
+    
+    def createResidential(self):
+        self.mycurs.execute("""select distinct(r2p.road_id),census_population_weight
+            from open.nyc_road2pluto_80ft r2p left join open.nyc_pluto_areas p 
+            on r2p.road_id=p.gid where census_population_weight >0 AND 
+            (landuse='01' OR landuse='02'  OR landuse='03' OR landuse='04')""") 
+        roads=self.mycurs.fetchall()
+        self.totalresidentialRoads=len(roads)
+        print(roads[0])
+        roadsList=[x[0] for x in roads]
+        weightList=[x[1] for x in roads if x != None]
+        pWeightList=[]
+        sumWeightList=sum(weightList)
+        for value in weightList:
+            pWeightList.append(value/sumWeightList)
+        self.residentRoads=roadsList
+        self.residentRoadsWeight=pWeightList
 
 
     def step(self, i, numSteps):

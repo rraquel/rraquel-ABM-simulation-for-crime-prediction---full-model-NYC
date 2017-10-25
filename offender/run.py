@@ -79,13 +79,13 @@ logging.basicConfig(stream=sys.stdout, level=logging.CRITICAL)
 #logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 t=time.monotonic()
-log.info("start of model {}".format(str(time.monotonic()-t)))
+print("start of model {}".format(str(time.monotonic()-t)))
 
 readConfig()
-log.info("Config read")
+print("Config read")
 
 createModel()
-log.info("end of model {}".format(str(time.monotonic()-t)))
+print("end of model {}".format(str(time.monotonic()-t)))
 
 stepModel()
-log.info("end of model {}".format(str(time.monotonic()-t)))
+print("end of model {}".format(str(time.monotonic()-t)))

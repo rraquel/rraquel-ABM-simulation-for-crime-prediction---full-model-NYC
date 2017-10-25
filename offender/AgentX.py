@@ -38,6 +38,8 @@ class AgentX(mesa.Agent):
         self.conn=model.conn
       
         ##select starting position by type
+        self.residentRoads=model.residentRoads
+        self.residentRoadsWeight=model.residentRoadsWeight
         self.startLocationType=startLocationType
         self.startRoad=self.findStartLocation()
         self.road=self.startRoad
@@ -88,23 +90,12 @@ class AgentX(mesa.Agent):
         return random.sample(self.model.G.nodes(),1)[0]
 
     def findStartResidence(self):
-        #"""Select startRoad within Residential Areas from PlutoMap"""
-        #mycurs = self.model.conn.cursor()
-        #TODO make table instead of join
-        #mycurs.execute("""select distinct(r2p.road_id) from open.nyc_road2pluto_80ft r2p
-        #        left join open.nyc_pluto_areas p on r2p.gid = p.gid
-        #        WHERE (p.landuse='01' OR p.landuse='02' OR p.landuse='03' OR p.landuse='04')""")
-        #mycurs.execute("""select distinct(r2p.gid),census_population_weight from open.nyc_road2pluto_80ft r2p
-        #        left join open.nyc_pluto_areas p on r2p.gid = p.gid
-        #        WHERE (p.landuse='01' OR p.landuse='02' OR p.landuse='03' OR p.landuse='04') AND (census_population_weight IS NOT NULL)""")
-        #starts = mycurs.fetchall()
-        #print(starts[0])
-        #startRoadTuple=random.choice(starts)
-        #startRoad=startRoadTuple[0]
-        #startRoad=self.weightedChoice(starts, 0)
-        #self.log.debug('start road in PLUTO: {}'.format(startRoad))
-        #return startRoad
-        return random.sample(self.model.G.nodes(),1)[0]
+        """Select startRoad within Residential Areas from PlutoMap"""
+        #self.log.debug('weightlist p sum: {}'.format(sum(pWeightList)))
+        roadIdNp=np.random.choice(self.residentRoads, 1, True, self.residentRoadsWeight)
+        startRoad=roadIdNp[0]
+        print(startRoad)
+        return startRoad
 
     def resetAgent(self):
         self.tripCount=0
