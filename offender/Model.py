@@ -252,7 +252,6 @@ class Model(mesa.Model):
             (landuse='01' OR landuse='02'  OR landuse='03' OR landuse='04')""") 
         roads=self.mycurs.fetchall()
         self.totalresidentialRoads=len(roads)
-        print(roads[0])
         roadsList=[x[0] for x in roads]
         weightList=[x[1] for x in roads if x != None]
         pWeightList=[]
