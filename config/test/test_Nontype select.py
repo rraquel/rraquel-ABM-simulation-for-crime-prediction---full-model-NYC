@@ -4,10 +4,22 @@ import sys, psycopg2, os, time, random, logging
 from operator import itemgetter
 from collections import Counter
 
-roads=[(7,0.001,None),(8,8,8)]
-road=100    
-    
-    
+
+def popularVenue():
+    mycurs = conn.cursor()
+    mycurs.execute("""SELECT road_id, weighted_checkins FROM(
+            SELECT venue_id, checkins_count,(checkins_count * 100.0)/temp.total_checkins as weighted_checkins
+            from (SELECT COUNT(venue_id)as total_venues, SUM(checkins_count) as total_checkins FROM open.nyc_fs_venue_join
+            ) as temp, open.nyc_fs_venue_join
+            )
+            AS fs LEFT JOIN open.nyc_road2fs_near r2f on r2f.fs_id=fs.venue_id WHERE NOT road_id is null""")
+    roads=mycurs.fetchall() #returns tuple of tuples, venue_id,weighted_checkins
+    #self.log.debug('popular Venue') 
+    print(roads[0])
+    return roads
+
+
+
 def weightedChoice(roads, road):
     #TODO bring weihts to same scale!!!
     if not roads:
@@ -33,5 +45,17 @@ def weightedChoice(roads, road):
         roadId=roadIdNp[0]  
     return roadId
 
-weightedChoice(roads, road)
-print(weightedChoice(roads, road))
+
+def connectDB():
+    try:
+        conn= psycopg2.connect("dbname='shared' user='rraquel' host='localhost' password='Mobil4b' ")        
+        mycurs=conn.cursor()
+            #self.log.info("connected to DB")
+    except Exception as e:
+        sys.exit(1)
+    return conn
+
+conn=connectDB()
+roads=popularVenue()
+weightedChoice(roads, 100)
+print(weightedChoice(roads, 100))
