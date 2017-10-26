@@ -39,7 +39,13 @@ class Model(mesa.Model):
         #parameters for radius search
         self.staticRadius=modelCfg.getint('staticRadius')
         self.uniformRadius=self.staticRadius*2
-        self.mu=0.6
+        try:
+            self.mu=modelCfg.getfloat('powermu')
+        except Exception as e:
+            self.log.info("no mu for power radius set, mu default 0.6")
+        else:
+            self.mu=0.6
+            self.log.info("no mu for power radius set, mu default 0.6")
         self.dmin=2.5
         self.dmax=530
        
