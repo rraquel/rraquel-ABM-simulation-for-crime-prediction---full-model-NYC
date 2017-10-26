@@ -9,7 +9,7 @@ import numpy as np
 import math
 import sys, psycopg2, os, time, random, logging
 from operator import itemgetter
-from collections import Counter
+import globalVar
 
 
 class AgentX(mesa.Agent):
@@ -61,17 +61,9 @@ class AgentX(mesa.Agent):
         self.targetType=targetType
 
         self.allCrimes=model.allCrimes
-
         #statistics
         #self.crimes=Counter()
-        self.crimesBurglary=Counter()
-        self.crimesRobbery=Counter()
-        self.crimesLarceny=Counter()
-        self.crimesAssault=Counter()
-        self.crimesLarcenymotor=Counter()
 
-        #self.uniqueCrimes=0
-        #self.cummCrimes=0
         self.walkedDistance=1 #distance walked in total
         #TODO create array with initial position and all targets?
         self.walkedRoads=0 
@@ -280,10 +272,13 @@ class AgentX(mesa.Agent):
             for item in attributList:
                 crimetype=item[1]
                 crime=item[0]
-                self.crimes[crimetype].append(crime)               
+                globalVar.crimesUniqueOverall.add(crime)
+                self.crimes[crimetype].append(crime)
+            #print('crimesUniqueOverall print {}'.format(globalVar.crimesUniqueOverall))   
         except:
             #self.log.debug("road has no crime")
             pass
+         
 
     def findMyWay(self, targetRoad):
         #self.log.debug('search radius: {}'.format(self.searchRadius))
@@ -332,19 +327,24 @@ class AgentX(mesa.Agent):
             #self.log.info("agent {0}, trip count: {1}, trip avg: {2}, number of trips: {3}".format(self.unique_id, self.tripCount, self.agentTravelAvg, self.agentTravelTrip))
             self.findMyWay(targetRoad)
         self.road=targetRoad
+        #update unique crimes
+        self.uniqueCrimes()
         #self.log.info("agent {0}, target road list by road_id {1}".format(self.unique_id, self.targetRoadList))
-        self.log.info("step done for agent {0}, time {1}".format(self.unique_id,str(time.monotonic()-self.model.t)))
+        self.log.info("step done for agent {0}, time {1}".format(self.unique_id,str(time.monotonic()-self.model.t))) 
     
+            
+    def uniqueCrimes(self):
+        for i in range(len(self.crimes)):
+            globalVar.burglaryUniqueOverall.update(self.crimes[1])
+            globalVar.robberyUniqueOverall.update(self.crimes[2])
+            globalVar.larcenyUniqueOverall.update(self.crimes[3])
+            globalVar.larcenyMUniqueOverall.update(self.crimes[5])
+            globalVar.assualtUniqueOverall.update(self.crimes[4])
+
     def cummCrimes(self):
         c=0
         for i in range(len(self.crimes)):
             c += len(self.crimes[i])
-        return(c)
-
-    def uniqueCrimes(self):
-        c=0
-        for i in range(len(self.crimes)):
-            c+=len(set(self.crimes[i]))
         return(c)
 
     def cummBurglary(self):

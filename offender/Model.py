@@ -11,7 +11,8 @@ import math
 import statistics
 import psycopg2, sys, os, time, random, logging
 from collections import Counter
-
+from itertools import chain
+import globalVar
 
 class Model(mesa.Model):
     """ characteristics of the model."""
@@ -74,7 +75,6 @@ class Model(mesa.Model):
         self.residentRoadsWeight=[]
         self.createResidential()
 
-
         self.totalRoadDistance=40986771
 
         self.log.info("Generating Model")
@@ -97,47 +97,43 @@ class Model(mesa.Model):
 
             "totaltraveledDistance": lambda m: sum(map(lambda a: a.walkedDistance,m.schedule.agents)),
 
+            "uniqueCrimes": lambda m: len(globalVar.crimesUniqueOverall),
+            "BurglaryUniq": lambda m: len(globalVar.burglaryUniqueOverall),
+            "RobberyUniq": lambda m: len(globalVar.robberyUniqueOverall),
+            "LarcenyUniq": lambda m: len(globalVar.larcenyUniqueOverall),
+            "LarcenyMotorUnique": lambda m: len(globalVar.larcenyMUniqueOverall),
+            "AssaultUnique": lambda m: len(globalVar.assualtUniqueOverall),
+
+            "uniqPai": lambda m: (((len(globalVar.crimesUniqueOverall)/m.totalCrimes))/(sum(map(lambda a: (a.walkedDistance/m.totalRoadDistance),m.schedule.agents)))) if m.modelStepCount is (m.generalNumSteps-1) else 0,
+            "uniquePaiBurglary": lambda m: (((len(globalVar.crimesUniqueOverall)/m.burglaryCount))/(sum(map(lambda a: (a.walkedDistance/m.totalRoadDistance),m.schedule.agents)))) if m.modelStepCount is (m.generalNumSteps-1) else 0,
+            "uniquePaiRobbery": lambda m: (((len(globalVar.crimesUniqueOverall)/m.robberyCount))/(sum(map(lambda a: (a.walkedDistance/m.totalRoadDistance),m.schedule.agents)))) if m.modelStepCount is (m.generalNumSteps-1) else 0,
+            "uniquePaiLarceny": lambda m: (((len(globalVar.crimesUniqueOverall)/m.larcenyCount))/(sum(map(lambda a: (a.walkedDistance/m.totalRoadDistance),m.schedule.agents)))) if m.modelStepCount is (m.generalNumSteps-1) else 0,
+            "uniquePaiLarcneyM": lambda m: (((len(globalVar.crimesUniqueOverall)/m.larcenyMCount))/(sum(map(lambda a: (a.walkedDistance/m.totalRoadDistance),m.schedule.agents)))) if m.modelStepCount is (m.generalNumSteps-1) else 0,
+            "uniquePaiAssault": lambda m: (((len(globalVar.crimesUniqueOverall)/m.assualtCount))/(sum(map(lambda a: (a.walkedDistance/m.totalRoadDistance),m.schedule.agents)))) if m.modelStepCount is (m.generalNumSteps-1) else 0,
+
             "traveledRoads": lambda m: sum(map(lambda a: a.walkedRoads,m.schedule.agents)),
             "cummCrimes": lambda m: sum(map(lambda a: a.cummCrimes(),m.schedule.agents)),
             "SD_cummCrimes": lambda m: np.std(list(map(lambda a: a.cummCrimes(),m.schedule.agents))) if m.modelStepCount is (m.generalNumSteps-1) else 0,
-            "uniqueCrimes": lambda m: sum(map(lambda a: a.uniqueCrimes(),m.schedule.agents)),
-            "SD_uniqueCrimes": lambda m: np.std(list(map(lambda a: a.uniqueCrimes(),m.schedule.agents))) if m.modelStepCount is (m.generalNumSteps-1) else 0,
 
             "BurglaryCumm": lambda m: sum(map(lambda a: a.cummBurglary(),m.schedule.agents)),
             "SD_BurglaryCumm": lambda m: np.std(list(map(lambda a: a.cummBurglary(),m.schedule.agents))) if m.modelStepCount is (m.generalNumSteps-1) else 0,
-            "BurglaryUniq": lambda m: sum(map(lambda a: a.uniqBurglary(),m.schedule.agents)),
-            "SD_BurglaryUniq": lambda m: np.std(list(map(lambda a: a.uniqBurglary(),m.schedule.agents))) if m.modelStepCount is (m.generalNumSteps-1) else 0,
             "RobberyCumm": lambda m: sum(map(lambda a: a.cummRobbery(),m.schedule.agents)),
             "SD_RobberyCumm": lambda m: np.std(list(map(lambda a: a.cummRobbery(),m.schedule.agents))) if m.modelStepCount is (m.generalNumSteps-1) else 0,
-            "RobberyUniq": lambda m: sum(map(lambda a: a.uniqRobbery(),m.schedule.agents)),
-            "SD_RobberyUniq": lambda m: np.std(list(map(lambda a: a.uniqRobbery(),m.schedule.agents))) if m.modelStepCount is (m.generalNumSteps-1) else 0,
             "LarcenyCumm": lambda m: sum(map(lambda a: a.cummLarceny(),m.schedule.agents)),
             "SD_LarcenyCumm": lambda m: np.std(list(map(lambda a: a.cummLarceny(),m.schedule.agents))) if m.modelStepCount is (m.generalNumSteps-1) else 0,
-            "LarcenyUniq": lambda m: sum(map(lambda a: a.uniqLarceny(),m.schedule.agents)),
-            "SD_LarcenyUniq": lambda m: np.std(list(map(lambda a: a.uniqLarceny(),m.schedule.agents))) if m.modelStepCount is (m.generalNumSteps-1) else 0,
             "LarcenyMotorCumm": lambda m: sum(map(lambda a: a.cummLarcenyM(),m.schedule.agents)),
             "SD_LarcenyMotorCumm": lambda m: np.std(list(map(lambda a: a.cummLarcenyM(),m.schedule.agents))) if m.modelStepCount is (m.generalNumSteps-1) else 0,
-            "LarcenyMotorUnique": lambda m: sum(map(lambda a: a.uniqLarcenyM(),m.schedule.agents)),   
-            "SD_LarcenyMotorUnique": lambda m: np.std(list(map(lambda a: a.uniqLarcenyM(),m.schedule.agents))) if m.modelStepCount is (m.generalNumSteps-1) else 0,    
             "AssaultCumm": lambda m: sum(map(lambda a: a.cummAssault(),m.schedule.agents)),
             "SD_AssaultCumm": lambda m: np.std(list(map(lambda a: a.cummAssault(),m.schedule.agents))) if m.modelStepCount is (m.generalNumSteps-1) else 0,
-            "AssaultUnique": lambda m: sum(map(lambda a: a.uniqAssault(),m.schedule.agents)),
-            "SD_AssaultUnique": lambda m: np.std(list(map(lambda a: a.uniqAssault(),m.schedule.agents))) if m.modelStepCount is (m.generalNumSteps-1) else 0,
            
             "cummPai2": lambda m: (((sum(map(lambda a: (a.cummCrimes()/m.totalCrimes),m.schedule.agents)))/(sum(map(lambda a: (a.walkedDistance/m.totalRoadDistance),m.schedule.agents))))) if m.modelStepCount is (m.generalNumSteps-1) else 0,
-            "uniqPai": lambda m: (((sum(map(lambda a: (a.uniqueCrimes()/m.totalCrimes),m.schedule.agents)))/(sum(map(lambda a: (a.walkedDistance/m.totalRoadDistance),m.schedule.agents))))) if m.modelStepCount is (m.generalNumSteps-1) else 0,
             "SD_walkedDistance": lambda m: np.std(list(map(lambda a: a.walkedDistance,m.schedule.agents))) if m.modelStepCount is (m.generalNumSteps-1) else 0,
 
             "cummPaiBurglary": lambda m: (((sum(map(lambda a: (a.cummBurglary()/m.burglaryCount),m.schedule.agents)))/(sum(map(lambda a: (a.walkedDistance/m.totalRoadDistance),m.schedule.agents))))) if m.modelStepCount is (m.generalNumSteps-1) else 0,
-            "uniquePaiBurglary": lambda m: (((sum(map(lambda a: (a.uniqBurglary()/m.burglaryCount),m.schedule.agents)))/(sum(map(lambda a: (a.walkedDistance/m.totalRoadDistance),m.schedule.agents))))) if m.modelStepCount is (m.generalNumSteps-1) else 0,
             "cummPaiRobbery": lambda m: (((sum(map(lambda a: (a.cummRobbery()/m.robberyCount),m.schedule.agents)))/(sum(map(lambda a: (a.walkedDistance/m.totalRoadDistance),m.schedule.agents))))) if m.modelStepCount is (m.generalNumSteps-1) else 0,
-            "uniquePaiRobbery": lambda m: (((sum(map(lambda a: (a.uniqRobbery()/m.robberyCount),m.schedule.agents)))/(sum(map(lambda a: (a.walkedDistance/m.totalRoadDistance),m.schedule.agents))))) if m.modelStepCount is (m.generalNumSteps-1) else 0,
             "cummPaiLarceny": lambda m: (((sum(map(lambda a: (a.cummLarceny()/m.larcenyCount),m.schedule.agents)))/(sum(map(lambda a: (a.walkedDistance/m.totalRoadDistance),m.schedule.agents))))) if m.modelStepCount is (m.generalNumSteps-1) else 0,
-            "uniquePaiLarceny": lambda m: (((sum(map(lambda a: (a.uniqLarceny()/m.larcenyCount),m.schedule.agents)))/(sum(map(lambda a: (a.walkedDistance/m.totalRoadDistance),m.schedule.agents))))) if m.modelStepCount is (m.generalNumSteps-1) else 0,
             "cummPaiLarcenyM": lambda m: (((sum(map(lambda a: (a.cummLarcenyM()/m.larcenyMCount),m.schedule.agents)))/(sum(map(lambda a: (a.walkedDistance/m.totalRoadDistance),m.schedule.agents))))) if m.modelStepCount is (m.generalNumSteps-1) else 0,
-            "uniquePaiLarcneyM": lambda m: (((sum(map(lambda a: (a.uniqLarcenyM()/m.larcenyMCount),m.schedule.agents)))/(sum(map(lambda a: (a.walkedDistance/m.totalRoadDistance),m.schedule.agents))))) if m.modelStepCount is (m.generalNumSteps-1) else 0,
             "cummPaiAssault": lambda m: (((sum(map(lambda a: (a.cummAssault()/m.assualtCount),m.schedule.agents)))/(sum(map(lambda a: (a.walkedDistance/m.totalRoadDistance),m.schedule.agents))))) if m.modelStepCount is (m.generalNumSteps-1) else 0,
-            "uniquePaiAssault": lambda m: (((sum(map(lambda a: (a.uniqAssault()/m.assualtCount),m.schedule.agents)))/(sum(map(lambda a: (a.walkedDistance/m.totalRoadDistance),m.schedule.agents))))) if m.modelStepCount is (m.generalNumSteps-1) else 0
                      
             } ,
         agent_reporters={
@@ -278,7 +274,6 @@ class Model(mesa.Model):
             pWeightList.append(value/sumWeightList)
         self.residentRoads=roadsList
         self.residentRoadsWeight=pWeightList
-
 
     def step(self, i, numSteps):
         """advance model by one step."""
