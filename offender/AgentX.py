@@ -242,14 +242,14 @@ class AgentX(mesa.Agent):
     def weightedChoice(self, roads, road):
         #TODO bring weihts to same scale!!!
         if not roads:
-            self.log.critical('no roads, probably target venue has no road: {0}, search radius: {1}'.format(road, self.searchRadius))
+            self.log.critical('no roads, probably target venue has no road: {0}, search radius: {1}, radiustype: {2}'.format(road, self.searchRadius, self.radiusType))
             roadId=None   
         elif (len(roads[0]) is 1):
             road=random.choice(roads)
             roadId=road[0]
         else:
             roadsList=[x[0] for x in roads]
-            weightList=[x[1] for x in roads if x != None]
+            weightList=[x[1] for x in roads]
             if (len(roads[0])>2): #×or if self.targetType=2
                 weightList2=[x[2] for x in roads]
                 #bring both weights to same scala
@@ -344,7 +344,7 @@ class AgentX(mesa.Agent):
     def uniqueCrimes(self):
         c=0
         for i in range(len(self.crimes)):
-            len(set(self.crimes[i]))
+            c+=len(set(self.crimes[i]))
         return(c)
 
     def cummBurglary(self):
