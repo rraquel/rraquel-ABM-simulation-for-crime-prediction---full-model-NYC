@@ -15,7 +15,7 @@
 
 
 ########### first batch #################
-for i in config/pretest2/test1.ini config/pretest2/test2.ini config/pretest2/test3.ini config/pretest2/test4.ini config/pretest2/test5.ini config/pretest2/test6.ini config/pretest2/test7.ini config/pretest2/test8.ini config/pretest2/test9.ini ; do 
+for i in config/testSequential/test1.ini ; do 
     offender/run.py `echo "$i"|sed -e 's:config/::'` &
     sleep 1
 done
@@ -34,18 +34,18 @@ done
 
 #offender/run.py blubb.ini | at now + 7 hours
 
-#while true; do
-#  NUMPROCS=`ps -ef| grep run.py | wc -l`
-#  if [$NUMPROCS -le 1]; then
-#    # starte zweite Ladung
-#    for i in config/pretest/test10.ini config/pretest/test11.ini config/pretest/test12.ini config/pretest/test13.ini config/pretest/test14.ini config/pretest/test15.ini config/pretest/test16.ini config/pretest/test17.ini config/pretest/test18.ini ; do 
-#    offender/run.py `echo "$i"|sed -e 's:config/::'` &
-#    sleep 1
-#done
+while true; do
+  NUMPROCS=`ps -ef| grep run.py | wc -l`
+  if [$NUMPROCS -le 1]; then
+    # starte zweite Ladung
+    for i in config/testSequential/test2.ini ; do 
+    offender/run.py `echo "$i"|sed -e 's:config/::'` &
+    sleep 1
+done
     break
-#  fi
-#  sleep 10
-#done
+  fi
+  sleep 10
+done
 
 
 
