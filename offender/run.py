@@ -39,8 +39,8 @@ def createModel():
     global model, config
     try: 
         modelCfg=config['model']
-    except:
-        log.error("Problem with config. section model")
+    except Exception as e:
+        log.error("Problem with config. section model {}".format(e))
         sys.exit(1)
     model=Model(modelCfg)
 
