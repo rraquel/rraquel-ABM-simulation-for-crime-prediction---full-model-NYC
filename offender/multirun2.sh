@@ -19,7 +19,13 @@
 #done
 
 
-for i in config/pretest2/test10.ini config/pretest2/test11.ini config/pretest2/test12.ini config/pretest2/test13.ini config/pretest2/test14.ini config/pretest2/test15.ini config/pretest2/test16.ini config/pretest2/test17.ini config/pretest2/test18.ini ; do 
+#for i in config/pretest2/test10.ini config/pretest2/test11.ini config/pretest2/test12.ini config/pretest2/test13.ini config/pretest2/test14.ini config/pretest2/test15.ini config/pretest2/test16.ini config/pretest2/test17.ini config/pretest2/test18.ini ; do 
+#    offender/run.py `echo "$i"|sed -e 's:config/::'` &
+#    sleep 1
+#done
+
+
+for i in config/pretest/test10.ini config/pretest/test11.ini ; do 
     offender/run.py `echo "$i"|sed -e 's:config/::'` &
     sleep 1
 done
