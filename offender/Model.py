@@ -104,6 +104,13 @@ class Model(mesa.Model):
             "LarcenyMotorUnique": lambda m: len(globalVar.larcenyMUniqueOverall),
             "AssaultUnique": lambda m: len(globalVar.assualtUniqueOverall),
 
+            "PercentuniqueCrimes": lambda m: (len(globalVar.crimesUniqueOverall)/m.totalCrimes),
+            "PercentBurglaryUniq": lambda m: (len(globalVar.burglaryUniqueOverall)/m.burglaryCount),
+            "PercentRobberyUniq": lambda m: (len(globalVar.robberyUniqueOverall)/m.robberyCount),
+            "PercentLarcenyUniq": lambda m: (len(globalVar.larcenyUniqueOverall)/m.larcenyCount),
+            "PercentLarcenyMotorUnique": lambda m: (len(globalVar.larcenyMUniqueOverall)/m.larcenyMCount),
+            "PercentAssaultUnique": lambda m: (len(globalVar.assualtUniqueOverall)/m.assualtCount),
+
             "uniqPai": lambda m: (((len(globalVar.crimesUniqueOverall)/m.totalCrimes))/(sum(map(lambda a: (a.walkedDistance/m.totalRoadDistance),m.schedule.agents)))) if m.modelStepCount is (m.generalNumSteps-1) else 0,
             "uniquePaiBurglary": lambda m: (((len(globalVar.crimesUniqueOverall)/m.burglaryCount))/(sum(map(lambda a: (a.walkedDistance/m.totalRoadDistance),m.schedule.agents)))) if m.modelStepCount is (m.generalNumSteps-1) else 0,
             "uniquePaiRobbery": lambda m: (((len(globalVar.crimesUniqueOverall)/m.robberyCount))/(sum(map(lambda a: (a.walkedDistance/m.totalRoadDistance),m.schedule.agents)))) if m.modelStepCount is (m.generalNumSteps-1) else 0,
@@ -139,8 +146,18 @@ class Model(mesa.Model):
         agent_reporters={
             "current Road": lambda a: a.road,
             "traveledDistance": lambda a: a.walkedDistance,
-            "cummCrimes": lambda m:  a.cummCrimes(),
-            "uniqueCrimes": lambda m: a.uniqueCrimes(),
+            "cummCrimes": lambda a:  a.cummCrimes(),
+            "cummBurglary": lambda a:  a.cummBurglary(),
+            "cummRobbery": lambda a:  a.cummRobbery(),
+            "cummLarceny": lambda a:  a.cummLarceny(),
+            "cummLarcenyM": lambda a:  a.cummLarcenyM(),
+            "cummAssault": lambda a:  a.cummAssault(),
+            "uniqueCrimes": lambda a: a.uniqueCrimes(),
+            "uniqBurglary": lambda a: a.uniqBurglary(),
+            "uniqRobbery": lambda a: a.uniqRobbery(),
+            "uniqLarceny": lambda a: a.uniqLarceny(),
+            "uniqLarcenyM": lambda a: a.uniqLarcenyM(),
+            "uniqAssault": lambda a: a.uniqAssault(),
             "searchRadius": lambda a: a.searchRadius
             })
         
