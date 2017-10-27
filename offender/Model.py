@@ -94,7 +94,7 @@ class Model(mesa.Model):
             "totLarceny": lambda m: m.larcenyCount,
             "totLarcenyM": lambda m: m.larcenyMCount,
             "totAssualt": lambda m: m.assualtCount,
-
+            "mu": lambda m: m.mu,
             "totaltraveledDistance": lambda m: sum(map(lambda a: a.walkedDistance,m.schedule.agents)),
 
             "uniqueCrimes": lambda m: len(globalVar.crimesUniqueOverall),
