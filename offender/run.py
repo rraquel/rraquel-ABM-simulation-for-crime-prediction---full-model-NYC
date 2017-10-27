@@ -75,8 +75,8 @@ model=""
 config=""
 
 log=logging.getLogger('')
-logging.basicConfig(stream=sys.stdout, level=logging.CRITICAL)
-#logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+#logging.basicConfig(stream=sys.stdout, level=logging.CRITICAL)
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 t=time.monotonic()
 print("time at start of model {}".format(str(time.monotonic()-t)))
