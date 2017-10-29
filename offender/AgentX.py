@@ -159,13 +159,14 @@ class AgentX(mesa.Agent):
 
     def randomVenueCenter(self, road, mycurs,  maxRadius, minRadius):
         mycurs = self.conn.cursor()
+        #venues venue_id=270363 or venue_id=300810 are incorrectly mapped and therefore have weihgt=0, should not be accoutned for
         mycurs.execute("""select road_id, weight_center from (
             select venue_id,weight_center from open.nyc_fs_venue_join_weight_to_center WHERE st_dwithin( (
             select geom from open.nyc_road_proj_final where gid={0}) ,ftus_coord, {1})
             and not st_dwithin( (
             select geom from open.nyc_road_proj_final where gid={0}) ,ftus_coord, {2}))
             as fs left join open.nyc_road2fs_near r2f on r2f.fs_id=fs.venue_id 
-            where not road_id is null""".format(road,maxRadius,minRadius))
+            where not road_id is null and not weight_center=0""".format(road,maxRadius,minRadius))
         roads=mycurs.fetchall() #returns tuple of tuples, venue_id and road_id paired
         #self.log.debug('random Venue Center')        
         return roads
@@ -188,6 +189,7 @@ class AgentX(mesa.Agent):
 
     def popularVenueCenter(self, road, mycurs, maxRadius, minRadius):
         mycurs = self.conn.cursor()
+        #venues venue_id=270363 or venue_id=300810 are incorrectly mapped and therefore have weihgt=0, should not be accoutned for
         mycurs.execute("""SELECT road_id, weight_center, weighted_checkins FROM(
             SELECT venue_id, weight_center, checkins_count,(checkins_count * 100.0)/temp.total_checkins as weighted_checkins
             from (SELECT COUNT(venue_id)as total_venues, SUM(checkins_count) as total_checkins FROM open.nyc_fs_venue_join
@@ -196,7 +198,7 @@ class AgentX(mesa.Agent):
             ) as temp, open.nyc_fs_venue_join_weight_to_center
             where st_dwithin((select geom from open.nyc_road_proj_final where gid={0}),ftus_coord, {1})
             and not st_dwithin((select geom from open.nyc_road_proj_final where gid={0}),ftus_coord, {2}))
-            AS fs LEFT JOIN open.nyc_road2fs_near r2f on r2f.fs_id=fs.venue_id WHERE NOT road_id is null"""
+            AS fs LEFT JOIN open.nyc_road2fs_near r2f on r2f.fs_id=fs.venue_id WHERE NOT road_id is NULL AND NOT weight_center=0"""
             .format(road,maxRadius,minRadius))
         roads=mycurs.fetchall() #returns tuple of tuples, venue_id,weighted_checkins
         #self.log.debug('popular Venue Center') 
@@ -270,7 +272,16 @@ class AgentX(mesa.Agent):
         except:
             #self.log.debug("road has no crime")
             pass
-         
+
+     #unique over all agents       
+    def uniqueCrimesOverall(self):
+        for i in range(len(self.crimes)):
+            #in set(): add is for single value and update for list of values
+            globalVar.burglaryUniqueOverall.update(self.crimes[1])
+            globalVar.robberyUniqueOverall.update(self.crimes[2])
+            globalVar.larcenyUniqueOverall.update(self.crimes[3])
+            globalVar.larcenyMUniqueOverall.update(self.crimes[5])
+            globalVar.assualtUniqueOverall.update(self.crimes[4])         
 
     def findMyWay(self, targetRoad):
         #self.log.debug('search radius: {}'.format(self.searchRadius))
@@ -320,19 +331,11 @@ class AgentX(mesa.Agent):
             self.findMyWay(targetRoad)
         self.road=targetRoad
         #update unique crimes
-        self.uniqueCrimes()
+        self.uniqueCrimesOverall()
         #self.log.info("agent {0}, target road list by road_id {1}".format(self.unique_id, self.targetRoadList))
         self.log.info("step done for agent {0}, time {1}".format(self.unique_id,str(time.monotonic()-self.model.t))) 
     
-     #unique over all agents       
-    def uniqueCrimes(self):
-        print(self.crimes[1])
-        for i in range(len(self.crimes)):
-            globalVar.burglaryUniqueOverall.add(self.crimes[1])
-            globalVar.robberyUniqueOverall.add(self.crimes[2])
-            globalVar.larcenyUniqueOverall.add(self.crimes[3])
-            globalVar.larcenyMUniqueOverall.add(self.crimes[5])
-            globalVar.assualtUniqueOverall.add(self.crimes[4])
+
          
     def cummCrimes(self):
         c=0
