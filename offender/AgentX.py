@@ -326,12 +326,13 @@ class AgentX(mesa.Agent):
     
      #unique over all agents       
     def uniqueCrimes(self):
+        print(self.crimes[1])
         for i in range(len(self.crimes)):
-            globalVar.burglaryUniqueOverall.update(self.crimes[1])
-            globalVar.robberyUniqueOverall.update(self.crimes[2])
-            globalVar.larcenyUniqueOverall.update(self.crimes[3])
-            globalVar.larcenyMUniqueOverall.update(self.crimes[5])
-            globalVar.assualtUniqueOverall.update(self.crimes[4])
+            globalVar.burglaryUniqueOverall.add(self.crimes[1])
+            globalVar.robberyUniqueOverall.add(self.crimes[2])
+            globalVar.larcenyUniqueOverall.add(self.crimes[3])
+            globalVar.larcenyMUniqueOverall.add(self.crimes[5])
+            globalVar.assualtUniqueOverall.add(self.crimes[4])
          
     def cummCrimes(self):
         c=0

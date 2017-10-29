@@ -16,7 +16,6 @@
 
 ########### first batch ###############
 for i in config/pretest/test1.ini config/pretest/test2.ini config/pretest/test3.ini config/pretest/test4.ini config/pretest/test5.ini config/pretest/test6.ini config/pretest/test7.ini config/pretest/test8.ini config/pretest/test9.ini ; do 
-
     offender/run.py `echo "$i"|sed -e 's:config/::'` &
     sleep 1
 done
