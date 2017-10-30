@@ -42,20 +42,46 @@ class Runner:
         excelwriter.close()
 
     def getTableFields(self,tableName):
-        sql = """select table_name,column_name from information_schema.columns where table_name='{0}'""".format(tableName)
+        sql = """select column_name from information_schema.columns where data_type='numeric' and
+        table_name='{0}'""".format(tableName)
         self.mycurs.execute(sql)
-        self.mycurs.fetchall()
+        columns = self.mycurs.fetchall()
+        return([x[0] for x in columns])
+
 
     def writeDBagent(self,run_id):
-        pass
+        dbf = self.getTableFields('res_la_agent')
+        agents = self.agent_df.to_dict()
+        # Fields to be inserted
+        insertf=[]
+        for f in dbf:
+            if f in agents.keys() and not f in self.dbIgnoreFields:
+                insertf.append( f )
+            else:
+                print("Field ignored: ", f)
+        insertFieldStr = '"' + str.join('", "', insertf) + '"'
+        for agentId in range(self.model.schedule.get_agent_count()):
+            for stepId in range(self.model.schedule.steps):
+                for i in range(len(agents[insertf[0]])):
+                    insertValues = []
+                    for f in insertf:
+                        insertValues.append( str(agents[f][(stepId, agentId)]) )
+                    insertValues = [str(run_id), str(stepId), str(agentId)] + insertValues
+                    insertValuesStr = str.join(", ", insertValues)
+                    sql = """insert into open.res_la_agent ("run_id","step","agent",{0}) values ({1})""".format(insertFieldStr, insertValuesStr )
+                    # print("SQL: ", sql)
+                    self.mycurs.execute(sql)
 
     def writeDB(self):
         """Push data to DB"""
         self.mycurs = self.model.conn.cursor()
-        sql = """insert into open.res_la_run values (DEFAULT, current_timestamp, NULL, 0) returning run_id"""
+        self.dbIgnoreFields = ["run_id", "step", "agent"]
+        sql = """insert into open.res_la_run values (DEFAULT, current_timestamp, NULL, {0}) 
+            returning run_id""".format(self.model.schedule.get_agent_count())
         self.mycurs.execute(sql)
         run_id = self.mycurs.fetchone()[0]
         self.writeDBagent(run_id)
+        self.model.conn.commit()
 
 
     # Create model with it's street network, venues, agents, ...
