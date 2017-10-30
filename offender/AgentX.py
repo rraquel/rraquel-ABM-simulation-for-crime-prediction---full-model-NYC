@@ -79,10 +79,17 @@ class AgentX(mesa.Agent):
         
     def findStartRandom(self):
         """select startingPoint from random sample of nodes"""
-        return random.sample(self.model.G.nodes(),1)[0]
+        return random.choice(self.model.G.nodes(),1)[0]
 
     def findStartResidence(self):
         """Select startRoad within Residential Areas from PlutoMap"""
+        #self.log.debug('weightlist p sum: {}'.format(sum(pWeightList)))
+        roadIdNp=np.random.choice(self.residentRoads,1)
+        startRoad=roadIdNp[0]
+        return startRoad
+
+    def findStartResidencePopulation(self):
+        """Select startRoad within Residential Areas from PlutoMap and population density"""
         #self.log.debug('weightlist p sum: {}'.format(sum(pWeightList)))
         roadIdNp=np.random.choice(self.residentRoads, 1, True, self.residentRoadsWeight)
         startRoad=roadIdNp[0]
@@ -224,8 +231,8 @@ class AgentX(mesa.Agent):
                 self.targetRoadList.append(targetRoad)
                 return (targetRoad)
             #enlarge by 10%
-            maxRadius=searchRadius*1.05
-            minRadius=searchRadius*0.95
+            maxRadius=maxRadius*1.05
+            minRadius=minRadius*0.95
             if count>2:
                 searchRadius=self.radius()
                 maxRadius=searchRadius*1.025
