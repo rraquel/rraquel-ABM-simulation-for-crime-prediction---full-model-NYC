@@ -41,12 +41,22 @@ class Runner:
         self.agent_df.to_excel(excelwriter,sheet_name='Agent')
         excelwriter.close()
 
+    def getTableFields(self,tableName):
+        sql = """select table_name,column_name from information_schema.columns where table_name='{0}'""".format(tableName)
+        self.mycurs.execute(sql)
+        self.mycurs.fetchall()
+
+    def writeDBagent(self,run_id):
+        pass
+
     def writeDB(self):
-        """Drop data to DB"""
-        sql = """insert into open.res_la_run values (NULL, current_timestamp, NULL, 0) returning run_id"""
-        mycurs = self.model.conn.cursor()
-        mycurs.execute(sql)
-        run_id = mycurs.fetchone()[0]
+        """Push data to DB"""
+        self.mycurs = self.model.conn.cursor()
+        sql = """insert into open.res_la_run values (DEFAULT, current_timestamp, NULL, 0) returning run_id"""
+        self.mycurs.execute(sql)
+        run_id = self.mycurs.fetchone()[0]
+        self.writeDBagent(run_id)
+
 
     # Create model with it's street network, venues, agents, ...
     def createModel(self):
@@ -69,7 +79,10 @@ class Runner:
         self.agent_df = self.model.dc.get_agent_vars_dataframe()
         self.model_df = self.model.dc.get_model_vars_dataframe()
         self.writeExcel()
-        self.writeDB()
+        try:
+            self.writeDB()
+        except Exception as e:
+            print(e)
         self.log.debug(self.agent_df)
         self.log.info('Global stats: \n{}'.format(self.model_df.tail()))
 
