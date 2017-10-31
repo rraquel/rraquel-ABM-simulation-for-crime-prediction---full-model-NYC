@@ -327,7 +327,7 @@ class AgentX(mesa.Agent):
 
    
     def step(self):
-        """step: behavior for each offender per day"""
+        """step: behavior for each offender per day, every agent starts at new position and does trips for 1 day"""
         #new day start at new location
         self.startRoad=self.findStartLocation()
         self.daytrips()
