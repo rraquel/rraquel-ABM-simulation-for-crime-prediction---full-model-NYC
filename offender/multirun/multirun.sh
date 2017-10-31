@@ -36,7 +36,7 @@ done
 
 #while true; do
 #  NUMPROCS=`ps -ef| grep run.py | wc -l`
-#  if [$NUMPROCS -le 1]; then
+#  if [ $NUMPROCS -le 1 ]; then
 #    # starte zweite Ladung
 #    for i in config/testSequential/* ; do 
 #    offender/run.py `echo "$i"|sed -e 's:config/::'` &
