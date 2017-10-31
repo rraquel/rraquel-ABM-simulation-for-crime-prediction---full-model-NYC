@@ -97,7 +97,7 @@ class Runner:
             insertValues = [str(self.run_id), str(stepId)] + insertValues
             insertValuesStr = str.join(", ", insertValues)
             sql = """insert into open.res_la_model ("run_id","step",{0}) values ({1})""".format(insertFieldStr, insertValuesStr )
-            print("SQL: ", sql)
+            #print("SQL: ", sql)
             self.mycurs.execute(sql)
         self.model.conn.commit()
 
@@ -134,6 +134,7 @@ class Runner:
         for i in range(self.config.getint('general','numSteps', fallback=1)):
             self.model.step(i, self.config.getint('general','numSteps'))
             self.log.debug("=> step {0} performed".format(i))
+            self.model.conn.commit()
         #statistics collection and data output
         #get data as pandas data frame
         self.agent_df = self.model.dc.get_agent_vars_dataframe()

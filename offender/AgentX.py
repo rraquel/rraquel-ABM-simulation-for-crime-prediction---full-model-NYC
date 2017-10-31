@@ -300,6 +300,9 @@ class AgentX(mesa.Agent):
                 self.walkedDistance += self.model.G.node[road]['length']
                 self.crimesOnRoad(road)
                 self.walkedRoads +=1
+                sql = """insert into open.res_la_roads ("id","run_id","step","agent","road_id") values
+                    (DEFAULT,{0},{1},{2},{3} )""".format(self.model.run_id, self.model.modelStepCount, self.unique_id, road)
+                self.model.mycurs.execute(sql)
         except Exception as e:
             self.log.warning("Error: One agent found no way: agent id {0}, startRoad: {1}, targetRoad {2} ".format(self.unique_id, self.startRoad, targetRoad))
             self.way=[self.road,targetRoad]
