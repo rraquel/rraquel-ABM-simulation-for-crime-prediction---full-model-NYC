@@ -1,6 +1,10 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
+## UNFINISHED
+## DO NOT USE
+## TODO: Write some functionality
+
 import os, sys, time, configparser
 import logging
 from Model import Model
