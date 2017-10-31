@@ -4,6 +4,26 @@
 #to run: in pythonprototype folder: bash offender/multirun.sh
 
 
+#test agent number
+for i in config/numAgents/test25* config/numAgents/test50* ; do 
+    offender/run.py `echo "$i"|sed -e 's:config/::'` &
+    sleep 1
+done
+
+
+while true; do
+  NUMPROCS=`ps -ef| grep run.py | wc -l`
+  if [ $NUMPROCS -le 1 ]; then
+    # starte zweite Ladung
+    for i in config/numAgents/test75* ; do 
+    offender/run.py `echo "$i"|sed -e 's:config/::'` &
+    sleep 1
+done
+    break
+  fi
+  sleep 100
+done
+
 
 
 #test agent number
@@ -15,10 +35,10 @@
 
 
 ########### first batch ###############
-for i in config/pretest/test1.ini config/pretest/test2.ini config/pretest/test3.ini config/pretest/test4.ini config/pretest/test5.ini config/pretest/test6.ini config/pretest/test7.ini config/pretest/test8.ini config/pretest/test9.ini ; do 
-    offender/run.py `echo "$i"|sed -e 's:config/::'` &
-    sleep 1
-done
+#for i in config/pretest/test1.ini config/pretest/test2.ini config/pretest/test3.ini config/pretest/test4.ini config/pretest/test5.ini config/pretest/test6.ini config/pretest/test7.ini config/pretest/test8.ini config/pretest/test9.ini ; do 
+#    offender/run.py `echo "$i"|sed -e 's:config/::'` &
+#    sleep 1
+#done
 
 ############second batch ###############
 
