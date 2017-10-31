@@ -26,11 +26,11 @@ class Runner:
         dir_path = os.path.dirname(os.path.realpath(__file__))
         if len(sys.argv) > 1:
             #config folder and file
-            cfile = os.path.join(dir_path,'..','config',sys.argv[1])
+            self.cfile = os.path.join(dir_path,'..','config',sys.argv[1])
         else:
-            cfile = os.path.join(dir_path,'..','config','default.ini')
+            self.cfile = os.path.join(dir_path,'..','config','default.ini')
         self.config = configparser.ConfigParser()
-        self.config.read(cfile)
+        self.config.read(self.cfile)
 
     def writeExcel(self):
         """Create xls for later analysis"""
@@ -104,17 +104,20 @@ class Runner:
     def writeDBstart(self):
         self.mycurs = self.model.conn.cursor()
         self.dbIgnoreFields = ["run_id", "step", "agent"]
-        sql = """insert into open.res_la_run values (DEFAULT, current_timestamp, NULL, {0}) 
-            returning run_id""".format(self.model.schedule.get_agent_count())
+        sql = """insert into open.res_la_run values (DEFAULT, current_timestamp, NULL, {0}, '{1}') 
+            returning run_id""".format(self.model.schedule.get_agent_count(),self.cfile)
         self.mycurs.execute(sql)
         self.run_id = self.mycurs.fetchone()[0]
         self.model.run_id = self.run_id
+        self.model.conn.commit()
+
 
     def writeDB(self):
         """Push data to DB"""
         self.writeDBagent()
         self.writeDBmodel()
         sql = """update open.res_la_run set end_date = current_timestamp where run_id={0}""".format(self.run_id)
+        self.mycurs.execute(sql)
         self.model.conn.commit()
 
 
