@@ -158,7 +158,7 @@ class AgentX(mesa.Agent):
             select geom from open.nyc_road_proj_final where gid={0}) ,ftus_coord, {1})
             and not st_dwithin( (
             select geom from open.nyc_road_proj_final where gid={0}) ,ftus_coord, {2}))
-            as fs left join open.nyc_road2fs_near r2f on r2f.fs_id=fs.venue_id 
+            as fs left join open.nyc_road2fs_near2 r2f on r2f.fs_id=fs.venue_id 
             where not road_id is null""".format(road,maxRadius,minRadius))
         roads=mycurs.fetchall() #returns tuple of tuples, venue_id and road_id paired
         #self.log.debug('random Venue')        
@@ -172,7 +172,7 @@ class AgentX(mesa.Agent):
             select geom from open.nyc_road_proj_final where gid={0}) ,ftus_coord, {1})
             and not st_dwithin( (
             select geom from open.nyc_road_proj_final where gid={0}) ,ftus_coord, {2}))
-            as fs left join open.nyc_road2fs_near r2f on r2f.fs_id=fs.venue_id 
+            as fs left join open.nyc_road2fs_near2 r2f on r2f.fs_id=fs.venue_id 
             where not road_id is null and not weight_center=0""".format(road,maxRadius,minRadius))
         roads=mycurs.fetchall() #returns tuple of tuples, venue_id and road_id paired
         #self.log.debug('random Venue Center')        
@@ -180,15 +180,12 @@ class AgentX(mesa.Agent):
 
     def popularVenue(self, road, mycurs, maxRadius, minRadius):
         mycurs = self.conn.cursor()
-        mycurs.execute("""SELECT road_id, weighted_checkins FROM(
-            SELECT venue_id, checkins_count,(checkins_count * 100.0)/temp.total_checkins as weighted_checkins
-            from (SELECT COUNT(venue_id)as total_venues, SUM(checkins_count) as total_checkins FROM open.nyc_fs_venue_join
-            where st_dwithin((select geom from open.nyc_road_proj_final where gid={0}),ftus_coord, {1})
-            and not st_dwithin((select geom from open.nyc_road_proj_final where gid={0}),ftus_coord, {2})
-            ) as temp, open.nyc_fs_venue_join
+        mycurs.execute("""SELECT road_id, checkins_count FROM(
+            SELECT venue_id, checkins_count
+            from open.nyc_fs_venue_join
             where st_dwithin((select geom from open.nyc_road_proj_final where gid={0}),ftus_coord, {1})
             and not st_dwithin((select geom from open.nyc_road_proj_final where gid={0}),ftus_coord, {2}))
-            AS fs LEFT JOIN open.nyc_road2fs_near r2f on r2f.fs_id=fs.venue_id WHERE NOT road_id is null"""
+            AS fs LEFT JOIN open.nyc_road2fs_near2 r2f on r2f.fs_id=fs.venue_id WHERE NOT road_id is null"""
             .format(road,maxRadius,minRadius))
         roads=mycurs.fetchall() #returns tuple of tuples, venue_id,weighted_checkins
         #self.log.debug('popular Venue') 
@@ -197,15 +194,12 @@ class AgentX(mesa.Agent):
     def popularVenueCenter(self, road, mycurs, maxRadius, minRadius):
         mycurs = self.conn.cursor()
         #venues venue_id=270363 or venue_id=300810 are incorrectly mapped and therefore have weihgt=0, should not be accoutned for
-        mycurs.execute("""SELECT road_id, weight_center, weighted_checkins FROM(
-            SELECT venue_id, weight_center, checkins_count,(checkins_count * 100.0)/temp.total_checkins as weighted_checkins
-            from (SELECT COUNT(venue_id)as total_venues, SUM(checkins_count) as total_checkins FROM open.nyc_fs_venue_join
-            where st_dwithin((select geom from open.nyc_road_proj_final where gid={0}),ftus_coord, {1})
-            and not st_dwithin((select geom from open.nyc_road_proj_final where gid={0}),ftus_coord, {2})
-            ) as temp, open.nyc_fs_venue_join_weight_to_center
+        mycurs.execute("""SELECT road_id, weight_center, checkins_count FROM(
+            SELECT venue_id, weight_center, checkins_count
+            from open.nyc_fs_venue_join_weight_to_center
             where st_dwithin((select geom from open.nyc_road_proj_final where gid={0}),ftus_coord, {1})
             and not st_dwithin((select geom from open.nyc_road_proj_final where gid={0}),ftus_coord, {2}))
-            AS fs LEFT JOIN open.nyc_road2fs_near r2f on r2f.fs_id=fs.venue_id WHERE NOT road_id is NULL AND NOT weight_center=0"""
+            AS fs LEFT JOIN open.nyc_road2fs_near2 r2f on r2f.fs_id=fs.venue_id WHERE NOT road_id is NULL AND NOT weight_center=0"""
             .format(road,maxRadius,minRadius))
         roads=mycurs.fetchall() #returns tuple of tuples, venue_id,weighted_checkins
         #self.log.debug('popular Venue Center') 
@@ -242,6 +236,7 @@ class AgentX(mesa.Agent):
 
     def weightedChoice(self, roads, road):
         #TODO bring weihts to same scale!!!
+        print(roads[0])
         if not roads:
             self.log.critical('no roads, probably target venue has no road: {0}, search radius: {1}, radiustype: {2}'.format(road, self.searchRadius, self.radiusType))
             roadId=None   
@@ -254,13 +249,15 @@ class AgentX(mesa.Agent):
             if (len(roads[0])>2): #×or if self.targetType=2
                 weightList2=[x[2] for x in roads]
                 #bring both weights to same scala
-                weightList2=[float(i*100) for i in weightList2]
+                weightList2=[i for i in weightList2]
                 weightList=[i*j for i,j in zip(weightList,weightList2)]
                 #self.log.debug('combined weights: {}'.format(weightList[0]))
             pWeightList=[]
+            print('weightlist value {}'.format(weightList[0]))
             sumWeightList=sum(weightList)
             for value in weightList:
                 pWeightList.append(value/sumWeightList)
+            print('weightlist value {}'.format(pWeightList[0]))
             #self.log.debug('weightlist p sum: {}'.format(sum(pWeightList)))
             roadIdNp=np.random.choice(roadsList, 1, True, pWeightList)
             roadId=roadIdNp[0]  
@@ -302,6 +299,7 @@ class AgentX(mesa.Agent):
                 self.walkedRoads +=1
                 sql = """insert into open.res_la_roads ("id","run_id","step","agent","road_id") values
                     (DEFAULT,{0},{1},{2},{3} )""".format(self.model.run_id, self.model.modelStepCount, self.unique_id, road)
+                #Remove if not DB writing-
                 self.model.mycurs.execute(sql)
         except Exception as e:
             self.log.warning("Error: One agent found no way: agent id {0}, startRoad: {1}, targetRoad {2} ".format(self.unique_id, self.startRoad, targetRoad))
