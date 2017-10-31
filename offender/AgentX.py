@@ -303,40 +303,34 @@ class AgentX(mesa.Agent):
         except Exception as e:
             self.log.warning("Error: One agent found no way: agent id {0}, startRoad: {1}, targetRoad {2} ".format(self.unique_id, self.startRoad, targetRoad))
             self.way=[self.road,targetRoad]
+        
+    def daytrips(self):
+        """trips in one day"""
+        self.searchRadius=self.radius()
+        #agent trip number drawn form distribution
+        self.agentTravelTrip=np.random.uniform(1, (self.agentTravelAvg*2)-1)
+        self.agentTravelTripList.append(self.agentTravelTrip)
+        #make trips
+        roundTravelTrip=int(round(self.agentTravelTrip))
+        while self.agentTravelTrip >0 and (self.tripCount+1)<roundTravelTrip:
+            targetRoad=self.searchTarget(self.road, self.searchRadius)
+            self.tripCount+=1
+            self.findMyWay(targetRoad)
+            #self.log.info("agent {0}, trip count: {1}, trip avg: {2}, number of trips: {3}".format(self.unique_id, self.tripCount, self.agentTravelAvg, self.agentTravelTrip))
+        self.log.debug('reset agent  {0}, trip should {1}, trip count {2}'.format(self.unique_id,self.agentTravelTrip,self.tripCount))
+        #go back to starting road targetRoad=startRoad
+        targetRoad=self.resetAgent()
+        self.findMyWay(targetRoad)
+        self.road=targetRoad
+        print('last road {}'.format(self.road))
+
 
    
     def step(self):
-        """step: behavior for each offender"""
-        #print('start road: {}'.format(self.road))
-        #select new radius for power-law
-        #uniform distr. radius
-        self.searchRadius=self.radius()
-        #print('next power radius {0}'.format(self.radiusType))
-        #rest agent to start at new location
-        if self.newStart is 1:
-            self.startRoad=self.findStartLocation()
-            #self.log.debug("new start road: {}".format(self.startRoad))
-            targetRoad=self.startRoad
-            self.agentTravelTrip=np.random.uniform(1, (self.agentTravelAvg*2)-1)
-            self.agentTravelTripList.append(self.agentTravelTrip)
-            #self.log.debug("agent {0} travel trip count list {1}".format(self.unique_id,self.agentTravelTripList))
-            self.newStart=0
-            self.tripCount=0
-        #last step before agent starts at new location
-        if self.agentTravelTrip >0 and (self.tripCount+1)>self.agentTravelTrip:
-            targetRoad=self.resetAgent()
-            self.newStart=1
-            self.tripCount+=1
-            self.findMyWay(targetRoad)
-            #self.log.debug("target road in reset Agent is: {}".format(targetRoad))
-        #normal step for agent to find target and way
-        else:
-            #one step: walk to destination
-            targetRoad=self.searchTarget(self.road, self.searchRadius)
-            self.tripCount+=1
-            #self.log.info("agent {0}, trip count: {1}, trip avg: {2}, number of trips: {3}".format(self.unique_id, self.tripCount, self.agentTravelAvg, self.agentTravelTrip))
-            self.findMyWay(targetRoad)
-        self.road=targetRoad
+        """step: behavior for each offender per day"""
+        #new day start at new location
+        self.startRoad=self.findStartLocation()
+        self.daytrips()
         #update unique crimes
         self.uniqueCrimesOverall()
         #self.log.info("agent {0}, target road list by road_id {1}".format(self.unique_id, self.targetRoadList))
