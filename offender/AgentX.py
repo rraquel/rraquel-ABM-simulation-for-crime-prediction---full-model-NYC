@@ -325,8 +325,6 @@ class AgentX(mesa.Agent):
         targetRoad=self.resetAgent()
         self.findMyWay(targetRoad)
         self.road=targetRoad
-        print('last road {}'.format(self.road))
-
 
    
     def step(self):
