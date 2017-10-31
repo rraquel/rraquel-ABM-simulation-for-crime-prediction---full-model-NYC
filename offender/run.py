@@ -115,6 +115,7 @@ class Runner:
         self.writeDBagent()
         self.writeDBmodel()
         sql = """update open.res_la_run set end_date = current_timestamp where run_id={0}""".format(self.run_id)
+        self.mycurs.execute(sql)
         self.model.conn.commit()
 
 
