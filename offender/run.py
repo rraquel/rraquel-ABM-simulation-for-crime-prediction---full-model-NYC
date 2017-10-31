@@ -48,39 +48,73 @@ class Runner:
         columns = self.mycurs.fetchall()
         return([x[0] for x in columns])
 
-
-    def writeDBagent(self,run_id):
-        dbf = self.getTableFields('res_la_agent')
+    def writeDBagent(self):
+        """a"""
+        print("Agent Data Dumping")
         agents = self.agent_df.to_dict()
         # Fields to be inserted
+        insertf = self.getInsertFields(agents, 'res_la_agent')
+        insertFieldStr = '"' + str.join('", "', insertf) + '"'
+        for agentId in range(self.model.numAgents):
+            for stepId in range(int(round(len(agents[insertf[0]]) / self.model.numAgents))):
+                insertValues = []
+                for f in insertf:
+                    insertValues.append( str(agents[f][(stepId, agentId)]) )
+                insertValues = [str(self.run_id), str(stepId), str(agentId)] + insertValues
+                insertValuesStr = str.join(", ", insertValues)
+                sql = """insert into open.res_la_agent ("run_id","step","agent",{0}) values ({1})""".format(insertFieldStr, insertValuesStr )
+                self.mycurs.execute(sql)
+        #self.model.conn.commit()
+        print("End Agent data dumping")
+
+    def getInsertFields(self,df_dict,tableName):
+        """Compare DB Fields and data frame fields. If one of them is changed the program still works."""
+        dbf = self.getTableFields(tableName)
         insertf=[]
         for f in dbf:
-            if f in agents.keys() and not f in self.dbIgnoreFields:
+            if f in df_dict.keys() and not f in self.dbIgnoreFields:
                 insertf.append( f )
             else:
-                print("Field ignored: ", f)
-        insertFieldStr = '"' + str.join('", "', insertf) + '"'
-        for agentId in range(self.model.schedule.get_agent_count()):
-            for stepId in range(self.model.schedule.steps):
-                for i in range(len(agents[insertf[0]])):
-                    insertValues = []
-                    for f in insertf:
-                        insertValues.append( str(agents[f][(stepId, agentId)]) )
-                    insertValues = [str(run_id), str(stepId), str(agentId)] + insertValues
-                    insertValuesStr = str.join(", ", insertValues)
-                    sql = """insert into open.res_la_agent ("run_id","step","agent",{0}) values ({1})""".format(insertFieldStr, insertValuesStr )
-                    # print("SQL: ", sql)
-                    self.mycurs.execute(sql)
+                self.log.warn("Field ignored: ", f)
+        return(insertf)
 
-    def writeDB(self):
-        """Push data to DB"""
+    def writeDBmodel(self):
+        """a"""
+        print("Model Data Dumping")
+        stringFields=["radiusType", "startLocation", "targetType"]
+        modelData = self.model_df.to_dict()
+        # Fields to be inserted
+        insertf = self.getInsertFields(modelData,'res_la_model') + stringFields
+        #print("insertf",insertf)
+        insertFieldStr = '"' + str.join('", "', insertf) + '"'
+        for stepId in range(len(modelData[insertf[0]])):
+            insertValues = []
+            for f in insertf:
+                if f in stringFields:
+                    insertValues.append( "'" + str(modelData[f][stepId]) + "'")
+                else:    
+                    insertValues.append( str(modelData[f][stepId]) )
+            insertValues = [str(self.run_id), str(stepId)] + insertValues
+            insertValuesStr = str.join(", ", insertValues)
+            sql = """insert into open.res_la_model ("run_id","step",{0}) values ({1})""".format(insertFieldStr, insertValuesStr )
+            print("SQL: ", sql)
+            self.mycurs.execute(sql)
+        self.model.conn.commit()
+
+    def writeDBstart(self):
         self.mycurs = self.model.conn.cursor()
         self.dbIgnoreFields = ["run_id", "step", "agent"]
         sql = """insert into open.res_la_run values (DEFAULT, current_timestamp, NULL, {0}) 
             returning run_id""".format(self.model.schedule.get_agent_count())
         self.mycurs.execute(sql)
-        run_id = self.mycurs.fetchone()[0]
-        self.writeDBagent(run_id)
+        self.run_id = self.mycurs.fetchone()[0]
+        self.model.run_id = self.run_id
+
+    def writeDB(self):
+        """Push data to DB"""
+        self.writeDBagent()
+        self.writeDBmodel()
+        sql = """update open.res_la_run set end_date = current_timestamp where run_id={0}""".format(self.run_id)
         self.model.conn.commit()
 
 
@@ -104,11 +138,14 @@ class Runner:
         #get data as pandas data frame
         self.agent_df = self.model.dc.get_agent_vars_dataframe()
         self.model_df = self.model.dc.get_model_vars_dataframe()
-        self.writeExcel()
+        try:
+            self.writeExcel()
+        except Exception as e:
+            self.log.warn(e)
         try:
             self.writeDB()
         except Exception as e:
-            print(e)
+            print("Exception",e)
         self.log.debug(self.agent_df)
         self.log.info('Global stats: \n{}'.format(self.model_df.tail()))
 
@@ -132,5 +169,6 @@ if __name__ == '__main__':
     runner.createModel()
     print("time at model created {}".format(str(time.monotonic()-runner.t)))
 
+    runner.writeDBstart()
     runner.stepModel()
     print("time at end of model {}".format(str(time.monotonic()-runner.t)))

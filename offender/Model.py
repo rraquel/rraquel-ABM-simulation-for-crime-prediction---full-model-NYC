@@ -20,7 +20,7 @@ class Model(mesa.Model):
         #for batch runner: instance attribute running in Model class - enables conditional shut off of the model once a condition is met.
         self.t=time.monotonic()
         self.running = True
-
+        self.run_id=0
         self.log=logging.getLogger('')
         self.conn=self.connectDB()
         self.generalNumSteps=0
