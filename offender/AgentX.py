@@ -236,7 +236,6 @@ class AgentX(mesa.Agent):
 
     def weightedChoice(self, roads, road):
         #TODO bring weihts to same scale!!!
-        print(roads[0])
         if not roads:
             self.log.critical('no roads, probably target venue has no road: {0}, search radius: {1}, radiustype: {2}'.format(road, self.searchRadius, self.radiusType))
             roadId=None   
@@ -253,11 +252,9 @@ class AgentX(mesa.Agent):
                 weightList=[i*j for i,j in zip(weightList,weightList2)]
                 #self.log.debug('combined weights: {}'.format(weightList[0]))
             pWeightList=[]
-            print('weightlist value {}'.format(weightList[0]))
             sumWeightList=sum(weightList)
             for value in weightList:
                 pWeightList.append(value/sumWeightList)
-            print('weightlist value {}'.format(pWeightList[0]))
             #self.log.debug('weightlist p sum: {}'.format(sum(pWeightList)))
             roadIdNp=np.random.choice(roadsList, 1, True, pWeightList)
             roadId=roadIdNp[0]  
