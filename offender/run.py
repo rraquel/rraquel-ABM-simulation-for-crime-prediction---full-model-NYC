@@ -81,19 +81,15 @@ class Runner:
     def writeDBmodel(self):
         """a"""
         print("Model Data Dumping")
-        stringFields=["radiusType", "startLocation", "targetType"]
         modelData = self.model_df.to_dict()
         # Fields to be inserted
-        insertf = self.getInsertFields(modelData,'res_la_model') + stringFields
+        insertf = self.getInsertFields(modelData,'res_la_model')
         #print("insertf",insertf)
         insertFieldStr = '"' + str.join('", "', insertf) + '"'
         for stepId in range(len(modelData[insertf[0]])):
             insertValues = []
             for f in insertf:
-                if f in stringFields:
-                    insertValues.append( "'" + str(modelData[f][stepId]) + "'")
-                else:    
-                    insertValues.append( str(modelData[f][stepId]) )
+                insertValues.append( str(modelData[f][stepId]) )
             insertValues = [str(self.run_id), str(stepId)] + insertValues
             insertValuesStr = str.join(", ", insertValues)
             sql = """insert into open.res_la_model ("run_id","step",{0}) values ({1})""".format(insertFieldStr, insertValuesStr )
@@ -104,8 +100,9 @@ class Runner:
     def writeDBstart(self):
         self.mycurs = self.model.conn.cursor()
         self.dbIgnoreFields = ["run_id", "step", "agent"]
-        sql = """insert into open.res_la_run values (DEFAULT, current_timestamp, NULL, {0}, '{1}') 
-            returning run_id""".format(self.model.schedule.get_agent_count(),self.cfile)
+        sql = """insert into open.res_la_run values (DEFAULT, current_timestamp, NULL, {0}, '{1}', '{2}','{3}','{4}',{5}) 
+            returning run_id""".format(self.model.schedule.get_agent_count(),self.cfile,self.model.startLocationType,
+              self.model.radiusType, self.model.targetType,self.config.getint('general','numSteps', fallback=1))
         self.mycurs.execute(sql)
         self.run_id = self.mycurs.fetchone()[0]
         self.model.run_id = self.run_id
