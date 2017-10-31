@@ -38,7 +38,7 @@ done
 #  NUMPROCS=`ps -ef| grep run.py | wc -l`
 #  if [$NUMPROCS -le 1]; then
 #    # starte zweite Ladung
-#    for i in config/testSequential/test2.ini ; do 
+#    for i in config/testSequential/* ; do 
 #    offender/run.py `echo "$i"|sed -e 's:config/::'` &
 #    sleep 1
 #done
