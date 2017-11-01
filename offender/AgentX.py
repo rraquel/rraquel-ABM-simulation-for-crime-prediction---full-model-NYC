@@ -79,7 +79,7 @@ class AgentX(mesa.Agent):
                 loopCount+=1
                 startRoad=getattr(self, self.model.startLocationType)()
                 access=self.roadAccessibility(startRoad)
-                self.log.debug('test of while loop in start {}'.format(loopCount))
+                #self.log.debug('test of while loop in start {}'.format(loopCount))
         self.log.debug("startRoad: {0}".format(startRoad))
         self.targetRoadList.append(startRoad)
         return startRoad
@@ -314,13 +314,12 @@ class AgentX(mesa.Agent):
         except Exception as e:
             self.log.critical("trip: Error: One agent found no way: agent id {0}, startRoad: {1}, targetRoad {2} ".format(self.unique_id, self.startRoad, targetRoad))
             #erases target from targetList
-            self.targetRoadList.pop()
-            self.tripCount-=1
+            exit()
 
     def roadAccessibility(self, targetRoad):
         """test if there is a way to the road"""
         try:
-            self.way=nx.shortest_path(self.model.G,7,8)
+            self.way=nx.shortest_path(self.model.G,7,targetRoad)
             return True
         except:
             return False

@@ -4,7 +4,7 @@
 #to run: in pythonprototype folder: bash offender/multirun.sh
 
 
-#test agent number
+
 #for i in config/numAgents/test25* config/numAgents/test100* ; do 
 #    offender/run.py `echo "$i"|sed -e 's:config/::'` &
 #    sleep 100
@@ -15,7 +15,7 @@ while true; do
   NUMPROCS=`ps -ef| grep run.py | wc -l`
   if [ $NUMPROCS -le 7 ]; then
     # starte zweite Ladung
-    for i in config/numAgents/test25*; do 
+    for i in config/numAgents/test*; do 
     offender/run.py `echo "$i"|sed -e 's:config/::'` &
     sleep 100
 done
