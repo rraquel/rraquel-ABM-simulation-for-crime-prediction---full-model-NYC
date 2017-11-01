@@ -18,7 +18,7 @@
 #    sleep 1
 #done
 
-for i in config/numAgents/1/test200* ; do 
+for i in config/numAgents/1/test50* ; do 
     offender/run.py `echo "$i"|sed -e 's:config/::'` &
     sleep 1
 done
