@@ -18,6 +18,7 @@ class AgentX(mesa.Agent):
         super().__init__(unique_id, model)
         self.log=logging.getLogger('')
         self.pos=0
+        self.foundnoway=0
 
         #agent travel steps average until returning home
         self.agentTravelAvg=agentTravelAvg
@@ -72,8 +73,14 @@ class AgentX(mesa.Agent):
 
 
     def findStartLocation(self):
-        startRoad=getattr(self, self.model.startLocationType)()
-        #self.log.debug("startRoad: {0}".format(startRoad))
+        access=False
+        loopCount=0
+        while access==False:
+                loopCount+=1
+                startRoad=getattr(self, self.model.startLocationType)()
+                access=self.roadAccessibility(startRoad)
+                self.log.debug('test of while loop in start {}'.format(loopCount))
+        self.log.debug("startRoad: {0}".format(startRoad))
         self.targetRoadList.append(startRoad)
         return startRoad
         
@@ -206,6 +213,7 @@ class AgentX(mesa.Agent):
         return roads
 
     def searchTarget(self, road, searchRadius):
+        """search target within radius"""
         if road is None:
             road=self.startRoad
         #print('in searchTarget: current road for new target: {0}'.format(road))
@@ -235,6 +243,7 @@ class AgentX(mesa.Agent):
         return targetRoad
 
     def weightedChoice(self, roads, road):
+        """choice of target by weighting if avalable"""
         #TODO bring weihts to same scale!!!
         if not roads:
             self.log.critical('no roads, probably target venue has no road: {0}, search radius: {1}, radiustype: {2}'.format(road, self.searchRadius, self.radiusType))
@@ -262,6 +271,7 @@ class AgentX(mesa.Agent):
     
        
     def crimesOnRoad(self, road):
+        """counts crimes found on each road"""
         try:
             attributList=self.allCrimes[road]
             for item in attributList:
@@ -276,6 +286,7 @@ class AgentX(mesa.Agent):
 
      #unique over all agents       
     def uniqueCrimesOverall(self):
+        """saves crime id over all the agents in global variable"""
         for i in range(len(self.crimes)):
             #in set(): add is for single value and update for list of values
             globalVar.burglaryUniqueOverall.update(self.crimes[1])
@@ -285,6 +296,7 @@ class AgentX(mesa.Agent):
             globalVar.assualtUniqueOverall.update(self.crimes[4])         
 
     def findMyWay(self, targetRoad):
+        """find way to target road and count statistics for path"""
         #self.log.debug('search radius: {}'.format(self.searchRadius))
         try:
             #roads are represented as nodes in G
@@ -298,9 +310,20 @@ class AgentX(mesa.Agent):
                     (DEFAULT,{0},{1},{2},{3} )""".format(self.model.run_id, self.model.modelStepCount, self.unique_id, road)
                 #Remove if not DB writing-
                 self.model.mycurs.execute(sql)
+                self.foundnoway=0
         except Exception as e:
-            self.log.warning("Error: One agent found no way: agent id {0}, startRoad: {1}, targetRoad {2} ".format(self.unique_id, self.startRoad, targetRoad))
-            self.way=[self.road,targetRoad]
+            self.log.critical("trip: Error: One agent found no way: agent id {0}, startRoad: {1}, targetRoad {2} ".format(self.unique_id, self.startRoad, targetRoad))
+            #erases target from targetList
+            self.targetRoadList.pop()
+            self.tripCount-=1
+
+    def roadAccessibility(self, targetRoad):
+        """test if there is a way to the road"""
+        try:
+            self.way=nx.shortest_path(self.model.G,7,8)
+            return True
+        except:
+            return False
         
     def daytrips(self):
         """trips in one day"""
@@ -311,11 +334,18 @@ class AgentX(mesa.Agent):
         #make trips
         roundTravelTrip=int(round(self.agentTravelTrip))
         while self.agentTravelTrip >0 and (self.tripCount+1)<roundTravelTrip:
-            targetRoad=self.searchTarget(self.road, self.searchRadius)
-            self.tripCount+=1
+            loopCount=0
+            #emulate do-while: assigns False for the loop to be executed before further condition testing
+            access=False
+            while access==False:
+                loopCount+=1
+                targetRoad=self.searchTarget(self.road, self.searchRadius)
+                access=self.roadAccessibility(targetRoad)
+                #self.log.debug('count of while loop in search target {}'.format(test))
             self.findMyWay(targetRoad)
-            #self.log.info("agent {0}, trip count: {1}, trip avg: {2}, number of trips: {3}".format(self.unique_id, self.tripCount, self.agentTravelAvg, self.agentTravelTrip))
-        self.log.debug('reset agent  {0}, trip should {1}, trip count {2}'.format(self.unique_id,self.agentTravelTrip,self.tripCount))
+            self.tripCount+=1
+            self.log.info("agent {0}, trip count: {1}, trip avg: {2}, number of trips: {3}".format(self.unique_id, self.tripCount, self.agentTravelAvg, self.agentTravelTrip))
+        #self.log.debug('reset agent  {0}, trip should {1}, trip count {2}'.format(self.unique_id,self.agentTravelTrip,self.tripCount))
         #go back to starting road targetRoad=startRoad
         targetRoad=self.resetAgent()
         self.findMyWay(targetRoad)
