@@ -18,8 +18,7 @@
 #    sleep 1
 #done
 
-
-for i in config/pretest/test10.ini config/pretest/test11.ini config/pretest/test12.ini config/pretest/test13.ini config/pretest/test14.ini config/pretest/test15.ini config/pretest/test16.ini config/pretest/test17.ini config/pretest/test18.ini ; do 
+for i in config/numAgents/1/test200* ; do 
     offender/run.py `echo "$i"|sed -e 's:config/::'` &
     sleep 1
 done
@@ -45,7 +44,7 @@ done
 #    offender/run.py `echo "$i"|sed -e 's:config/::'` &
 #    sleep 1
 #done
-    break
+#    break
 #  fi
 #  sleep 10
 #done
