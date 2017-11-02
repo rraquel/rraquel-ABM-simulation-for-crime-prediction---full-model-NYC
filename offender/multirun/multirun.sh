@@ -12,7 +12,7 @@
 
 while true; do
   NUMPROCS=`ps -ef| grep run.py | wc -l`
-  if [ $NUMPROCS -le 4 ]; then
+  if [ $NUMPROCS -le 3 ]; then
     # starte zweite Ladung
     for i in config/numAgents/1/test50*; do 
     offender/run.py `echo "$i"|sed -e 's:config/::'` &
