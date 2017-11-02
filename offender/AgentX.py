@@ -42,8 +42,8 @@ class AgentX(mesa.Agent):
         self.residentRoads=model.residentRoads
         self.residentRoadsWeight=model.residentRoadsWeight
         self.startLocationType=startLocationType
-        self.startRoad=self.findStartLocation()
-        self.road=self.startRoad
+        self.startRoad=0
+        self.road=0
 
         self.radiusType=radiusType
         self.staticRadius=model.staticRadius
@@ -301,6 +301,10 @@ class AgentX(mesa.Agent):
         try:
             #roads are represented as nodes in G
             self.way=nx.shortest_path(self.model.G,self.road,targetRoad,weight='length')
+            print('start road {}'.format(self.road))
+            print('target road {}'.format(targetRoad))
+            print( 'way {}'.format(self.way))
+            print( 'way count {}'.format(len(self.way)))
             #print("Agent ({0}) way: {1}".format(self.unique_id,self.way))
             for road in self.way:
                 self.walkedDistance += self.model.G.node[road]['length']
@@ -342,6 +346,7 @@ class AgentX(mesa.Agent):
                 access=self.roadAccessibility(targetRoad)
                 #self.log.debug('count of while loop in search target {}'.format(test))
             self.findMyWay(targetRoad)
+            self.road=targetRoad
             self.tripCount+=1
             self.log.info("agent {0}, trip count: {1}, trip avg: {2}, number of trips: {3}".format(self.unique_id, self.tripCount, self.agentTravelAvg, self.agentTravelTrip))
         #self.log.debug('reset agent  {0}, trip should {1}, trip count {2}'.format(self.unique_id,self.agentTravelTrip,self.tripCount))
@@ -349,12 +354,15 @@ class AgentX(mesa.Agent):
         targetRoad=self.resetAgent()
         self.findMyWay(targetRoad)
         self.road=targetRoad
+        print(self.walkedDistance)
+        print(self.walkedRoads)
 
    
     def step(self):
         """step: behavior for each offender per day, every agent starts at new position and does trips for 1 day"""
         #new day start at new location
         self.startRoad=self.findStartLocation()
+        self.road=self.startRoad
         self.daytrips()
         #update unique crimes
         self.uniqueCrimesOverall()
