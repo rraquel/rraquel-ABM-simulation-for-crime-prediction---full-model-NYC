@@ -309,7 +309,7 @@ class AgentX(mesa.Agent):
                     (DEFAULT,{0},{1},{2},{3} )""".format(self.model.run_id, self.model.modelStepCount, self.unique_id, road)
                 #Remove if not DB writing-
                 self.model.mycurs.execute(sql)
-                self.foundnoway=0
+            self.foundnoway=0
         except Exception as e:
             self.log.critical("trip: Error: One agent found no way: agent id {0}, startRoad: {1}, targetRoad {2} ".format(self.unique_id, self.startRoad, targetRoad))
             #erases target from targetList
