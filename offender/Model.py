@@ -79,8 +79,8 @@ class Model(mesa.Model):
 
         self.log.info("Generating Model")
 
-        #TODO data collection
         #collect statistics from peragent&step (can be more) - see output in model
+        #!!!!LOGS VARIABLES OF THE AGENT AT THE BEGINNING OF THE STEP!!!!!! THEREFORE NEED TO ADD 1 STEP TO THE RUN
         self.dc=DataCollector(model_reporters={
             #"modelStepCount": lambda m: m.modelStepCount,
             "agentCount":lambda m: m.schedule.get_agent_count(),
@@ -111,6 +111,13 @@ class Model(mesa.Model):
             "PercentLarcenyMotorUnique": lambda m: (len(globalVar.larcenyMUniqueOverall)/m.larcenyMCount),
             "PercentAssaultUnique": lambda m: (len(globalVar.assualtUniqueOverall)/m.assualtCount),
 
+            "PercentcumCrimes": lambda m: (sum(map(lambda a: a.cummCrimes(),m.schedule.agents))/m.totalCrimes),
+            "PercentcumBurglary": lambda m: (sum(map(lambda a: a.cummBurglary(),m.schedule.agents))/m.burglaryCount),
+            "PercentcumRobbery": lambda m: (sum(map(lambda a: a.cummRobbery(),m.schedule.agents))/m.robberyCount),
+            "PercentcumLarceny": lambda m: (sum(map(lambda a: a.cummLarceny(),m.schedule.agents))/m.larcenyCount),
+            "PercentcumLarcenyMotor": lambda m: (sum(map(lambda a: a.cummLarcenyM(),m.schedule.agents))/m.larcenyMCount),
+            "PercentcumAssault": lambda m: (sum(map(lambda a: a.cummAssault(),m.schedule.agents))/m.larcenyMCount),
+    
             "uniqPai": lambda m: (((len(globalVar.crimesUniqueOverall)/m.totalCrimes))/(sum(map(lambda a: (a.walkedDistance/m.totalRoadDistance),m.schedule.agents)))) if m.modelStepCount is (m.generalNumSteps-1) else 0,
             "uniquePaiBurglary": lambda m: (((len(globalVar.crimesUniqueOverall)/m.burglaryCount))/(sum(map(lambda a: (a.walkedDistance/m.totalRoadDistance),m.schedule.agents)))) if m.modelStepCount is (m.generalNumSteps-1) else 0,
             "uniquePaiRobbery": lambda m: (((len(globalVar.crimesUniqueOverall)/m.robberyCount))/(sum(map(lambda a: (a.walkedDistance/m.totalRoadDistance),m.schedule.agents)))) if m.modelStepCount is (m.generalNumSteps-1) else 0,

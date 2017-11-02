@@ -27,7 +27,7 @@ class AgentX(mesa.Agent):
             self.agentTravelTripList=[self.agentTravelTrip]
         else:
             self.agentTravelTrip=0
-        #self.log.debug('num trips travel distribution value: {}'.format(self.agentTravelTrip))
+        self.log.debug('num trips travel distribution value: {}'.format(self.agentTravelTrip))
         self.tripCount=0
         self.newStart=0
         self.crimes=[]
@@ -79,7 +79,7 @@ class AgentX(mesa.Agent):
                 loopCount+=1
                 startRoad=getattr(self, self.model.startLocationType)()
                 access=self.roadAccessibility(startRoad)
-                #self.log.debug('test of while loop in start {}'.format(loopCount))
+                self.log.debug('test of while loop in start {}'.format(loopCount))
         self.log.debug("startRoad: {0}".format(startRoad))
         self.targetRoadList.append(startRoad)
         return startRoad
@@ -90,14 +90,13 @@ class AgentX(mesa.Agent):
 
     def findStartResidence(self):
         """Select startRoad within Residential Areas from PlutoMap"""
-        #self.log.debug('weightlist p sum: {}'.format(sum(pWeightList)))
+        self.log.debug('weightlist p sum: {}'.format(sum(pWeightList)))
         roadIdNp=np.random.choice(self.residentRoads,1)
         startRoad=roadIdNp[0]
         return startRoad
 
     def findStartResidencePopulation(self):
         """Select startRoad within Residential Areas from PlutoMap and population density"""
-        #self.log.debug('weightlist p sum: {}'.format(sum(pWeightList)))
         roadIdNp=np.random.choice(self.residentRoads, 1, True, self.residentRoadsWeight)
         startRoad=roadIdNp[0]
         return startRoad
@@ -105,7 +104,7 @@ class AgentX(mesa.Agent):
     def resetAgent(self):
         self.tripCount=0
         self.targetRoadList.append(self.startRoad)
-        #self.log.debug("reset agent")
+        self.log.debug("reset agent")
         return self.startRoad
 
     def radius(self):
@@ -144,7 +143,7 @@ class AgentX(mesa.Agent):
             and not st_dwithin((select geom from open.nyc_road_weight_to_center where gid={0}) ,geom,{2})
             ) as bar;""".format(road,maxRadius,minRadius))
         roads=mycurs.fetchall() #returns tuple with first row (unordered list)
-        #self.log.debug('random Road')
+        self.log.debug('random Road')
         return roads
 
     def randomRoadCenter(self, road, mycurs, maxRadius, minRadius):
@@ -168,7 +167,7 @@ class AgentX(mesa.Agent):
             as fs left join open.nyc_road2fs_near2 r2f on r2f.fs_id=fs.venue_id 
             where not road_id is null""".format(road,maxRadius,minRadius))
         roads=mycurs.fetchall() #returns tuple of tuples, venue_id and road_id paired
-        #self.log.debug('random Venue')        
+        self.log.debug('random Venue')        
         return roads    
 
     def randomVenueCenter(self, road, mycurs,  maxRadius, minRadius):
@@ -195,7 +194,7 @@ class AgentX(mesa.Agent):
             AS fs LEFT JOIN open.nyc_road2fs_near2 r2f on r2f.fs_id=fs.venue_id WHERE NOT road_id is null"""
             .format(road,maxRadius,minRadius))
         roads=mycurs.fetchall() #returns tuple of tuples, venue_id,weighted_checkins
-        #self.log.debug('popular Venue') 
+        self.log.debug('popular Venue') 
         return roads
 
     def popularVenueCenter(self, road, mycurs, maxRadius, minRadius):
@@ -209,7 +208,7 @@ class AgentX(mesa.Agent):
             AS fs LEFT JOIN open.nyc_road2fs_near2 r2f on r2f.fs_id=fs.venue_id WHERE NOT road_id is NULL AND NOT weight_center=0"""
             .format(road,maxRadius,minRadius))
         roads=mycurs.fetchall() #returns tuple of tuples, venue_id,weighted_checkins
-        #self.log.debug('popular Venue Center') 
+        self.log.debug('popular Venue Center') 
         return roads
 
     def searchTarget(self, road, searchRadius):
@@ -259,12 +258,12 @@ class AgentX(mesa.Agent):
                 #bring both weights to same scala
                 weightList2=[i for i in weightList2]
                 weightList=[i*j for i,j in zip(weightList,weightList2)]
-                #self.log.debug('combined weights: {}'.format(weightList[0]))
+                self.log.debug('combined weights: {}'.format(weightList[0]))
             pWeightList=[]
             sumWeightList=sum(weightList)
             for value in weightList:
                 pWeightList.append(value/sumWeightList)
-            #self.log.debug('weightlist p sum: {}'.format(sum(pWeightList)))
+            self.log.debug('weightlist p sum: {}'.format(sum(pWeightList)))
             roadIdNp=np.random.choice(roadsList, 1, True, pWeightList)
             roadId=roadIdNp[0]  
         return roadId
@@ -303,7 +302,7 @@ class AgentX(mesa.Agent):
             self.way=nx.shortest_path(self.model.G,self.road,targetRoad,weight='length')
             print('start road {}'.format(self.road))
             print('target road {}'.format(targetRoad))
-            print( 'way {}'.format(self.way))
+            #print( 'way {}'.format(self.way))
             print( 'way count {}'.format(len(self.way)))
             #print("Agent ({0}) way: {1}".format(self.unique_id,self.way))
             for road in self.way:
@@ -344,12 +343,12 @@ class AgentX(mesa.Agent):
                 loopCount+=1
                 targetRoad=self.searchTarget(self.road, self.searchRadius)
                 access=self.roadAccessibility(targetRoad)
-                #self.log.debug('count of while loop in search target {}'.format(test))
+                self.log.debug('count of while loop in search target {}'.format(loopCount))
             self.findMyWay(targetRoad)
             self.road=targetRoad
             self.tripCount+=1
             self.log.info("agent {0}, trip count: {1}, trip avg: {2}, number of trips: {3}".format(self.unique_id, self.tripCount, self.agentTravelAvg, self.agentTravelTrip))
-        #self.log.debug('reset agent  {0}, trip should {1}, trip count {2}'.format(self.unique_id,self.agentTravelTrip,self.tripCount))
+        self.log.debug('reset agent  {0}, trip should {1}, trip count {2}'.format(self.unique_id,self.agentTravelTrip,self.tripCount))
         #go back to starting road targetRoad=startRoad
         targetRoad=self.resetAgent()
         self.findMyWay(targetRoad)
@@ -361,12 +360,20 @@ class AgentX(mesa.Agent):
     def step(self):
         """step: behavior for each offender per day, every agent starts at new position and does trips for 1 day"""
         #new day start at new location
-        self.startRoad=self.findStartLocation()
-        self.road=self.startRoad
-        self.daytrips()
-        #update unique crimes
-        self.uniqueCrimesOverall()
-        #self.log.info("agent {0}, target road list by road_id {1}".format(self.unique_id, self.targetRoadList))
+        print(self.model.modelStepCount+1)
+        print(self.model.generalNumSteps)
+        if self.model.modelStepCount==self.model.generalNumSteps-1:
+            self.startRoad=1
+            self.road=1
+            print('last step')
+            pass
+        else:
+            self.startRoad=self.findStartLocation()
+            self.road=self.startRoad
+            self.daytrips()
+            #update unique crimes
+            self.uniqueCrimesOverall()
+            #self.log.info("agent {0}, target road list by road_id {1}".format(self.unique_id, self.targetRoadList))
         self.log.info("step done for agent {0}, time {1}".format(self.unique_id,str(time.monotonic()-self.model.t))) 
     
 
