@@ -300,10 +300,6 @@ class AgentX(mesa.Agent):
         try:
             #roads are represented as nodes in G
             self.way=nx.shortest_path(self.model.G,self.road,targetRoad,weight='length')
-            print('start road {}'.format(self.road))
-            print('target road {}'.format(targetRoad))
-            #print( 'way {}'.format(self.way))
-            print( 'way count {}'.format(len(self.way)))
             #print("Agent ({0}) way: {1}".format(self.unique_id,self.way))
             for road in self.way:
                 self.walkedDistance += self.model.G.node[road]['length']
@@ -353,19 +349,15 @@ class AgentX(mesa.Agent):
         targetRoad=self.resetAgent()
         self.findMyWay(targetRoad)
         self.road=targetRoad
-        print(self.walkedDistance)
-        print(self.walkedRoads)
 
    
     def step(self):
         """step: behavior for each offender per day, every agent starts at new position and does trips for 1 day"""
         #new day start at new location
-        print(self.model.modelStepCount+1)
-        print(self.model.generalNumSteps)
         if self.model.modelStepCount==self.model.generalNumSteps-1:
             self.startRoad=1
             self.road=1
-            print('last step')
+            self.log.debug("model needs to be run +1 step to save state of last step!!!")
             pass
         else:
             self.startRoad=self.findStartLocation()

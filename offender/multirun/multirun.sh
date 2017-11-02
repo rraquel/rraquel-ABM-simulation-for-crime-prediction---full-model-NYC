@@ -10,46 +10,86 @@
 #    sleep 100
 #done
 
-
-
 while true; do
   NUMPROCS=`ps -ef| grep run.py | wc -l`
-  if [ $NUMPROCS -le 7 ]; then
+  if [ $NUMPROCS -le 4 ]; then
     # starte zweite Ladung
     for i in config/numAgents/1/test50*; do 
     offender/run.py `echo "$i"|sed -e 's:config/::'` &
-    sleep 600
+    sleep 100
 done
     break
   fi
-  sleep 300
+  sleep 600
 done
+
 
 while true; do
   NUMPROCS=`ps -ef| grep run.py | wc -l`
-  if [ $NUMPROCS -le 7 ]; then
+  if [ $NUMPROCS -le 4 ]; then
     # starte zweite Ladung
-    for i in config/numAgents/2/test50*; do 
+    for i in config/numAgents/1/test150*; do 
     offender/run.py `echo "$i"|sed -e 's:config/::'` &
-    sleep 900
+    sleep 100
 done
     break
   fi
-  sleep 300
+  sleep 600
 done
 
 
 while true; do
   NUMPROCS=`ps -ef| grep run.py | wc -l`
-  if [ $NUMPROCS -le 7 ]; then
+  if [ $NUMPROCS -le 4 ]; then
+    # starte zweite Ladung
+    for i in config/numAgents/2/test100*; do 
+    offender/run.py `echo "$i"|sed -e 's:config/::'` &
+    sleep 100
+done
+    break
+  fi
+  sleep 600
+done
+
+
+while true; do
+  NUMPROCS=`ps -ef| grep run.py | wc -l`
+  if [ $NUMPROCS -le 4 ]; then
+    # starte zweite Ladung
+    for i in config/numAgents/2/test150*; do 
+    offender/run.py `echo "$i"|sed -e 's:config/::'` &
+    sleep 100
+done
+    break
+  fi
+  sleep 600
+done
+
+while true; do
+  NUMPROCS=`ps -ef| grep run.py | wc -l`
+  if [ $NUMPROCS -le 4 ]; then
+    # starte zweite Ladung
+    for i in config/numAgents/1/test200*; do 
+    offender/run.py `echo "$i"|sed -e 's:config/::'` &
+    sleep 100
+done
+    break
+  fi
+  sleep 600
+done
+
+
+while true; do
+  NUMPROCS=`ps -ef| grep run.py | wc -l`
+  if [ $NUMPROCS -le 4 ]; then
     # starte zweite Ladung
     for i in config/numAgents/2/test200*; do 
     offender/run.py `echo "$i"|sed -e 's:config/::'` &
-    sleep 1200
+    sleep 100
 done
     break
   fi
-  sleep 1200
+  sleep 600
 done
 
 

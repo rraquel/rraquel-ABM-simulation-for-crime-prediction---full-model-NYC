@@ -111,12 +111,12 @@ class Model(mesa.Model):
             "PercentLarcenyMotorUnique": lambda m: (len(globalVar.larcenyMUniqueOverall)/m.larcenyMCount),
             "PercentAssaultUnique": lambda m: (len(globalVar.assualtUniqueOverall)/m.assualtCount),
 
-            "PercentcumCrimes": lambda m: (sum(map(lambda a: a.cummCrimes(),m.schedule.agents))/m.totalCrimes),
-            "PercentcumBurglary": lambda m: (sum(map(lambda a: a.cummBurglary(),m.schedule.agents))/m.burglaryCount),
-            "PercentcumRobbery": lambda m: (sum(map(lambda a: a.cummRobbery(),m.schedule.agents))/m.robberyCount),
-            "PercentcumLarceny": lambda m: (sum(map(lambda a: a.cummLarceny(),m.schedule.agents))/m.larcenyCount),
-            "PercentcumLarcenyMotor": lambda m: (sum(map(lambda a: a.cummLarcenyM(),m.schedule.agents))/m.larcenyMCount),
-            "PercentcumAssault": lambda m: (sum(map(lambda a: a.cummAssault(),m.schedule.agents))/m.larcenyMCount),
+            #"PercentcumCrimes": lambda m: (sum(map(lambda a: a.cummCrimes(),m.schedule.agents))/m.totalCrimes),
+            #"PercentcumBurglary": lambda m: (sum(map(lambda a: a.cummBurglary(),m.schedule.agents))/m.burglaryCount),
+            #"PercentcumRobbery": lambda m: (sum(map(lambda a: a.cummRobbery(),m.schedule.agents))/m.robberyCount),
+            #"PercentcumLarceny": lambda m: (sum(map(lambda a: a.cummLarceny(),m.schedule.agents))/m.larcenyCount),
+            #"PercentcumLarcenyMotor": lambda m: (sum(map(lambda a: a.cummLarcenyM(),m.schedule.agents))/m.larcenyMCount),
+            #"PercentcumAssault": lambda m: (sum(map(lambda a: a.cummAssault(),m.schedule.agents))/m.larcenyMCount),
     
             "uniqPai": lambda m: (((len(globalVar.crimesUniqueOverall)/m.totalCrimes))/(sum(map(lambda a: (a.walkedDistance/m.totalRoadDistance),m.schedule.agents)))) if m.modelStepCount is (m.generalNumSteps-1) else 0,
             "uniquePaiBurglary": lambda m: (((len(globalVar.crimesUniqueOverall)/m.burglaryCount))/(sum(map(lambda a: (a.walkedDistance/m.totalRoadDistance),m.schedule.agents)))) if m.modelStepCount is (m.generalNumSteps-1) else 0,
