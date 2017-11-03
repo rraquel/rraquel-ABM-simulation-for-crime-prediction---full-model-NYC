@@ -10,11 +10,12 @@
 #    sleep 100
 #done
 
+
 while true; do
   NUMPROCS=`ps -ef| grep run.py | wc -l`
-  if [ $NUMPROCS -le 3 ]; then
+  if [ $NUMPROCS -le 1 ]; then
     # starte zweite Ladung
-    for i in config/runStatic/test50*; do 
+    for i in config/runStatic/2/test100*; do 
     offender/run.py `echo "$i"|sed -e 's:config/::'` &
     sleep 100
 done
@@ -25,9 +26,24 @@ done
 
 while true; do
   NUMPROCS=`ps -ef| grep run.py | wc -l`
-  if [ $NUMPROCS -le 3 ]; then
+  if [ $NUMPROCS -le 1 ]; then
     # starte zweite Ladung
-    for i in config/runPower/test50*; do 
+    for i in config/runPower/1/test100*; do 
+    offender/run.py `echo "$i"|sed -e 's:config/::'` &
+    sleep 100
+done
+    break
+  fi
+  sleep 600
+done
+
+
+
+while true; do
+  NUMPROCS=`ps -ef| grep run.py | wc -l`
+  if [ $NUMPROCS -le 1 ]; then
+    # starte zweite Ladung
+    for i in config/runStatic/1/test100*; do 
     offender/run.py `echo "$i"|sed -e 's:config/::'` &
     sleep 100
 done
@@ -38,9 +54,9 @@ done
 
 while true; do
   NUMPROCS=`ps -ef| grep run.py | wc -l`
-  if [ $NUMPROCS -le 3 ]; then
+  if [ $NUMPROCS -le 1 ]; then
     # starte zweite Ladung
-    for i in config/runStatic/test100*; do 
+    for i in config/runPower/2/test100*; do 
     offender/run.py `echo "$i"|sed -e 's:config/::'` &
     sleep 100
 done
@@ -49,45 +65,6 @@ done
   sleep 600
 done
 
-while true; do
-  NUMPROCS=`ps -ef| grep run.py | wc -l`
-  if [ $NUMPROCS -le 3 ]; then
-    # starte zweite Ladung
-    for i in config/runPower/test100*; do 
-    offender/run.py `echo "$i"|sed -e 's:config/::'` &
-    sleep 100
-done
-    break
-  fi
-  sleep 600
-done
-
-
-while true; do
-  NUMPROCS=`ps -ef| grep run.py | wc -l`
-  if [ $NUMPROCS -le 3 ]; then
-    # starte zweite Ladung
-    for i in config/runStatic/test150*; do 
-    offender/run.py `echo "$i"|sed -e 's:config/::'` &
-    sleep 100
-done
-    break
-  fi
-  sleep 600
-done
-
-while true; do
-  NUMPROCS=`ps -ef| grep run.py | wc -l`
-  if [ $NUMPROCS -le 3 ]; then
-    # starte zweite Ladung
-    for i in config/runPower/test150*; do 
-    offender/run.py `echo "$i"|sed -e 's:config/::'` &
-    sleep 100
-done
-    break
-  fi
-  sleep 600
-done
 
 
 
