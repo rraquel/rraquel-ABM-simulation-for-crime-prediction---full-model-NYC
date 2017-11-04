@@ -1,5 +1,6 @@
 import numpy as np
 import math
+from offender import model
 import sys, psycopg2, os, time, random, logging
 from operator import itemgetter
 from collections import Counter
@@ -56,6 +57,8 @@ def connectDB():
     return conn
 
 conn=connectDB()
-roads=popularVenue()
-weightedChoice(roads, 100)
-print(weightedChoice(roads, 100))
+#roads=popularVenue()
+#weightedChoice(roads, 100)
+#print(weightedChoice(roads, 100))
+
+ way=nx.shortest_path(self.model.G,self.road,targetRoad,weight='length')

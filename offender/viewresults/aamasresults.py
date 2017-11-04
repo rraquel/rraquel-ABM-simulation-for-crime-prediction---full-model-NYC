@@ -445,6 +445,7 @@ def uniquePaiCrimes():
         print(uniquePai)
         x=[uniquePai, agents]
         res[targettype].append(x)
+        print(res)
 
     """randomRoad"""
     rr0=[x[0] for x in res['randomRoad']]
