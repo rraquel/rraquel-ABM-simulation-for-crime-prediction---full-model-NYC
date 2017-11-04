@@ -245,7 +245,7 @@ class AgentX(mesa.Agent):
         """choice of target by weighting if avalable"""
         #TODO bring weihts to same scale!!!
         if not roads:
-            self.log.critical('no roads, probably target venue has no road: {0}, search radius: {1}, radiustype: {2}'.format(road, self.searchRadius, self.radiusType))
+            self.log.debug('no roads in radius, road {0}, search radius: {1}, radiustype: {2}'.format(road, self.searchRadius, self.radiusType))
             roadId=None   
         elif (len(roads[0]) is 1):
             road=random.choice(roads)
@@ -311,9 +311,8 @@ class AgentX(mesa.Agent):
                 self.model.mycurs.execute(sql)
             self.foundnoway=0
         except Exception as e:
-            self.log.critical("trip: Error: One agent found no way: agent id {0}, startRoad: {1}, targetRoad {2} ".format(self.unique_id, self.startRoad, targetRoad))
+            self.log.critical("trip: Error: One agent found no way: agent id {0}, startRoad: {1}, current road: {3} targetRoad {2} ".format(self.unique_id, self.startRoad, targetRoad, self.road))
             #erases target from targetList
-            exit()
 
     def roadAccessibility(self, targetRoad):
         """test if there is a way to the road"""

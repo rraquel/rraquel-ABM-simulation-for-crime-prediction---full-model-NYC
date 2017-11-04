@@ -1,9 +1,15 @@
 import numpy as np
 import math
-from offender import model
-import sys, psycopg2, os, time, random, logging
 from operator import itemgetter
 from collections import Counter
+import mesa
+from mesa.time import RandomActivation
+from mesa.datacollection import DataCollector
+import networkx as nx
+import statistics
+import psycopg2, sys, os, time, random, logging
+from collections import Counter
+from itertools import chain
 
 
 def popularVenue():
@@ -56,9 +62,63 @@ def connectDB():
         sys.exit(1)
     return conn
 
+def createRoadNetwork():
+        # SQL to select data
+        # from intersection2road table as i2r: intersection_id [key]
+        # from open.nyc_road_proj_final as r: gid [1]
+        # from open.nyc_road_attributes as ra: length [2], crimes_2015 [3]
+        # join tables using road_id into gid
+        
+        roadLength=0
+        #crimes_2015: n crime to 1 road mapping
+        
+        mycurs.execute("""select intersection_id,r.gid,length,crimes_2015 from 
+            open.nyc_intersection2road i2r
+            left join open.nyc_road_proj_final r on i2r.road_id = r. gid
+            left join open.nyc_road_attributes ra on ra.road_id=r.gid""")
+        #fetch all values into tuple
+        interRoad=mycurs.fetchall()
+        #dictionary {} -  a Key and a value, in this case a key and a set() of values -unordered collection
+        intersect={}
+        G=nx.Graph()
+        #for each line in interRoad 
+        for line in interRoad:
+            #if attribute[0] (intersection_id) is not in intersect
+            if not line[0] in intersect:
+                #initialize a set for the key (intersect_id)
+                intersect[line[0]]=set()
+            #add current road_id to key
+            intersect[line[0]].add(line[1])
+            
+            #add road, length and crimes as node info in graph
+            #self.G.add_node(line[1], length=line[2], num_crimes=line[3])
+            # TODO Parameter: Assumptions Humans walk 300 feet in 60s
+            G.add_node(line[1],length=line[2])
+        #for r in self.G.nodes_iter():
+            #roadLength+=self.G.node[r]['length']
+        #self.log.debug("Found {} intersections".format(len(intersect)))
+        #self.log.debug("roadlenght: {}".format(roadLength))
+        #build edges with information on nodes (roads)
+        # loops over each intersection in intersect[]     
+        for interKey in intersect.keys():
+            #loops over each road in the current intersection
+            for road in intersect[interKey]:
+                #loops over roads again to compare roads and map relationship
+                for road2 in intersect[interKey]:
+                    if not road==road2:
+                        G.add_edge(road, road2)
+        return G
+
 conn=connectDB()
+G=createRoadNetwork
 #roads=popularVenue()
 #weightedChoice(roads, 100)
 #print(weightedChoice(roads, 100))
 
- way=nx.shortest_path(self.model.G,self.road,targetRoad,weight='length')
+road=68473
+targetRoad=24863
+try:
+    way=nx.shortest_path(G,road,targetRoad,weight='length')
+    print(way)
+except Exception as e:
+    print(e)
