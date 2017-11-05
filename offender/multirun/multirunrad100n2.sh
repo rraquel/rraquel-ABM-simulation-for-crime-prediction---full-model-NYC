@@ -14,6 +14,19 @@ while true; do
   NUMPROCS=`ps -ef| grep run.py | wc -l`
   if [ $NUMPROCS -le 1 ]; then
     # starte zweite Ladung
+    for i in config/runPower/1/test50URV; do 
+    offender/run.py `echo "$i"|sed -e 's:config/::'` &
+    sleep 100
+done
+    break
+  fi
+  sleep 600
+done
+
+while true; do
+  NUMPROCS=`ps -ef| grep run.py | wc -l`
+  if [ $NUMPROCS -le 2 ]; then
+    # starte zweite Ladung
     for i in config/runPower/1/test100*; do 
     offender/run.py `echo "$i"|sed -e 's:config/::'` &
     sleep 100
