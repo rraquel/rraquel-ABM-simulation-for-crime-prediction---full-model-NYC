@@ -311,8 +311,10 @@ class AgentX(mesa.Agent):
                 self.model.mycurs.execute(sql)
             self.foundnoway=0
         except Exception as e:
-            self.log.critical("trip: Error: One agent found no way: agent id {0}, startRoad: {1}, current road: {3} targetRoad {2} ".format(self.unique_id, self.startRoad, targetRoad, self.road))
+            self.log.critical("trip: Error: One agent found no way: agent id {0}, startRoad: {1}, current road: {3} targetRoad {2} , radius {3}".format(self.unique_id, self.startRoad, targetRoad, self.road, self.radius))
             #erases target from targetList
+            self.log.critical("exit program step: {}".format(self.model.modelStepCount))
+            exit()
 
     def roadAccessibility(self, targetRoad):
         """test if there is a way to the road"""
