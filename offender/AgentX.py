@@ -130,7 +130,8 @@ class AgentX(mesa.Agent):
 	    #levy flight gives distance in km - transform km to foot
         radius=powerKm * 3280.84
         self.log.debug("power search radius: {0}".format(round(radius)))
-        return radius
+        print(round(radius))
+        return round(radius)
 
     def findTargetByType(self, road, maxRadius, minRadius):
         mycurs = self.conn.cursor()
@@ -234,7 +235,7 @@ class AgentX(mesa.Agent):
             #enlarge by 10%
             maxRadius=maxRadius*1.05
             minRadius=minRadius*0.95
-            if count>2:
+            if count>1:
                 searchRadius=self.radius()
                 maxRadius=searchRadius*1.025
                 minRadius=searchRadius*0.975
@@ -314,7 +315,6 @@ class AgentX(mesa.Agent):
             self.log.critical("trip: Error: One agent found no way: agent id {0}, startRoad: {1}, current road: {3} targetRoad {2} , radius {3}".format(self.unique_id, self.startRoad, targetRoad, self.road, self.radius))
             #erases target from targetList
             self.log.critical("exit program step: {}".format(self.model.modelStepCount))
-            exit()
 
     def roadAccessibility(self, targetRoad):
         """test if there is a way to the road"""

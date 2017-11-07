@@ -14,20 +14,7 @@ while true; do
   NUMPROCS=`ps -ef| grep run.py | wc -l`
   if [ $NUMPROCS -le 1 ]; then
     # starte zweite Ladung
-    for i in config/runStatic/2/test50*; do 
-    offender/run.py `echo "$i"|sed -e 's:config/::'` &
-    sleep 100
-done
-    break
-  fi
-  sleep 600
-done
-
-while true; do
-  NUMPROCS=`ps -ef| grep run.py | wc -l`
-  if [ $NUMPROCS -le 1 ]; then
-    # starte zweite Ladung
-    for i in config/runPower/1/test50*; do 
+    for i in config/runPower/1/test50URV; do 
     offender/run.py `echo "$i"|sed -e 's:config/::'` &
     sleep 100
 done
