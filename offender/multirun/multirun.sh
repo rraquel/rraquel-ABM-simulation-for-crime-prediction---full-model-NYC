@@ -17,10 +17,6 @@ while true; do
     offender/run.py
     sleep 10
 done
-    break
-  fi
-  sleep 10
-done
 
 
 
