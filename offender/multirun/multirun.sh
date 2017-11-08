@@ -16,7 +16,6 @@ while true; do
     # starte zweite Ladung
     offender/run.py
     sleep 10
-done
 
 
 
