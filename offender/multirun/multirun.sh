@@ -12,10 +12,9 @@
 
 while true; do
   NUMPROCS=`ps -ef| grep run.py | wc -l`
-  if [ $NUMPROCS -le 3 ]; then
+  if [ $NUMPROCS -le 4 ]; then
     # starte zweite Ladung
-    for i in config/default.ini; do 
-    offender/run.py `echo "$i"|sed -e 's:config/::'` &
+    offender/run.py
     sleep 10
 done
     break
