@@ -121,7 +121,7 @@ def uniquePaiCrimesU():
     plot5=plt.plot(xpv, ypv, label='popularVenue')
     plot6=plt.plot(xpvc, ypvc, label='popularVenueCenter')
     plt.axis([5,160,0.4,1])
-    ax.set_title('adapted PAI(all crime) performance, Uniform distributed search radius')
+    ax.set_title('PAI uniform')
     ax.set_xlabel('n of agents in simulation')
     ax.set_ylabel('unique adapted PAI')
     plt.legend()
@@ -186,6 +186,7 @@ def uniquePaiCrimesS():
         targettype=row[0]
         print(targettype)
         uniquePai=float(row[1])
+        print(uniquePai)
         agents=row[2]
         print(agents)
         runid=row[3]
@@ -238,8 +239,8 @@ def uniquePaiCrimesS():
     plot4=plt.plot(xrvc, yrvc, label='randomVenueCenter')
     plot5=plt.plot(xpv, ypv, label='popularVenue')
     plot6=plt.plot(xpvc, ypvc, label='popularVenueCenter')
-    plt.axis([25,160,0,1])
-    ax.set_title('Unique adapted PAI for all crime types over n of agents, for static search radius')
+    plt.axis([25,160,.4,1])
+    ax.set_title('PAI static')
     ax.set_xlabel('n of agents in scenario')
     ax.set_ylabel('unique crimes adapted PAI')
     plt.legend()
@@ -356,8 +357,8 @@ def uniquePaiCrimesP():
     plot4=plt.plot(xrvc, yrvc, label='randomVenueCenter')
     plot5=plt.plot(xpv, ypv, label='popularVenue')
     plot6=plt.plot(xpvc, ypvc, label='popularVenueCenter')
-    plt.axis([25,160,0,1])
-    ax.set_title('Unique adapted PAI for all crime types over n of agents, for power-law disrtributed search radius')
+    plt.axis([25,160,0.4,1])
+    ax.set_title('power')
     ax.set_xlabel('n of agents in scenario')
     ax.set_ylabel('unique crimes adapted PAI')
     plt.legend()
@@ -371,8 +372,8 @@ def uniquePaiCrimesP():
 
 #uniquePaiCrimes()
 
-#uniquePaiCrimesS()
+uniquePaiCrimesS()
 uniquePaiCrimesU()
-#uniquePaiCrimesP()
+uniquePaiCrimesP()
 
 #uniquePaiBurglary()
