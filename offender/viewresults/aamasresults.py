@@ -17,40 +17,50 @@ def uniquePaiCrimesU():
     ####TODO erase LIMIT 2
     """----------ALL CRIMES----------"""
     """distinct crimes and distinct roads"""
-    mycurs.execute("""SELECT "targettype","PercentuniqueCrimes", num_agents, r.run_id
-    FROM open.res_la_model AS m
-    LEFT JOIN open.res_la_run r on m.run_id=r.run_id
-    WHERE end_date is not null and step=29 and (num_agents=150 OR num_agents=100) AND
-    "targettype" is not null AND (start_date between '2017-11-02 13:51:20' and '2017-12-01')
-    AND "radiustype"='uniformR'""")
-    results100=mycurs.fetchall() #returns tuple with first row (unordered list)
 
-
-    mycurs.execute("""SELECT r."targettype",PercentuniqueCrimes, m.num_agents, m.run_id
+    mycurs.execute("""SELECT r."targettype",uniqPai, m.num_agents, m.run_id
         FROM open.nyc_res_la_computenumagents5 AS m
         LEFT JOIN open.res_la_run r on m.run_id=r.run_id
-        WHERE end_date is not null and "radiustype"='uniformR'""")
+        WHERE "radiustype"='uniformR'""")
     results5=mycurs.fetchall() #returns tuple with first row (unordered list)
 
-    mycurs.execute("""SELECT r."targettype",PercentuniqueCrimes, m.num_agents, m.run_id
+    mycurs.execute("""SELECT r."targettype",uniqPai, m.num_agents, m.run_id
         FROM open.nyc_res_la_computenumagents25 AS m
         LEFT JOIN open.res_la_run r on m.run_id=r.run_id
-        WHERE end_date is not null and "radiustype"='uniformR'""")
+        WHERE "radiustype"='uniformR'""")
     results25=mycurs.fetchall() #returns tuple with first row (unordered list)
 
-    mycurs.execute("""SELECT r."targettype",PercentuniqueCrimes, m.num_agents, m.run_id
+    mycurs.execute("""SELECT r."targettype",uniqPai, m.num_agents, m.run_id
         FROM open.nyc_res_la_computenumagents50 AS m
         LEFT JOIN open.res_la_run r on m.run_id=r.run_id
-        WHERE end_date is not null and "radiustype"='uniformR'""")
+        WHERE "radiustype"='uniformR'""")
     results50=mycurs.fetchall() #returns tuple with first row (unordered list)
 
-    mycurs.execute("""SELECT r."targettype",PercentuniqueCrimes, m.num_agents, m.run_id
+    mycurs.execute("""SELECT r."targettype",uniqPai, m.num_agents, m.run_id
         FROM open.nyc_res_la_computenumagents75 AS m
         LEFT JOIN open.res_la_run r on m.run_id=r.run_id
-        WHERE end_date is not null and "radiustype"='uniformR'""")
+        WHERE "radiustype"='uniformR'""")
     results75=mycurs.fetchall() #returns tuple with first row (unordered list)
 
-    results=results100+results75+results50+results25+results5
+    mycurs.execute("""SELECT r."targettype",uniqPai, m.num_agents, m.run_id
+        FROM open.nyc_res_la_computenumagents100 AS m
+        LEFT JOIN open.res_la_run r on m.run_id=r.run_id
+        WHERE "radiustype"='uniformR'""")
+    results100=mycurs.fetchall() #returns tuple with first row (unordered list)
+
+    mycurs.execute("""SELECT r."targettype",uniqPai, m.num_agents, m.run_id
+        FROM open.nyc_res_la_computenumagents125 AS m
+        LEFT JOIN open.res_la_run r on m.run_id=r.run_id
+        WHERE "radiustype"='uniformR'""")
+    results125=mycurs.fetchall() #returns tuple with first row (unordered list)
+
+    mycurs.execute("""SELECT r."targettype",uniqPai, m.num_agents, m.run_id
+        FROM open.nyc_res_la_computenumagents150 AS m
+        LEFT JOIN open.res_la_run r on m.run_id=r.run_id
+        WHERE "radiustype"='uniformR'""")
+    results150=mycurs.fetchall() #returns tuple with first row (unordered list)
+
+    results=results150+results125+results100+results75+results50+results25+results5
 
     res=collections.defaultdict(list)
     print('UNIFORM')
@@ -58,21 +68,10 @@ def uniquePaiCrimesU():
     for row in results:
         targettype=row[0]
         print(targettype)
-        percent=float(row[1])
+        uniquePai=float(row[1])
         agents=row[2]
         print(agents)
         runid=row[3]
-        totaldist=float(40986771)
-
-        mycurs.execute("""select sum(shape_leng) from (
-        select distinct(run.road_id), road.shape_leng from open.res_la_roads run
-        LEFT JOIN open.nyc_road_proj_final as road on road.gid=run.road_id WHERE run_id={}) as x
-        """.format(runid))
-        uDistance=mycurs.fetchall()
-        uDist=float(uDistance[0][0])
-
-        uniquePai=(percent)/(uDist/40986771)
-        print(uniquePai)
         x=[uniquePai, agents]
         res[targettype].append(x)
         #print(res)
@@ -121,7 +120,7 @@ def uniquePaiCrimesU():
     plot4=plt.plot(xrvc, yrvc, label='randomVenueCenter')
     plot5=plt.plot(xpv, ypv, label='popularVenue')
     plot6=plt.plot(xpvc, ypvc, label='popularVenueCenter')
-    plt.axis([5,160,0,1])
+    plt.axis([5,160,0.4,1])
     ax.set_title('adapted PAI(all crime) performance, Uniform distributed search radius')
     ax.set_xlabel('n of agents in simulation')
     ax.set_ylabel('unique adapted PAI')
@@ -135,40 +134,50 @@ def uniquePaiCrimesS():
     ####TODO erase LIMIT 2
     """----------ALL CRIMES----------"""
     """distinct crimes and distinct roads"""
-    mycurs.execute("""SELECT "targettype","PercentuniqueCrimes", num_agents, r.run_id
-    FROM open.res_la_model AS m
-    LEFT JOIN open.res_la_run r on m.run_id=r.run_id
-    WHERE end_date is not null and step=29 and (num_agents=150 OR num_agents=100) AND
-    "targettype" is not null AND (start_date between '2017-11-02 13:51:20' and '2017-12-01')
-    AND "radiustype"='staticR'""")
-    results=mycurs.fetchall() #returns tuple with first row (unordered list)
-    #print(results[0])
 
-    mycurs.execute("""SELECT r."targettype",PercentuniqueCrimes, m.num_agents, m.run_id
+    mycurs.execute("""SELECT r."targettype",uniqPai, m.num_agents, m.run_id
         FROM open.nyc_res_la_computenumagents5 AS m
         LEFT JOIN open.res_la_run r on m.run_id=r.run_id
-        WHERE end_date is not null and "radiustype"='staticR'""")
+        WHERE  "radiustype"='staticR'""")
     results5=mycurs.fetchall() #returns tuple with first row (unordered list)
 
-    mycurs.execute("""SELECT r."targettype",PercentuniqueCrimes, m.num_agents, m.run_id
+    mycurs.execute("""SELECT r."targettype",uniqPai, m.num_agents, m.run_id
         FROM open.nyc_res_la_computenumagents25 AS m
         LEFT JOIN open.res_la_run r on m.run_id=r.run_id
-        WHERE end_date is not null and "radiustype"='staticR'""")
+        WHERE  "radiustype"='staticR'""")
     results25=mycurs.fetchall() #returns tuple with first row (unordered list)
 
-    mycurs.execute("""SELECT r."targettype",PercentuniqueCrimes, m.num_agents, m.run_id
+    mycurs.execute("""SELECT r."targettype",uniqPai, m.num_agents, m.run_id
         FROM open.nyc_res_la_computenumagents50 AS m
         LEFT JOIN open.res_la_run r on m.run_id=r.run_id
-        WHERE end_date is not null and "radiustype"='staticR'""")
+        WHERE  "radiustype"='staticR'""")
     results50=mycurs.fetchall() #returns tuple with first row (unordered list)
 
-    mycurs.execute("""SELECT r."targettype",PercentuniqueCrimes, m.num_agents, m.run_id
+    mycurs.execute("""SELECT r."targettype",uniqPai, m.num_agents, m.run_id
         FROM open.nyc_res_la_computenumagents75 AS m
         LEFT JOIN open.res_la_run r on m.run_id=r.run_id
-        WHERE end_date is not null and "radiustype"='staticR'""")
+        WHERE  "radiustype"='staticR'""")
     results75=mycurs.fetchall() #returns tuple with first row (unordered list)
 
-    results=results100+results75+results50+results25+results5
+    mycurs.execute("""SELECT r."targettype",uniqPai, m.num_agents, m.run_id
+        FROM open.nyc_res_la_computenumagents100 AS m
+        LEFT JOIN open.res_la_run r on m.run_id=r.run_id
+        WHERE  "radiustype"='staticR'""")
+    results100=mycurs.fetchall() #returns tuple with first row (unordered list)
+
+    mycurs.execute("""SELECT r."targettype",uniqPai, m.num_agents, m.run_id
+        FROM open.nyc_res_la_computenumagents125 AS m
+        LEFT JOIN open.res_la_run r on m.run_id=r.run_id
+        WHERE  "radiustype"='staticR'""")
+    results125=mycurs.fetchall() #returns tuple with first row (unordered list)
+
+    mycurs.execute("""SELECT r."targettype",uniqPai, m.num_agents, m.run_id
+        FROM open.nyc_res_la_computenumagents150 AS m
+        LEFT JOIN open.res_la_run r on m.run_id=r.run_id
+        WHERE  "radiustype"='staticR'""")
+    results150=mycurs.fetchall() #returns tuple with first row (unordered list)
+
+    results=results150+results125+results100+results75+results50+results25+results5
 
     res=collections.defaultdict(list)
     print('STATIC')
@@ -176,24 +185,14 @@ def uniquePaiCrimesS():
     for row in results:
         targettype=row[0]
         print(targettype)
-        percent=float(row[1])
+        uniquePai=float(row[1])
         agents=row[2]
         print(agents)
         runid=row[3]
-        totaldist=float(40986771)
-
-        mycurs.execute("""select sum(shape_leng) from (
-        select distinct(run.road_id), road.shape_leng from open.res_la_roads run
-        LEFT JOIN open.nyc_road_proj_final as road on road.gid=run.road_id WHERE run_id={}) as x
-        """.format(runid))
-        uDistance=mycurs.fetchall()
-        uDist=float(uDistance[0][0])
-
-        uniquePai=(percent)/(uDist/40986771)
-        print(uniquePai)
         x=[uniquePai, agents]
         res[targettype].append(x)
         #print(res)
+
 
     """randomRoad"""
     rr0=[x[0] for x in res['randomRoad']]
@@ -253,40 +252,50 @@ def uniquePaiCrimesP():
     ####TODO erase LIMIT 2
     """----------ALL CRIMES----------"""
     """distinct crimes and distinct roads"""
-    mycurs.execute("""SELECT "targettype","PercentuniqueCrimes", num_agents, r.run_id
-        FROM open.res_la_model AS m
-        LEFT JOIN open.res_la_run r on m.run_id=r.run_id
-        WHERE end_date is not null and step=29 and (num_agents=150 OR num_agents=100) AND
-        "targettype" is not null AND (start_date between '2017-11-02 13:51:20' and '2017-12-01')
-        AND "radiustype"='powerR'""")
-    results=mycurs.fetchall() #returns tuple with first row (unordered list)
-    #print(results[0])
 
-    mycurs.execute("""SELECT r."targettype",PercentuniqueCrimes, m.num_agents, m.run_id
+    mycurs.execute("""SELECT r."targettype",uniqPai, m.num_agents, m.run_id
         FROM open.nyc_res_la_computenumagents5 AS m
         LEFT JOIN open.res_la_run r on m.run_id=r.run_id
-        WHERE end_date is not null and "radiustype"='powerR'""")
+        WHERE  "radiustype"='powerR'""")
     results5=mycurs.fetchall() #returns tuple with first row (unordered list)
 
-    mycurs.execute("""SELECT r."targettype",PercentuniqueCrimes, m.num_agents, m.run_id
+    mycurs.execute("""SELECT r."targettype",uniqPai, m.num_agents, m.run_id
         FROM open.nyc_res_la_computenumagents25 AS m
         LEFT JOIN open.res_la_run r on m.run_id=r.run_id
-        WHERE end_date is not null and "radiustype"='powerR'""")
+        WHERE  "radiustype"='powerR'""")
     results25=mycurs.fetchall() #returns tuple with first row (unordered list)
 
-    mycurs.execute("""SELECT r."targettype",PercentuniqueCrimes, m.num_agents, m.run_id
+    mycurs.execute("""SELECT r."targettype",uniqPai, m.num_agents, m.run_id
         FROM open.nyc_res_la_computenumagents50 AS m
         LEFT JOIN open.res_la_run r on m.run_id=r.run_id
-        WHERE end_date is not null and "radiustype"='powerR'""")
+        WHERE  "radiustype"='powerR'""")
     results50=mycurs.fetchall() #returns tuple with first row (unordered list)
 
-    mycurs.execute("""SELECT r."targettype",PercentuniqueCrimes, m.num_agents, m.run_id
+    mycurs.execute("""SELECT r."targettype",uniqPai, m.num_agents, m.run_id
         FROM open.nyc_res_la_computenumagents75 AS m
         LEFT JOIN open.res_la_run r on m.run_id=r.run_id
-        WHERE end_date is not null and "radiustype"='powerR'""")
+        WHERE  "radiustype"='powerR'""")
     results75=mycurs.fetchall() #returns tuple with first row (unordered list)
 
-    results=results100+results75+results50+results25+results5
+    mycurs.execute("""SELECT r."targettype",uniqPai, m.num_agents, m.run_id
+        FROM open.nyc_res_la_computenumagents100 AS m
+        LEFT JOIN open.res_la_run r on m.run_id=r.run_id
+        WHERE  "radiustype"='powerR'""")
+    results100=mycurs.fetchall() #returns tuple with first row (unordered list)
+
+    mycurs.execute("""SELECT r."targettype",uniqPai, m.num_agents, m.run_id
+        FROM open.nyc_res_la_computenumagents125 AS m
+        LEFT JOIN open.res_la_run r on m.run_id=r.run_id
+        WHERE  "radiustype"='powerR'""")
+    results125=mycurs.fetchall() #returns tuple with first row (unordered list)
+
+    mycurs.execute("""SELECT r."targettype",uniqPai, m.num_agents, m.run_id
+        FROM open.nyc_res_la_computenumagents150 AS m
+        LEFT JOIN open.res_la_run r on m.run_id=r.run_id
+        WHERE  "radiustype"='powerR'""")
+    results150=mycurs.fetchall() #returns tuple with first row (unordered list)
+
+    results=results150+results125+results100+results75+results50+results25+results5
 
     res=collections.defaultdict(list)
     print('POWER')
@@ -294,24 +303,14 @@ def uniquePaiCrimesP():
     for row in results:
         targettype=row[0]
         print(targettype)
-        percent=float(row[1])
+        uniquePai=float(row[1])
         agents=row[2]
         print(agents)
         runid=row[3]
-        totaldist=float(40986771)
-
-        mycurs.execute("""select sum(shape_leng) from (
-        select distinct(run.road_id), road.shape_leng from open.res_la_roads run
-        LEFT JOIN open.nyc_road_proj_final as road on road.gid=run.road_id WHERE run_id={}) as x
-        """.format(runid))
-        uDistance=mycurs.fetchall()
-        uDist=float(uDistance[0][0])
-
-        uniquePai=(percent)/(uDist/40986771)
-        print(uniquePai)
         x=[uniquePai, agents]
         res[targettype].append(x)
         #print(res)
+
 
     """randomRoad"""
     rr0=[x[0] for x in res['randomRoad']]
