@@ -240,9 +240,22 @@ class AgentX(mesa.Agent):
                 maxRadius=searchRadius*1.025
                 minRadius=searchRadius*0.975
                 self.log.debug('new radius: {}'.format(self.searchRadius))
-            if count==5:
+            elif count>5:
                 targetRoad=self.startRoad
+                searchRadius=self.radius()
+                maxRadius=searchRadius*1.025
+                minRadius=searchRadius*0.975
                 self.log.critical("5 radius didn't work: targetroad=startRoad: agent id {0}, startRoad: {1}, current road: {3} targetRoad {2} , radius {3}".format(self.unique_id, self.startRoad, targetRoad, self.road, self.radius))
+            elif count>7:
+                targetRoad=self.targetRoadList[-2]
+                searchRadius=self.radius()
+                maxRadius=searchRadius*1.025
+                minRadius=searchRadius*0.975
+            elif count>8:
+                targetRoad=self.targetRoadList[-3]
+                searchRadius=self.radius()
+                maxRadius=searchRadius*1.025
+                minRadius=searchRadius*0.975
         return targetRoad
 
     def weightedChoice(self, roads, road):

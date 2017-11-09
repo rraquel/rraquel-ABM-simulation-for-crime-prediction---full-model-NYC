@@ -4,4 +4,5 @@ test3=2/0.0001
 test4=2/0.00001
 test5=2/0.000001
 
-print(test5)
+test=[5, 6, 7, 10]
+print(test[-2])
