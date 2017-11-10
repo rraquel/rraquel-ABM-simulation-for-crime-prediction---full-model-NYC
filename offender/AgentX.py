@@ -345,7 +345,7 @@ class AgentX(mesa.Agent):
             while access==False:
                 loopCount+=1
                 targetRoad=self.searchTarget(self.road, self.searchRadius)
-                if loopCoun==6:
+                if loopCount==6:
                     targetRoad=self.targetRoadList[-2]
                 elif loopCount==7:
                     targetRoad=self.targetRoadList[-3]
