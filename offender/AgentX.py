@@ -345,11 +345,13 @@ class AgentX(mesa.Agent):
             while access==False:
                 loopCount+=1
                 targetRoad=self.searchTarget(self.road, self.searchRadius)
-                if loopCount>5:
+                if loopCoun==6:
                     targetRoad=self.targetRoadList[-2]
-                elif loopCount>6:
+                elif loopCount==7:
                     targetRoad=self.targetRoadList[-3]
-                elif loopCount>10:
+                elif loopCount==8:
+                    targetRoad=self.startRoad
+                elif loopCount==9:
                     self.log.critical("exit: could not find target in daytrip {0}, startRoad: {1}, current road: {3} targetRoad {2} , radius {3}".format(self.unique_id, self.startRoad, targetRoad, self.road, self.radius))
                     exit()
                 access=self.roadAccessibility(targetRoad)
