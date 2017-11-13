@@ -275,7 +275,7 @@ def uniquePercentCrimesP():
     mycurs.execute("""SELECT r."targettype",PercentuniqueCrimes, m.num_agents, m.run_id
         FROM open.nyc_res_la_computenumagents75 AS m
         LEFT JOIN open.res_la_run r on m.run_id=r.run_id
-        WHERE  "radiustype"='powerR'""")
+        WHERE  "radiustype"='staticR'""")
     results75=mycurs.fetchall() #returns tuple with first row (unordered list)
 
     mycurs.execute("""SELECT r."targettype",PercentuniqueCrimes, m.num_agents, m.run_id

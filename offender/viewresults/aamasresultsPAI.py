@@ -69,6 +69,7 @@ def uniquePaiCrimesU():
         targettype=row[0]
         print(targettype)
         uniquePai=float(row[1])
+        print(uniquePai)
         agents=row[2]
         print(agents)
         runid=row[3]
@@ -120,9 +121,9 @@ def uniquePaiCrimesU():
     plot4=plt.plot(xrvc, yrvc, label='randomVenueCenter')
     plot5=plt.plot(xpv, ypv, label='popularVenue')
     plot6=plt.plot(xpvc, ypvc, label='popularVenueCenter')
-    plt.axis([5,160,0.4,1])
-    ax.set_title('adapted PAI - uniform distance')
-    ax.set_xlabel('n of agents in simulation')
+    plt.axis([25,160,1,2])
+    #ax.set_title('adapted PAI - uniform distance')
+    ax.set_xlabel('n of agents in scenario')
     ax.set_ylabel('unique adapted PAI')
     plt.legend()
     plt.show()
@@ -239,8 +240,8 @@ def uniquePaiCrimesS():
     plot4=plt.plot(xrvc, yrvc, label='randomVenueCenter')
     plot5=plt.plot(xpv, ypv, label='popularVenue')
     plot6=plt.plot(xpvc, ypvc, label='popularVenueCenter')
-    plt.axis([25,160,.4,1])
-    ax.set_title('adapted PAI - static distance')
+    plt.axis([25,160,1,2])
+    #ax.set_title('adapted PAI - static distance')
     ax.set_xlabel('n of agents in scenario')
     ax.set_ylabel('unique crimes adapted PAI')
     plt.legend()
@@ -357,15 +358,12 @@ def uniquePaiCrimesP():
     plot4=plt.plot(xrvc, yrvc, label='randomVenueCenter')
     plot5=plt.plot(xpv, ypv, label='popularVenue')
     plot6=plt.plot(xpvc, ypvc, label='popularVenueCenter')
-    plt.axis([25,160,0.4,1])
-    ax.set_title('adapted PAI - Lévy distance')
+    plt.axis([25,160,1,2])
+    #ax.set_title('adapted PAI - Lévy distance')
     ax.set_xlabel('n of agents in scenario')
     ax.set_ylabel('unique crimes adapted PAI')
     plt.legend()
     plt.show()
-
-
-
 
 
 
