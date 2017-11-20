@@ -13,9 +13,6 @@ mycurs = conn.cursor()
 
 def roadDist():
 
-    ####
-    ####TODO erase LIMIT 2
-    """----------ALL CRIMES----------"""
     """distinct crimes and distinct roads"""
 
     mycurs.execute("""select r.gid,length from 
@@ -33,7 +30,7 @@ def roadDist():
     x=np.array(length)
     print(max(x))
     fig=plt.figure(1)
-    plot1=plt.hist(x, bins=200)
+    plot1=plt.hist(x, bins=50)
     #plt.xlim(0,2000)
     #plt.title('road lenght count distribution')
     plt.xlabel('road length in ft')
@@ -52,7 +49,7 @@ def crimesPerRoad():
     mycurs.execute("""SELECT
     road_id, COUNT(object_id)
     FROM
-    open.nyc_road2police_incident_5ft_types_Jun
+    open.nyc_road2pi_5ft_2015_jun
     GROUP BY
     road_id
     HAVING 
@@ -68,7 +65,7 @@ def crimesPerRoad():
     x=np.array(crimecount)
     print(max(x))
     fig=plt.figure(1)
-    plot1=plt.hist(x, bins=50)
+    plot1=plt.hist(x, bins=25)
     #plt.xlim(0,10)
     #plt.title('crimes count for each road distribution')
     plt.xlabel('number crimes per road')
