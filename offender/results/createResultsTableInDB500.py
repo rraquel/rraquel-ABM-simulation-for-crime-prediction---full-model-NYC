@@ -97,7 +97,7 @@ def distance():
     #numagents=[5, 25]
     for x in numagents:
         """select uniqueCrimes and cummCrimes"""
-        mycurs.execute("""SELECT run_id, sum(shape_leng) as cummSum FROM
+        mycurs.execute("""SELECT run_id, sum(distinct(shape_leng)) AS distinctSum FROM
         (SELECT run.run_id, run.road_id, road.shape_leng from open.res_la_roads run
         LEFT JOIN open.nyc_road_proj_final as road on road.gid=run.road_id WHERE run.agent<{0} and
         (run_id=320 OR   
