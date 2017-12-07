@@ -55,8 +55,8 @@ class Results():
 
 
 def buildbase():
-    #numagents=[5, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 475, 500]
-    numagents=[5, 25]
+    numagents=[5, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 475, 500]
+    #numagents=[5, 25]
     mycurs.execute("""SELECT run_id, num_agents, "radiustype", "targettype", numsteps
         from open.res_la_run
         WHERE run_id=320 OR   
@@ -82,7 +82,7 @@ def buildbase():
         #rArray=[line[1], line[2], line[3], int(line[4])]
         #configdict[resultKey]=rArray
         for a in numagents:
-            results=Results(result_id, line[0], line[1], line[2], line[3], int(line[4]), a)
+            results=Results(result_id, line[0], line[1], str(line[2]), str(line[3]), int(line[4]), a)
             resultsList.append(results)
             result_id+=1
             #print(results)
@@ -90,10 +90,11 @@ def buildbase():
             #print(results.result_id)
             #print(results._ID)
             #print(results.num_agents)
-    print(resultsList)
+    #print(resultsList)
 
 def distance():
     numagents=[5, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 475, 500]
+    #numagents=[5, 25]
     for x in numagents:
         """select uniqueCrimes and cummCrimes"""
         mycurs.execute("""SELECT run_id, sum(shape_leng) as cummSum FROM
@@ -121,11 +122,12 @@ def distance():
                 if run_id==element.run_id and x==element.num_agents:
                     element.walkedD=line[1]
                     element.walkedDPercent=element.walkedD/40986771
-                    print(element.run_id, element.walkedD, element.walkedDPercent)
+                    #print(element.run_id, element.walkedD, element.walkedDPercent)
 
 
 def allCrimes():
     numagents=[5, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 475, 500]
+    #numagents=[5, 25]
     for x in numagents:
         """select uniqueCrimes and cummCrimes"""
         mycurs.execute("""SELECT  run_id,
@@ -165,8 +167,9 @@ def allCrimes():
                     #print(element.run_id, element.uniqueCrimes, element.cummCrimes, element.num_agents)
 
 def typesCrimes():
-    crimetypes=['BURGLARY', 'ROBBERY', 'GRAND LARCENY', 'GRAND LARCENY OF MOTOR VEHICLE', 'FELONY ASSAULT']
+    crimetypes=["'BURGLARY'", "'ROBBERY'", "'GRAND LARCENY'", "'GRAND LARCENY OF MOTOR VEHICLE'", "'FELONY ASSAULT'"]
     numagents=[5, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 475, 500]
+    #numagents=[5, 25]
     for crimetype in crimetypes:
         for x in numagents:
             """select uniqueCrimes and cummCrimes"""
@@ -193,34 +196,106 @@ def typesCrimes():
             run_id=335 OR
             run_id=336 OR
             run_id=337 OR
-            run_id=338) group by run_id""".format(x, crimetypes))
+            run_id=338) group by run_id""".format(x, crimetype))
             a=mycurs.fetchall() #returns tuple with first row (unordered list)
             for line in a:
                 run_id=line[0]
                 for element in resultsList:
                     if run_id==element.run_id and x==element.num_agents:
-                        if crimetypes=='Burglary':
+                        if crimetype=="'BURGLARY'":
                             element.BurglaryUniq=line[1]
                             element.PercentBurglaryUniq=line[1]/burglaryTotal
                             element.BurglaryCumm=line[2]
-                        if crimetypes=='ROBBERY': 
+                        if crimetype=="'ROBBERY'":
                             element.RobberyUniq=line[1]
                             element.PercentRobberyUniq=line[1]/robberyTotal
                             element.RobberyCumm=line[2]
-                        if crimetypes=='GRAND LARCENY':
+                        if crimetype=="'GRAND LARCENY'":
                             element.LarcenyUniq=line[1]
                             element.PercentLarcenyUniq=line[1]/larcenyTotal
                             element.LarcenyCumm=line[2]
-                        if crimetypes=='GRAND LARCENY OF MOTOR VEHICLE':
+                        if crimetype=="'GRAND LARCENY OF MOTOR VEHICLE'":
                             element.LarcenyMotorUnique=line[1]
                             element.PercentLarcenyMotorUnique=line[1]/larcenyMTotal
                             element.LarcenyMotorCumm=line[2]
-                        if crimetypes=='FELONY ASSAULT': 
+                        if crimetype=="'FELONY ASSAULT'": 
                             element.AssaultUnique=line[1]
                             element.PercentAssaultUnique=line[1]/assaultTotal
                             element.AssaultCumm=line[2]
-                        print(element.run_id, element.BurglaryUniq, element.LarcenyUniq, element.num_agents)
-                print(allcrimesdict)
+                    #print(element.run_id, element.BurglaryUniq, element.LarcenyUniq, element.num_agents)
+
+
+def calculatePAI():
+    for element in resultsList:
+        element.uniqPai=float(element.PercentuniqueCrimes)/float(element.walkedDPercent)
+        element.uniquePaiBurglary=float(element.PercentBurglaryUniq)/float(element.walkedDPercent)
+        element.uniquePaiRobbery=float(element.PercentRobberyUniq)/float(element.walkedDPercent)
+        element.uniquePaiLarceny=float(element.PercentBurglaryUniq)/float(element.walkedDPercent)
+        element.uniquePaiLarcneyM=float(element.PercentLarcenyMotorUnique)/float(element.walkedDPercent)
+        element.uniquePaiAssault=float(element.PercentAssaultUnique)/float(element.walkedDPercent)
+
+
+def insertValuesInTable():
+        try:
+            mycurs.execute("""DROP TABLE open.res_la_results500agent""")
+        except:
+            print("table does not exist yet")
+        mycurs.execute("""CREATE TABLE open.res_la_results500agent (
+        run_id integer,
+        num_agents numeric,
+        totalnumagents numeric,
+        "radiusType" char(50),
+        "targetType" char(50),
+        uniqueCrimes numeric,
+        BurglaryUniq numeric,
+        RobberyUniq numeric,
+        LarcenyUniq numeric,
+        LarcenyMotorUnique numeric,
+        AssaultUnique numeric,
+
+        cummCrimes numeric,
+        BurglaryCumm numeric,
+        RobberyCumm numeric,
+        LarcenyCumm numeric,
+        LarcenyMotorCumm numeric,
+        AssaultCumm numeric,
+
+        PercentuniqueCrimes numeric,
+        PercentBurglaryUniq numeric,
+        PercentRobberyUniq numeric,
+        PercentLarcenyUniq numeric,
+        PercentLarcenyMotorUnique numeric,
+        PercentAssaultUnique numeric,
+
+        uniqPai numeric,
+        uniquePaiBurglary numeric,
+        uniquePaiRobbery numeric,
+        uniquePaiLarceny numeric,
+        uniquePaiLarcneyM numeric,
+        uniquePaiAssault numeric,
+        walkedD numeric,
+        walkedDPercent numeric)""")
+        conn.commit()
+        print("table created")
+        
+        for element in resultsList:
+            mycurs.execute("""Insert into open.res_la_results500agent ("run_id", "num_agents", "totalnumagents",
+            "radiusType", "targetType", uniqueCrimes, BurglaryUniq, RobberyUniq, LarcenyUniq,
+            LarcenyMotorUnique, AssaultUnique, cummCrimes, BurglaryCumm, RobberyCumm, LarcenyCumm,
+            LarcenyMotorCumm, AssaultCumm, PercentuniqueCrimes, PercentBurglaryUniq, PercentRobberyUniq,
+            PercentLarcenyUniq, PercentLarcenyMotorUnique, PercentAssaultUnique, uniqPai, uniquePaiBurglary,
+            uniquePaiRobbery, uniquePaiLarceny, uniquePaiLarcneyM, uniquePaiAssault, walkedD, walkedDPercent
+            ) values
+            ({0},{1},{2},'{3}','{4}',{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18},{19},{20},{21},{22},{23},{24},{25},{26},{27},{28},{29},{30})""".format(
+            element.run_id, element.num_agents, element.totalnumagents, str(element.radiusType), str(element.targetType), element.uniqueCrimes,
+            element.BurglaryUniq, element.RobberyUniq, element.LarcenyUniq, 
+            element.LarcenyMotorUnique, element.AssaultUnique, element.cummCrimes, element.BurglaryCumm, element.RobberyCumm,
+            element.LarcenyCumm, element.LarcenyMotorCumm, element.AssaultCumm, element.PercentuniqueCrimes, element.PercentBurglaryUniq,
+            element.PercentRobberyUniq, element.PercentLarcenyUniq, element.PercentLarcenyMotorUnique, element.PercentAssaultUnique,
+            element.uniqPai, element.uniquePaiBurglary, element.uniquePaiRobbery, element.uniquePaiLarceny, element.uniquePaiLarcneyM,
+            element.uniquePaiAssault, element.walkedD, element.walkedDPercent))
+        conn.commit()
+        conn.close()
 
 conn= psycopg2.connect("dbname='shared' user='rraquel' host='localhost' password='Mobil4b' ")        
 mycurs = conn.cursor()
@@ -237,9 +312,9 @@ resultsList=[]
 configdict={}
 allcrimesdict={}
 buildbase()
-#distance()
+distance()
 allCrimes()
-#typesCrimes()
+typesCrimes()
+calculatePAI()
+insertValuesInTable()
 
-
-#calculatePAI()
