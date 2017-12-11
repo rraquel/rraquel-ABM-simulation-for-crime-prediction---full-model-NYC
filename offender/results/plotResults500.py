@@ -98,8 +98,7 @@ def uniquePaiCrimesS():
     """distinct crimes and distinct roads"""
 
     mycurs.execute("""SELECT "targettype", uniqPai, num_agents, run_id
-        FROM open.open.res_la_results500agent AS m
-        LEFT JOIN open.res_la_run r on m.run_id=r.run_id
+        FROM open.res_la_results500agent AS m
         WHERE  "radiustype"='staticR'""")
     results=mycurs.fetchall() #returns tuple with first row (unordered list)
 
@@ -179,8 +178,7 @@ def uniquePaiCrimesP():
     """distinct crimes and distinct roads"""
 
     mycurs.execute("""SELECT "targettype", uniqPai, num_agents, run_id
-        FROM open.open.res_la_results500agent AS m
-        LEFT JOIN open.res_la_run r on m.run_id=r.run_id
+        FROM open.res_la_results500agent
         WHERE  "radiustype"='powerR'""")
     results=mycurs.fetchall() #returns tuple with first row (unordered list)
 
@@ -484,7 +482,7 @@ def uniquePercentCrimesP():
     """----------ALL CRIMES----------"""
     """distinct crimes and distinct roads"""
 
-    mycurs.execute("""SELECT r."targettype",PercentuniqueCrimes, m.num_agents, m.run_id
+    mycurs.execute("""SELECT "targettype", PercentuniqueCrimes, num_agents, run_id
         FROM open.res_la_results500agent
         WHERE  "radiustype"='powerR'""")
     results=mycurs.fetchall() #returns tuple with first row (unordered list)
@@ -562,12 +560,12 @@ def uniquePercentCrimesP():
 
 
 uniquePaiCrimesS()
-uniquePaiCrimesU()
-uniquePaiCrimesP()
+#uniquePaiCrimesU()
+#uniquePaiCrimesP()
 
-uniquePercentCrimesS()
-uniquePercentCrimesU()
-uniquePercentCrimesP()
+#uniquePercentCrimesS()
+#uniquePercentCrimesU()
+#uniquePercentCrimesP()
 
 #unique results best combined
-uniquePaiCrimesBest()
+#uniquePaiCrimesBest()
