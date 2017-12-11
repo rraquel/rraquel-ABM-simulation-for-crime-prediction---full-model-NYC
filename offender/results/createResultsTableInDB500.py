@@ -29,12 +29,12 @@ class Results():
         self.LarcenyMotorUnique=0
         self.AssaultUnique=0
 
-        self.PercentuniqueCrimes=0
-        self.PercentBurglaryUniq=0
-        self.PercentRobberyUniq=0
-        self.PercentLarcenyUniq=0
-        self.PercentLarcenyMotorUnique=0
-        self.PercentAssaultUnique=0
+        self.PercentuniqueCrimes=0.0
+        self.PercentBurglaryUniq=0.0
+        self.PercentRobberyUniq=0.0
+        self.PercentLarcenyUniq=0.0
+        self.PercentLarcenyMotorUnique=0.0
+        self.PercentAssaultUnique=0.0
 
         self.uniqPai=0
         self.uniquePaiBurglary=0
@@ -244,8 +244,8 @@ def insertValuesInTable():
         run_id integer,
         num_agents numeric,
         totalnumagents numeric,
-        "radiusType" char(50),
-        "targetType" char(50),
+        "radiustype" char(50),
+        "targettype" char(50),
         uniqueCrimes numeric,
         BurglaryUniq numeric,
         RobberyUniq numeric,
@@ -280,7 +280,7 @@ def insertValuesInTable():
         
         for element in resultsList:
             mycurs.execute("""Insert into open.res_la_results500agent ("run_id", "num_agents", "totalnumagents",
-            "radiusType", "targetType", uniqueCrimes, BurglaryUniq, RobberyUniq, LarcenyUniq,
+            "radiustype", "targettype", uniqueCrimes, BurglaryUniq, RobberyUniq, LarcenyUniq,
             LarcenyMotorUnique, AssaultUnique, cummCrimes, BurglaryCumm, RobberyCumm, LarcenyCumm,
             LarcenyMotorCumm, AssaultCumm, PercentuniqueCrimes, PercentBurglaryUniq, PercentRobberyUniq,
             PercentLarcenyUniq, PercentLarcenyMotorUnique, PercentAssaultUnique, uniqPai, uniquePaiBurglary,
