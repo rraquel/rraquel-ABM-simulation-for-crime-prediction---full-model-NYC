@@ -33,9 +33,10 @@ class Task(object):
     dsn = ""
     def __init__(self, runRoads):
         self.runRoads = runRoads
+        self.dsn = Task.dsn
 
     def __call__(self):        
-        pyConn = psycopg2.connect(Task.dsn)
+        pyConn = psycopg2.connect(self.dsn)
         pyConn.set_session(autocommit=False)
         pyCursor1 = pyConn.cursor()
         for road in self.runRoads['way']:
@@ -73,7 +74,7 @@ class QRunner:
 
     def exit(self):
         """Cleanup the queue, so it does not block on exit and so you know all queues are empty"""
-        for i in range(self.num_consumers):
+        for i in range(self.num_consumers * 3):
             self.tasks.put(None)
 
 # if __name__ == '__main__':    
