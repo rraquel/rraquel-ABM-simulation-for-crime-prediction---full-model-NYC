@@ -20,12 +20,14 @@ class Model(mesa.Model):
     def __init__(self, modelCfg):
         #for batch runner: instance attribute running in Model class - enables conditional shut off of the model once a condition is met.
         self.t=time.monotonic()
+        #self.insertQ = QRunner.QRunner()
         self.running = True
         self.run_id=0
         self.log=logging.getLogger('')
+        self.log.info("Starting to build model")
         self.conn=self.connectDB()
+        print("connected to db for model")
         self.generalNumSteps=0
-        self.insertQ = QRunner.QRunner()
 
         self.generalSteps=modelCfg.getint('numAgents')
         
@@ -109,7 +111,7 @@ class Model(mesa.Model):
 
     def connectDB(self):
         try:
-            self.conn= psycopg2.connect("dbname='shared' user='rraquel' host='localhost' password='Mobil4b' ")        
+            self.conn= psycopg2.connect("dbname='shared' port=5433 user='rraquel' host='localhost' password='Mobil4b' ")        
             self.mycurs=self.conn.cursor()
             #self.log.info("connected to DB")
         except Exception as e:

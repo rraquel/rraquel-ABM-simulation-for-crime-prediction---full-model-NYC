@@ -31,6 +31,12 @@ class Runner:
             self.cfile = os.path.join(dir_path,'..','config','default.ini')
         self.config = configparser.ConfigParser()
         self.config.read(self.cfile)
+        # Add dbconfig
+        cfg = configparser.ConfigParser()
+        cfg.read(os.path.join(dir_path, '..', 'config', 'dbconn.ini'))
+        dbCfg = cfg['general']
+        self.config.set('model', 'dsn', "dbname='" + dbCfg.get('dbname', 'shared') + "' user='" + dbCfg.get('user') + "' host='" + dbCfg.get('host',
+            'localhost') + "' port='" + str(dbCfg.getint('port', 5432)) + "' password='" + dbCfg.get('password') + "'")
 
     def writeExcel(self):
         """Create xls for later analysis"""
@@ -177,4 +183,4 @@ if __name__ == '__main__':
     runner.writeDBstart()
     runner.stepModel()
     print("time at end of model {}".format(str(time.monotonic()-runner.t)))
-    runner.model.insertQ.exit()
+    #runner.model.insertQ.exit()
