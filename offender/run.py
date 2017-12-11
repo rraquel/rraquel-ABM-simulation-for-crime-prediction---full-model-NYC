@@ -71,6 +71,8 @@ class Runner:
         """Compare DB Fields and data frame fields. If one of them is changed the program still works."""
         dbf = self.getTableFields(tableName)
         insertf=[]
+        print("dbf", dbf)
+        print("df_dict", df_dict.keys())
         for f in dbf:
             try:
                 f = str(f)

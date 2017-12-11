@@ -23,6 +23,7 @@ class Consumer(multiprocessing.Process):
         while True:
             next_task = self.task_queue.get()
             if next_task is None:
+                print("Got None, closing queue")
                 self.task_queue.task_done()
                 break            
             answer = next_task()
@@ -34,7 +35,7 @@ class Task(object):
         self.runRoads = runRoads
 
     def __call__(self):        
-        pyConn = psycopg2.connect("dbname='shared' user='ssandow' host='localhost' password='gvc4XVlIU8' port=5433")
+        pyConn = psycopg2.connect(Task.dsn)
         pyConn.set_session(autocommit=False)
         pyCursor1 = pyConn.cursor()
         for road in self.runRoads['way']:
