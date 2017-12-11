@@ -73,11 +73,11 @@ class Runner:
         insertf=[]
         for f in dbf:
             try:
-                f = f[0]
+                f = str(f)
                 if f in df_dict.keys() and not f in self.dbIgnoreFields:
                     insertf.append( f )
                 else:
-                    self.log.warn("Field ignored: ", f)
+                    self.log.warn("Field ignored: {}".format(f))
             except:
                 pass
         return(insertf)
@@ -177,3 +177,4 @@ if __name__ == '__main__':
     runner.writeDBstart()
     runner.stepModel()
     print("time at end of model {}".format(str(time.monotonic()-runner.t)))
+    runner.model.insertQ.exit()

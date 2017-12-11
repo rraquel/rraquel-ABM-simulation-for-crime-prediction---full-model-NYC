@@ -309,14 +309,16 @@ class AgentX(mesa.Agent):
             #roads are represented as nodes in G
             self.way=nx.shortest_path(self.model.G,self.road,targetRoad,weight='length')
             #print("Agent ({0}) way: {1}".format(self.unique_id,self.way))
+            self.model.insertQ.store_roads({"run_id": self.model.run_id, "step": self.model.modelStepCount,
+                    "agent": self.unique_id, "way": self.way})
             for road in self.way:
                 self.walkedDistance += self.model.G.node[road]['length']
                 self.crimesOnRoad(road)
                 self.walkedRoads +=1
-                sql = """insert into open.res_la_roads ("id","run_id","step","agent","road_id") values
-                    (DEFAULT,{0},{1},{2},{3} )""".format(self.model.run_id, self.model.modelStepCount, self.unique_id, road)
+                # sql = """insert into open.res_la_roads ("id","run_id","step","agent","road_id") values
+                #     (DEFAULT,{0},{1},{2},{3} )""".format(self.model.run_id, self.model.modelStepCount, self.unique_id, road)
                 #Remove if not DB writing-
-                self.model.mycurs.execute(sql)
+                # self.model.mycurs.execute(sql)
             self.foundnoway=0
         except Exception as e:
             self.log.critical("trip: Error: One agent found no way: agent id {0}, startRoad: {1}, current road: {3} targetRoad {2} , radius {3}".format(self.unique_id, self.startRoad, targetRoad, self.road, self.radius))
