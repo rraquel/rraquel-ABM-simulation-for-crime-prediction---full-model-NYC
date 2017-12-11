@@ -81,31 +81,4 @@ class QRunner:
         print('Cleaning up QRunner')
         for i in range(self.num_consumers):
             self.tasks.put(None)
-
-# if __name__ == '__main__':    
-#     pyConnX = psycopg2.connect("dbname='geobase_1' host = 'localhost'")
-#     pyConnX.set_isolation_level(0)
-#     pyCursorX = pyConnX.cursor()
-
-#     pyCursorX.execute('SELECT count(*) FROM cities WHERE gid_fkey IS NULL')    
-#     temp = pyCursorX.fetchall()    
-#     num_job = temp[0]
-#     num_jobs = num_job[0]
-
-#     pyCursorX.execute('SELECT city_id FROM city WHERE gid_fkey IS NULL')    
-#     cityIdListTuple = pyCursorX.fetchall()    
-
-#     cityIdList = []
-
-#     for x in cityIdListTuple:
-#         cityIdList.append(x[0])
-
-#     for i in xrange(num_jobs):
-#         tasks.put(Task(cityIdList[i - 1]))
-
-#     for i in xrange(num_consumers):
-#         tasks.put(None)
-
-#     while num_jobs:
-#         result = results.get()
-#         num_jobs -= 1
+            

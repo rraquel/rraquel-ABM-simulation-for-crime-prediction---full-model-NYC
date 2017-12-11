@@ -138,11 +138,16 @@ class AgentX(mesa.Agent):
         return(getattr(self, self.model.targetType)(road, mycurs, maxRadius, minRadius))
 
     def randomRoad(self, road, mycurs, maxRadius, minRadius):
-        mycurs.execute("""select gid from (
-            select gid,geom from open.nyc_road_weight_to_center where st_dwithin(
-            (select geom from open.nyc_road_weight_to_center where gid={0}),geom,{1})
-            and not st_dwithin((select geom from open.nyc_road_weight_to_center where gid={0}) ,geom,{2})
-            ) as bar;""".format(road,maxRadius,minRadius))
+        if maxRadius == 41000:
+            mycurs.execute("""select targetroad as gid from open.nyc_road2road_precalc where startroad={0} and radius=40000 and 
+                model='road'""".format(road))
+        else:
+            # If something goes really wrong, we use old techniques (change min and max)
+            mycurs.execute("""select gid from (
+                select gid,geom from open.nyc_road_weight_to_center where st_dwithin(
+                (select geom from open.nyc_road_weight_to_center where gid={0}),geom,{1})
+                and not st_dwithin((select geom from open.nyc_road_weight_to_center where gid={0}) ,geom,{2})
+                ) as bar;""".format(road,maxRadius,minRadius))
         roads=mycurs.fetchall() #returns tuple with first row (unordered list)
         self.log.debug('random Road')
         return roads
@@ -309,7 +314,6 @@ class AgentX(mesa.Agent):
             #roads are represented as nodes in G
             self.way=nx.shortest_path(self.model.G,self.road,targetRoad,weight='length')
             #print("Agent ({0}) way: {1}".format(self.unique_id,self.way))
-            # TODO Insert roads
             self.model.insertQ.store_roads({"run_id": self.model.run_id, "step": self.model.modelStepCount,
                      "agent": self.unique_id, "way": self.way})
             for road in self.way:
@@ -318,10 +322,10 @@ class AgentX(mesa.Agent):
                 self.walkedRoads +=1
                 # sql = """insert into open.res_la_roads ("id","run_id","step","agent","road_id") values
                 #     (DEFAULT,{0},{1},{2},{3} )""".format(self.model.run_id, self.model.modelStepCount, self.unique_id, road)
-                #Remove if not DB writing-
                 # self.model.mycurs.execute(sql)
             self.foundnoway=0
         except Exception as e:
+            self.log.info("Exception: ", str(e))
             self.log.critical("trip: Error: One agent found no way: agent id {0}, startRoad: {1}, current road: {3} targetRoad {2} , radius {3}".format(self.unique_id, self.startRoad, targetRoad, self.road, self.radius))
             #erases target from targetList
 
