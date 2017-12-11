@@ -72,10 +72,14 @@ class Runner:
         dbf = self.getTableFields(tableName)
         insertf=[]
         for f in dbf:
-            if f in df_dict.keys() and not f in self.dbIgnoreFields:
-                insertf.append( f )
-            else:
-                self.log.warn("Field ignored: ", f)
+            try:
+                f = f[0]
+                if f in df_dict.keys() and not f in self.dbIgnoreFields:
+                    insertf.append( f )
+                else:
+                    self.log.warn("Field ignored: ", f)
+            except:
+                pass
         return(insertf)
 
     def writeDBmodel(self):

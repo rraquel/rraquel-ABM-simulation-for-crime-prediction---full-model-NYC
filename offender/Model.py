@@ -13,6 +13,7 @@ import psycopg2, sys, os, time, random, logging
 from collections import Counter
 from itertools import chain
 import globalVar
+import QRunner
 
 class Model(mesa.Model):
     """ characteristics of the model."""
@@ -24,6 +25,7 @@ class Model(mesa.Model):
         self.log=logging.getLogger('')
         self.conn=self.connectDB()
         self.generalNumSteps=0
+        self.insertQ = QRunner.QRunner()
 
         self.generalSteps=modelCfg.getint('numAgents')
         
