@@ -22,6 +22,7 @@ class Consumer(multiprocessing.Process):
         proc_name = self.name
         while True:
             next_task = self.task_queue.get()
+            print("Got Task from queue")
             if next_task is None:
                 print("Got None, closing queue")
                 self.task_queue.task_done()
@@ -70,6 +71,7 @@ class QRunner:
     def store_roads(self, runRoads):
         """Put array of one step's roads into the database
         Input: {"run_id": 3, "step": 7, "agent":9, "way":[1,4,7,9] }  """
+        print("Putting Task on Queue")
         self.tasks.put(Task(runRoads))
 
     def exit(self):
