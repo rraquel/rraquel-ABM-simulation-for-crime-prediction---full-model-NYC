@@ -27,7 +27,7 @@ class Consumer(multiprocessing.Process):
                 print("Got None, closing queue")
                 self.task_queue.task_done()
                 break            
-            next_task()
+            Task(next_task)
             self.task_queue.task_done()
 
 class Task(object):
@@ -37,7 +37,7 @@ class Task(object):
         self.pool = Task.pool
 
     def __call__(self):        
-        pyConn = self.pool.getconn()
+        pyConn = Task.pool.getconn()
         pyConn.set_session(autocommit=False)
         pyCursor1 = pyConn.cursor()
         for road in self.runRoads['way']:
@@ -45,7 +45,7 @@ class Task(object):
                     (DEFAULT,{0},{1},{2},{3} )""".format(self.runRoads['run_id'], self.runRoads['step'], self.runRoads['agent'], road)
             pyCursor1.execute(procQuery)
         pyConn.commit()
-        self.pool.putconn(pyConn)
+        Task.pool.putconn(pyConn)
         return(0)
 
     def __str__(self):
@@ -58,7 +58,7 @@ class QRunner:
     def __init__(self):
         print('Initializing QRunner')
         self.tasks = multiprocessing.JoinableQueue()
-        self.num_consumers = multiprocessing.cpu_count()
+        self.num_consumers = 2 #multiprocessing.cpu_count()
         config = configparser.ConfigParser()
         config.read('config/dbconn.ini')
         dbCfg = config['general']
@@ -74,10 +74,11 @@ class QRunner:
         """Put array of one step's roads into the database
         Input: {"run_id": 3, "step": 7, "agent":9, "way":[1,4,7,9] }  """
         print("Putting Task on Queue")
-        self.tasks.put(Task(runRoads))
+        self.tasks.put(runRoads)
 
     def exit(self):
         """Cleanup the queue, so it does not block on exit and so you know all queues are empty"""
+        print('Cleaning up QRunner')
         for i in range(self.num_consumers):
             self.tasks.put(None)
 

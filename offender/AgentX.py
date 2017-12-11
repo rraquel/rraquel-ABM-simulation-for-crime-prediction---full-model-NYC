@@ -310,8 +310,8 @@ class AgentX(mesa.Agent):
             self.way=nx.shortest_path(self.model.G,self.road,targetRoad,weight='length')
             #print("Agent ({0}) way: {1}".format(self.unique_id,self.way))
             # TODO Insert roads
-            # self.model.insertQ.store_roads({"run_id": self.model.run_id, "step": self.model.modelStepCount,
-            #         "agent": self.unique_id, "way": self.way})
+            self.model.insertQ.store_roads({"run_id": self.model.run_id, "step": self.model.modelStepCount,
+                     "agent": self.unique_id, "way": self.way})
             for road in self.way:
                 self.walkedDistance += self.model.G.node[road]['length']
                 self.crimesOnRoad(road)

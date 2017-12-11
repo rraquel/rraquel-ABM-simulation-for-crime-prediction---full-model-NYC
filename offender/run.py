@@ -146,6 +146,7 @@ class Runner:
             self.log.debug("=> step {0} performed".format(i))
             self.model.conn.commit()
         #statistics collection and data output
+        runner.model.insertQ.exit()
         #get data as pandas data frame
         self.agent_df = self.model.dc.get_agent_vars_dataframe()
         self.model_df = self.model.dc.get_model_vars_dataframe()
@@ -183,4 +184,4 @@ if __name__ == '__main__':
     runner.writeDBstart()
     runner.stepModel()
     print("time at end of model {}".format(str(time.monotonic()-runner.t)))
-    #runner.model.insertQ.exit()
+    
