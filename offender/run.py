@@ -173,6 +173,8 @@ if __name__ == '__main__':
     # If you need profiling use the following lines
     # import cProfile
     # cProfile.run('runner.stepModel()','profiler_stats')
+    #then run readstats.py
+
     runner.stepModel()
     print("time at end of model {}".format(str(time.monotonic()-runner.t)))
     
