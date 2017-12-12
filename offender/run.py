@@ -118,7 +118,6 @@ class Runner:
         self.model.run_id = self.run_id
         self.model.conn.commit()
 
-
     def writeDB(self):
         """Push data to DB"""
         self.writeDBagent()
@@ -126,7 +125,6 @@ class Runner:
         sql = """update open.res_la_run set end_date = current_timestamp where run_id={0}""".format(self.run_id)
         self.mycurs.execute(sql)
         self.model.conn.commit()
-
 
     # Create model with it's street network, venues, agents, ...
     def createModel(self):
@@ -161,16 +159,6 @@ class Runner:
         self.log.debug(self.agent_df)
         self.log.info('Global stats: \n{}'.format(self.model_df.tail()))
 
-#Batchrunner
-#fixed_params={"numSteps": 5, "roadBoundingBoxRadius": 80, "staticRadius": 40000, "mu": 0.6, "dmin": 2.5, "dmax": 530}
-#variable_params={"numAgents": range (4, 5), "startLocationType": range(0, 1), "targetType": range(0, 1), "radiusType": range(0,2)}
-
-#batch_run=BatchRunner(Model, fixed_params, variable_params, max_steps=10
-#)
-# model_reporters=("numAngents": lambda m: model.schedule.get_agent_count)
-#batch_run.run_all()
-
-
 if __name__ == '__main__':
     # Initialize variables so they can be used as global
     runner = Runner()
@@ -182,6 +170,9 @@ if __name__ == '__main__':
     print("time at model created {}".format(str(time.monotonic()-runner.t)))
 
     runner.writeDBstart()
+    # If you need profiling use the following lines
+    # import cProfile
+    # cProfile.run('runner.stepModel()','profiler_stats')
     runner.stepModel()
     print("time at end of model {}".format(str(time.monotonic()-runner.t)))
     
