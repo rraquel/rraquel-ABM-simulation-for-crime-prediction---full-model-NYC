@@ -1,3 +1,6 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
 import psycopg2, sys, os, time
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
@@ -55,9 +58,9 @@ class Results():
 
 
 def buildbase():
-    #numagents=[5, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 475, 500]
+    #numagents=[5, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 475, 50]
     #numagents=[5, 25]
-    numagents=[500]
+    numagents=[50]
     mycurs.execute("""SELECT run_id, num_agents, "radiustype", "targettype", numsteps
         from open.res_la_run
         WHERE run_id=320 OR   
@@ -91,12 +94,12 @@ def buildbase():
             #print(results.result_id)
             #print(results._ID)
             #print(results.num_agents)
-    #print(resultsList)
+    print('done')
 
 def distance():
     #numagents=[5, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 475, 500]
     numagents=[5, 25]
-    numagents=[500]
+    numagents=[50]
     for x in numagents:
         """select uniqueCrimes and cummCrimes"""
         mycurs.execute("""SELECT run_id, sum(distinct(shape_leng)) AS distinctSum FROM
@@ -130,7 +133,7 @@ def distance():
 def allCrimes():
     #numagents=[5, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 475, 500]
     numagents=[5, 25]
-    numagents=[500]
+    numagents=[50]
     for x in numagents:
         """select uniqueCrimes and cummCrimes"""
         mycurs.execute("""SELECT  run_id,
@@ -173,7 +176,7 @@ def typesCrimes():
     crimetypes=["'BURGLARY'", "'ROBBERY'", "'GRAND LARCENY'", "'GRAND LARCENY OF MOTOR VEHICLE'", "'FELONY ASSAULT'"]
     #numagents=[5, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 475, 500]
     numagents=[5, 25]
-    numagents=[500]
+    numagents=[50]
     for crimetype in crimetypes:
         for x in numagents:
             """select uniqueCrimes and cummCrimes"""
