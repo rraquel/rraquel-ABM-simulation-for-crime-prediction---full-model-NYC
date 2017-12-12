@@ -111,7 +111,7 @@ class Model(mesa.Model):
 
     def connectDB(self):
         try:
-            self.conn= psycopg2.connect("dbname='shared' port=5433 user='rraquel' host='localhost' password='Mobil4b' ")        
+            self.conn= psycopg2.connect("dbname='shared' port=5433 user='rraquel' host='127.0.0.1' password='Mobil4b' ")        
             self.mycurs=self.conn.cursor()
             #self.log.info("connected to DB")
         except Exception as e:

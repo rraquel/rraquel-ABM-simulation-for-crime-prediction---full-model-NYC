@@ -209,6 +209,9 @@ def typesCrimes():
                         if crimetype=="'BURGLARY'":
                             element.BurglaryUniq=line[1]
                             element.PercentBurglaryUniq=line[1]/burglaryTotal
+                            print(line)
+                            print(element.PercentBurglaryUniq)
+                            print(burglaryTotal)
                             element.BurglaryCumm=line[2]
                         if crimetype=="'ROBBERY'":
                             element.RobberyUniq=line[1]
@@ -232,6 +235,7 @@ def typesCrimes():
 def calculatePAI():
     for element in resultsList:
         element.uniqPai=float(element.PercentuniqueCrimes)/float(element.walkedDPercent)
+        print(element.uniqPai)
         element.uniquePaiBurglary=float(element.PercentBurglaryUniq)/float(element.walkedDPercent)
         element.uniquePaiRobbery=float(element.PercentRobberyUniq)/float(element.walkedDPercent)
         element.uniquePaiLarceny=float(element.PercentBurglaryUniq)/float(element.walkedDPercent)
@@ -298,10 +302,10 @@ def insertValuesInTable():
             element.PercentRobberyUniq, element.PercentLarcenyUniq, element.PercentLarcenyMotorUnique, element.PercentAssaultUnique,
             element.uniqPai, element.uniquePaiBurglary, element.uniquePaiRobbery, element.uniquePaiLarceny, element.uniquePaiLarcneyM,
             element.uniquePaiAssault, element.walkedD, element.walkedDPercent))
-        conn.commit()
+            conn.commit()
         conn.close()
 
-conn= psycopg2.connect("dbname='shared' user='rraquel' host='localhost' password='Mobil4b' ")        
+conn= psycopg2.connect("dbname='shared' user='rraquel' host='127.0.0.1' password='Mobil4b' ")        
 mycurs = conn.cursor()
 
 #mapped crimes for June 2015
