@@ -244,7 +244,7 @@ conn= psycopg2.connect("dbname='shared' user='rraquel' host='127.0.0.1' password
 mycurs = conn.cursor()
 
 numagents=[5, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 475, 500]
-numagents=[5, 25]
+#numagents=[5, 25]
 
 table='open.res_la_results500agent2'
 select_ids='run_id=320 OR run_id=321 OR run_id=325 OR run_id=326 OR run_id=327 OR run_id=328 OR run_id=330 OR run_id=331 OR run_id=332 OR run_id=333 OR run_id=334 OR run_id=335 OR run_id=336 OR run_id=337 OR run_id=338'
