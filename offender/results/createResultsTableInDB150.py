@@ -1,3 +1,6 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
 import psycopg2, sys, os, time
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
@@ -29,12 +32,12 @@ class Results():
         self.LarcenyMotorUnique=0
         self.AssaultUnique=0
 
-        self.PercentuniqueCrimes=0
-        self.PercentBurglaryUniq=0
-        self.PercentRobberyUniq=0
-        self.PercentLarcenyUniq=0
-        self.PercentLarcenyMotorUnique=0
-        self.PercentAssaultUnique=0
+        self.PercentuniqueCrimes=0.0
+        self.PercentBurglaryUniq=0.0
+        self.PercentRobberyUniq=0.0
+        self.PercentLarcenyUniq=0.0
+        self.PercentLarcenyMotorUnique=0.0
+        self.PercentAssaultUnique=0.0
 
         self.uniqPai=0
         self.uniquePaiBurglary=0
@@ -55,27 +58,9 @@ class Results():
 
 
 def buildbase():
-    numagents=[5, 25, 50, 75, 100, 125, 150]
-    #numagents=[5, 25]
     mycurs.execute("""SELECT run_id, num_agents, "radiustype", "targettype", numsteps
         from open.res_la_run
-        WHERE run_id=279 OR
-        run_id=283 OR
-        run_id=286 OR
-        run_id=227 OR
-        run_id=280 OR
-        run_id=285 OR
-        run_id=228 OR
-        run_id=229 OR
-        run_id=1 OR
-        run_id=2 OR
-        run_id=3 OR
-        run_id=4 OR
-        run_id=5 OR
-        run_id=6 OR
-        run_id=7 OR
-        run_id=8 OR
-        run_id=9""")
+        WHERE {0}""".format(select_ids))
     a=mycurs.fetchall() #returns tuple with first row (unordered list)
     #resultsList=[]
     result_id=0
@@ -92,33 +77,17 @@ def buildbase():
             #print(results.result_id)
             #print(results._ID)
             #print(results.num_agents)
-    #print(resultsList)
+    print('done')
 
 def distance():
-    numagents=[5, 25, 50, 75, 100, 125, 150]
+    numagents=[5, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 475, 500]
     #numagents=[5, 25]
     for x in numagents:
         """select uniqueCrimes and cummCrimes"""
         mycurs.execute("""SELECT run_id, sum(distinct(shape_leng)) AS distinctSum FROM
         (SELECT run.run_id, run.road_id, road.shape_leng from open.res_la_roads run
         LEFT JOIN open.nyc_road_proj_final as road on road.gid=run.road_id WHERE run.agent<{0} and
-        (run_id=279 OR
-        run_id=283 OR
-        run_id=286 OR
-        run_id=227 OR
-        run_id=280 OR
-        run_id=285 OR
-        run_id=228 OR
-        run_id=229 OR
-        run_id=1 OR
-        run_id=2 OR
-        run_id=3 OR
-        run_id=4 OR
-        run_id=5 OR
-        run_id=6 OR
-        run_id=7 OR
-        run_id=8 OR
-        run_id=9)) as f group by f.run_id""".format(x))
+        {1}) as f group by f.run_id""".format(x,select_ids))
         a=mycurs.fetchall() #returns tuple with first row (unordered list)
         for line in a:
             run_id=line[0]
@@ -130,8 +99,6 @@ def distance():
 
 
 def allCrimes():
-    numagents=[5, 25, 50, 75, 100, 125, 150]
-    #numagents=[5, 25]
     for x in numagents:
         """select uniqueCrimes and cummCrimes"""
         mycurs.execute("""SELECT  run_id,
@@ -143,24 +110,7 @@ def allCrimes():
         LEFT JOIN open.nyc_road2pi_5ft_2015_jun p
         ON f.road_id=p.road_id
         WHERE NOT f.road_id is NULL AND agent<{0} AND
-        (run_id=279 OR
-        run_id=283 OR
-        run_id=286 OR
-        run_id=227 OR
-        run_id=280 OR
-        run_id=285 OR
-        run_id=228 OR
-        run_id=229 OR
-        run_id=1 OR
-        run_id=2 OR
-        run_id=3 OR
-        run_id=4 OR
-        run_id=5 OR
-        run_id=6 OR
-        run_id=7 OR
-        run_id=8 OR
-        run_id=9
-        ) group by run_id""".format(x))
+        {1} group by run_id""".format(x,select_ids))
         a=mycurs.fetchall() #returns tuple with first row (unordered list)
         print("current numagents: {}".format(x))
         for line in a:
@@ -174,7 +124,7 @@ def allCrimes():
 
 def typesCrimes():
     crimetypes=["'BURGLARY'", "'ROBBERY'", "'GRAND LARCENY'", "'GRAND LARCENY OF MOTOR VEHICLE'", "'FELONY ASSAULT'"]
-    numagents=[5, 25, 50, 75, 100, 125, 150]
+    numagents=[5, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 475, 500]
     #numagents=[5, 25]
     for crimetype in crimetypes:
         for x in numagents:
@@ -188,23 +138,7 @@ def typesCrimes():
             LEFT JOIN open.nyc_road2pi_5ft_2015_jun p
             ON f.road_id=p.road_id
             WHERE NOT f.road_id is NULL AND agent<{0} AND offense={1} AND
-            (run_id=279 OR
-            run_id=283 OR
-            run_id=286 OR
-            run_id=227 OR
-            run_id=280 OR
-            run_id=285 OR
-            run_id=228 OR
-            run_id=229 OR
-            run_id=1 OR
-            run_id=2 OR
-            run_id=3 OR
-            run_id=4 OR
-            run_id=5 OR
-            run_id=6 OR
-            run_id=7 OR
-            run_id=8 OR
-            run_id=9) group by run_id""".format(x, crimetype))
+            {2} group by run_id""".format(x, crimetype, select_ids))
             a=mycurs.fetchall() #returns tuple with first row (unordered list)
             for line in a:
                 run_id=line[0]
@@ -213,6 +147,9 @@ def typesCrimes():
                         if crimetype=="'BURGLARY'":
                             element.BurglaryUniq=line[1]
                             element.PercentBurglaryUniq=line[1]/burglaryTotal
+                            print(line)
+                            print(element.PercentBurglaryUniq)
+                            print(burglaryTotal)
                             element.BurglaryCumm=line[2]
                         if crimetype=="'ROBBERY'":
                             element.RobberyUniq=line[1]
@@ -236,6 +173,7 @@ def typesCrimes():
 def calculatePAI():
     for element in resultsList:
         element.uniqPai=float(element.PercentuniqueCrimes)/float(element.walkedDPercent)
+        print(element.uniqPai)
         element.uniquePaiBurglary=float(element.PercentBurglaryUniq)/float(element.walkedDPercent)
         element.uniquePaiRobbery=float(element.PercentRobberyUniq)/float(element.walkedDPercent)
         element.uniquePaiLarceny=float(element.PercentBurglaryUniq)/float(element.walkedDPercent)
@@ -245,15 +183,15 @@ def calculatePAI():
 
 def insertValuesInTable():
         try:
-            mycurs.execute("""DROP TABLE {0}""".format(table))
+            mycurs.execute("""DROP TABLE {0}}""".format(table))
         except:
             print("table does not exist yet")
         mycurs.execute("""CREATE TABLE {0}} (
         run_id integer,
         num_agents numeric,
         totalnumagents numeric,
-        "radiusType" char(50),
-        "targetType" char(50),
+        "radiustype" varchar,
+        "targettype" varchar,
         uniqueCrimes numeric,
         BurglaryUniq numeric,
         RobberyUniq numeric,
@@ -287,14 +225,14 @@ def insertValuesInTable():
         print("table created")
         
         for element in resultsList:
-            mycurs.execute("""Insert into {0}} ("run_id", "num_agents", "totalnumagents",
-            "radiusType", "targetType", uniqueCrimes, BurglaryUniq, RobberyUniq, LarcenyUniq,
+            mycurs.execute("""Insert into {0} ("run_id", "num_agents", "totalnumagents",
+            "radiustype", "targettype", uniqueCrimes, BurglaryUniq, RobberyUniq, LarcenyUniq,
             LarcenyMotorUnique, AssaultUnique, cummCrimes, BurglaryCumm, RobberyCumm, LarcenyCumm,
             LarcenyMotorCumm, AssaultCumm, PercentuniqueCrimes, PercentBurglaryUniq, PercentRobberyUniq,
             PercentLarcenyUniq, PercentLarcenyMotorUnique, PercentAssaultUnique, uniqPai, uniquePaiBurglary,
             uniquePaiRobbery, uniquePaiLarceny, uniquePaiLarcneyM, uniquePaiAssault, walkedD, walkedDPercent
             ) values
-            ({0},{1},{2},'{3}','{4}',{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18},{19},{20},{21},{22},{23},{24},{25},{26},{27},{28},{29},{30},{31})""".format(
+            ({1},{2},'{3}','{4}',{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18},{19},{20},{21},{22},{23},{24},{25},{26},{27},{28},{29},{30},{31})""".format(
             table, element.run_id, element.num_agents, element.totalnumagents, str(element.radiusType), str(element.targetType), element.uniqueCrimes,
             element.BurglaryUniq, element.RobberyUniq, element.LarcenyUniq, 
             element.LarcenyMotorUnique, element.AssaultUnique, element.cummCrimes, element.BurglaryCumm, element.RobberyCumm,
@@ -302,12 +240,13 @@ def insertValuesInTable():
             element.PercentRobberyUniq, element.PercentLarcenyUniq, element.PercentLarcenyMotorUnique, element.PercentAssaultUnique,
             element.uniqPai, element.uniquePaiBurglary, element.uniquePaiRobbery, element.uniquePaiLarceny, element.uniquePaiLarcneyM,
             element.uniquePaiAssault, element.walkedD, element.walkedDPercent))
-        conn.commit()
+            conn.commit()
         conn.close()
 
-conn= psycopg2.connect("dbname='shared' user='rraquel' host='localhost' password='Mobil4b' ")        
+conn= psycopg2.connect("dbname='shared' user='rraquel' host='127.0.0.1' password='Mobil4b' ")        
 mycurs = conn.cursor()
 
+numagents=[5, 25, 50, 75, 100, 125, 150]
 table='open.res_la_results150agent'
 select_ids='run_id=279 OR run_id=283 OR run_id=286 OR run_id=227 OR run_id=280 OR run_id=285 OR run_id=228 OR run_id=229 OR run_id=1 OR run_id=2 OR run_id=3 OR run_id=4 OR run_id=5 OR run_id=6 OR run_id=7 OR run_id=8 OR run_id=9'
 

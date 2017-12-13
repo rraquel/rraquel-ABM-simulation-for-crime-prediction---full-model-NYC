@@ -118,10 +118,13 @@ def uniquePaiCrimesS():
         #print(res)
 
 
+
     """randomRoad"""
-    rr0=[x[0] for x in res['randomRoad']]
+    rr0=[x[0] for x in res['randomRoad                                        ']]
+    print(rr0)
     yrr=np.array([np.array(xi) for xi in rr0])
-    rr1=[x[1] for x in res['randomRoad']]
+    print(yrr)
+    rr1=[x[1] for x in res['randomRoad                                        ']]
     xrr=np.array([np.array(xi) for xi in rr1])
 
     #"""randomRoadCenter"""
@@ -131,27 +134,29 @@ def uniquePaiCrimesS():
     #xrrc=np.array([np.array(xi) for xi in rrc1])
 
     """randomVenue"""
-    rv0=[x[0] for x in res['randomVenue']]
+    rv0=[x[0] for x in res['randomVenue                                       ']]
     yrv=np.array([np.array(xi) for xi in rv0])
-    rv1=[x[1] for x in res['randomVenue']]
+    rv1=[x[1] for x in res['randomVenue                                       ']]
+    print(rv1)
     xrv=np.array([np.array(xi) for xi in rv1])
+    print(xrv)
 
     """randomVenueCenter"""
-    rvc0=[x[0] for x in res['randomVenueCenter']]
+    rvc0=[x[0] for x in res['randomVenueCenter                                 ']]
     yrvc=np.array([np.array(xi) for xi in rvc0])
-    rvc1=[x[1] for x in res['randomVenueCenter']]
+    rvc1=[x[1] for x in res['randomVenueCenter                                 ']]
     xrvc=np.array([np.array(xi) for xi in rvc1])
 
     """popularVenue"""
-    pv0=[x[0] for x in res['popularVenue']]
+    pv0=[x[0] for x in res['popularVenue                                      ']]
     ypv=np.array([np.array(xi) for xi in pv0])
-    pv1=[x[1] for x in res['popularVenue']]
+    pv1=[x[1] for x in res['popularVenue                                      ']]
     xpv=np.array([np.array(xi) for xi in pv1])
 
     """popularVenueCenter"""
-    pvc0=[x[0] for x in res['popularVenueCenter']]
+    pvc0=[x[0] for x in res['popularVenueCenter                                ']]
     ypvc=np.array([np.array(xi) for xi in pvc0])
-    pvc1=[x[1] for x in res['popularVenueCenter']]
+    pvc1=[x[1] for x in res['popularVenueCenter                                ']]
     xpvc=np.array([np.array(xi) for xi in pvc1])
 
     fig=plt.figure(1)
@@ -162,7 +167,7 @@ def uniquePaiCrimesS():
     plot4=plt.plot(xrvc, yrvc, label='randomVenueCenter')
     plot5=plt.plot(xpv, ypv, label='popularVenue')
     plot6=plt.plot(xpvc, ypvc, label='popularVenueCenter')
-    plt.axis([25,500,1,2])
+    plt.axis([25,500,0,3])
     #ax.set_title('adapted PAI - static distance')
     ax.set_xlabel('n of agents in scenario')
     ax.set_ylabel('unique crimes adapted PAI')
@@ -241,7 +246,7 @@ def uniquePaiCrimesP():
     plot4=plt.plot(xrvc, yrvc, label='randomVenueCenter')
     plot5=plt.plot(xpv, ypv, label='popularVenue')
     plot6=plt.plot(xpvc, ypvc, label='popularVenueCenter')
-    plt.axis([25,500,1,2])
+    plt.axis([25,500,0,3])
     #ax.set_title('adapted PAI - Lévy distance')
     ax.set_xlabel('n of agents in scenario')
     ax.set_ylabel('unique crimes adapted PAI')
@@ -303,7 +308,7 @@ def uniquePaiCrimesBest():
     plot6=plt.plot(xpvc, ypvc, label='uniform distance - popularVenueCenter target')
     plot5=plt.plot(xpv, ypv, label='Lévy flight distance - popularVenue target')
     #plt.axis([5,160,1,2])
-    plt.axis([25,500,1,2])
+    plt.axis([25,500,0,3])
     #ax.set_title('adapted PAI - comparing best performing scenarios')
     ax.set_xlabel('n of agents in scenario')
     ax.set_ylabel('unique adapted PAI')
