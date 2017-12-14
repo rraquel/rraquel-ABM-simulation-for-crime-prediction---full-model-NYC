@@ -183,10 +183,10 @@ def calculatePAI():
 
 def insertValuesInTable():
         try:
-            mycurs.execute("""DROP TABLE {0}}""".format(table))
+            mycurs.execute("""DROP TABLE {0}""".format(table))
         except:
             print("table does not exist yet")
-        mycurs.execute("""CREATE TABLE {0}} (
+        mycurs.execute("""CREATE TABLE {0} (
         run_id integer,
         num_agents numeric,
         totalnumagents numeric,
@@ -247,6 +247,8 @@ conn= psycopg2.connect("dbname='shared' user='rraquel' host='127.0.0.1' password
 mycurs = conn.cursor()
 
 numagents=[5, 25, 50, 75, 100, 125, 150]
+numagents=[5]
+
 table='open.res_la_results150agent'
 select_ids='run_id=279 OR run_id=283 OR run_id=286 OR run_id=227 OR run_id=280 OR run_id=285 OR run_id=228 OR run_id=229 OR run_id=1 OR run_id=2 OR run_id=3 OR run_id=4 OR run_id=5 OR run_id=6 OR run_id=7 OR run_id=8 OR run_id=9'
 
