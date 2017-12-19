@@ -111,7 +111,9 @@ class Model(mesa.Model):
 
     def connectDB(self):
         try:
-            self.conn= psycopg2.connect("dbname='shared' port=5433 user='rraquel' host='127.0.0.1' password='Mobil4b' ")        
+            print('here')
+            #self.conn= psycopg2.connect("dbname='shared' port=5433 user='rraquel' host='127.0.0.1' password='Mobil4b' ")        
+            self.conn= psycopg2.connect("dbname='shared' user='rraquel' host='127.0.0.1' password='Mobil4b' ")
             self.mycurs=self.conn.cursor()
             #self.log.info("connected to DB")
         except Exception as e:
@@ -165,7 +167,7 @@ class Model(mesa.Model):
                     if not road==road2:
                         self.G.add_edge(road, road2)
         self.log.debug("Number of  G: roads: {0}, intersections: {1}".format(self.G.number_of_nodes(), self.G.number_of_edges))
-        self.log.debug("Isolated roads: {0}".format(len(nx.isolates(self.G))))
+        #self.log.debug("Isolated roads: {0}".format(len(nx.isolates(self.G))))
         #self.log.info("roadNW built, intersection size: {0}".format(len(intersect)))
         #self.log.info("roadNW built, roads size: {0}".format(self.G.number_of_nodes()))
         return self.G

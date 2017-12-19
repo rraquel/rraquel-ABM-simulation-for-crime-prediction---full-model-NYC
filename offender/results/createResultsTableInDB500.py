@@ -226,9 +226,10 @@ def insertValuesInTable():
             LarcenyMotorUnique, AssaultUnique, cummCrimes, BurglaryCumm, RobberyCumm, LarcenyCumm,
             LarcenyMotorCumm, AssaultCumm, PercentuniqueCrimes, PercentBurglaryUniq, PercentRobberyUniq,
             PercentLarcenyUniq, PercentLarcenyMotorUnique, PercentAssaultUnique, uniqPai, uniquePaiBurglary,
-            uniquePaiRobbery, uniquePaiLarceny, uniquePaiLarcneyM, uniquePaiAssault, walkedD, walkedDPercent) values
-            ({0},{1},{2},'{3}','{4}',{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18},{19},{20},{21},{22},{23},{24},{25},{26},{27},{28},{29},{30})""".format(
-            table,
+            uniquePaiRobbery, uniquePaiLarceny, uniquePaiLarcneyM, uniquePaiAssault, walkedD, walkedDPercent
+            ) values
+            ({1},{2},{3},'{4}','{5}',{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18},{19},{20},{21},{22},{23},{24},{25},{26},{27},{28},{29},{30},{31})""".format(
+            table,             
             element.run_id, element.num_agents, element.totalnumagents, str(element.radiusType), str(element.targetType), element.uniqueCrimes,
             element.BurglaryUniq, element.RobberyUniq, element.LarcenyUniq, 
             element.LarcenyMotorUnique, element.AssaultUnique, element.cummCrimes, element.BurglaryCumm, element.RobberyCumm,
@@ -243,11 +244,13 @@ conn= psycopg2.connect("dbname='shared' user='rraquel' host='127.0.0.1' password
 mycurs = conn.cursor()
 
 numagents=[5, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 475, 500]
-numagents=[5, 25]
+#for test
+#numagents=[5]
 
 table='open.res_la_results500agent'
 select_ids='run_id=320 OR run_id=321 OR run_id=325 OR run_id=326 OR run_id=327 OR run_id=328 OR run_id=330 OR run_id=331 OR run_id=332 OR run_id=333 OR run_id=334 OR run_id=335 OR run_id=336 OR run_id=337 OR run_id=338'
-
+#for test
+#select_ids='run_id=320 OR run_id=321'
 
 #mapped crimes for June 2015
 crimesTotal=8494

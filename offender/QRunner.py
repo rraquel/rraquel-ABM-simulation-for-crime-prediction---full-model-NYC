@@ -41,8 +41,12 @@ class Task(object):
         pyConn.set_session(autocommit=False)
         pyCursor1 = pyConn.cursor()
         for road in self.runRoads['way']:
-            procQuery = """insert into open.tmp_res_roads ("id","run_id","step","agent","road_id") values
+            print("***ready to write: {}".format(self.runRoads['run_id']))
+            #procQuery = """insert into open.tmp_res_roads ("id","run_id","step","agent","road_id") values
+            #        (DEFAULT,{0},{1},{2},{3} )""".format(self.runRoads['run_id'], self.runRoads['step'], self.runRoads['agent'], road)
+            procQuery = """insert into open.res_la_roads ("id","run_id","step","agent","road_id") values
                     (DEFAULT,{0},{1},{2},{3} )""".format(self.runRoads['run_id'], self.runRoads['step'], self.runRoads['agent'], road)
+            
             pyCursor1.execute(procQuery)
         pyConn.commit()
         Task.pool.putconn(pyConn)
