@@ -173,7 +173,9 @@ class Model(mesa.Model):
         return self.G
 
     def createCrimes(self):
-        self.mycurs.execute("""SELECT * from open.nyc_road2police_incident_5ft_types_Jun WHERE NOT off_type is NULL""")
+        #used until 13.12.2018 - also in for AAMAS submission
+        #self.mycurs.execute("""SELECT * from open.nyc_road2police_incident_5ft_types_Jun WHERE NOT off_type is NULL""")
+        self.mycurs.execute("""SELECT * from open.nyc_road2pi_5ft_2015_jun""")
         #Burglary 1, robbery 2, grand Larceny 3, assualt 4, grand larceny motor 5
         rows=self.mycurs.fetchall()
         self.totalCrimes=len(rows)
@@ -202,12 +204,10 @@ class Model(mesa.Model):
                 #print(roadCrime)
         typeCounter=Counter(typeList)
         self.burglaryCount=typeCounter[1]
-        print('burglary count: {}'.format(self.burglaryCount))
         self.robberyCount=typeCounter[2]
         self.larcenyCount=typeCounter[3]
         self.larcenyMCount=typeCounter[5]
         self.assualtCount=typeCounter[4]
-        print('assault count: {}'.format(self.assualtCount))
         self.totalCrimes=sum(typeCounter.values())
         self.allCrimes=roadCrime
     
