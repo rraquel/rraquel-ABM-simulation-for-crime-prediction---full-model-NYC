@@ -5,7 +5,7 @@ import matplotlib.patches as mpatches
 import collections
 
 
-conn= psycopg2.connect("dbname='shared' user='rraquel' host='localhost' password='Mobil4b' ")        
+conn= psycopg2.connect("dbname='shared' user='rraquel' host='localhost' password='Mobil4b' ")   
 mycurs = conn.cursor()
 
 
@@ -19,29 +19,29 @@ def uniquePaiCrimesU():
     """distinct crimes and distinct roads"""
 
     mycurs.execute("""SELECT "targettype",uniqPai, num_agents, run_id
-        FROM open.res_la_results500agent AS m
-        WHERE "radiustype"='uniformR'""")
+   FROM open.res_la_results500agent AS m
+   WHERE "radiustype"='uniformR'""")
     results=mycurs.fetchall() #returns tuple with first row (unordered list)
 
     res=collections.defaultdict(list)
     print('UNIFORM')
     #each row is a run_id
     for row in results:
-        targettype=row[0]
-        print(targettype)
-        uniquePai=float(row[1])
-        print(uniquePai)
-        agents=row[2]
-        print(agents)
-        runid=row[3]
-        x=[uniquePai, agents]
-        res[targettype].append(x)
-        #print(res)
+   targettype=row[0]
+   print(targettype)
+   uniquePai=float(row[1])
+   print(uniquePai)
+   agents=row[2]
+   print(agents)
+   runid=row[3]
+   x=[uniquePai, agents]
+   res[targettype].append(x)
+   #print(res)
 
     """randomRoad"""
-    rr0=[x[0] for x in res['randomRoad                                        ']]
+    rr0=[x[0] for x in res['randomRoad']]
     yrr=np.array([np.array(xi) for xi in rr0])
-    rr1=[x[1] for x in res['randomRoad                                        ']]
+    rr1=[x[1] for x in res['randomRoad']]
     xrr=np.array([np.array(xi) for xi in rr1])
 
     #"""randomRoadCenter"""
@@ -51,9 +51,9 @@ def uniquePaiCrimesU():
     #xrrc=np.array([np.array(xi) for xi in rrc1])
 
     """randomVenue"""
-    rv0=[x[0] for x in res['randomVenue                                       ']]
+    rv0=[x[0] for x in res['randomVenue']]
     yrv=np.array([np.array(xi) for xi in rv0])
-    rv1=[x[1] for x in res['randomVenue                                       ']]
+    rv1=[x[1] for x in res['randomVenue']]
     xrv=np.array([np.array(xi) for xi in rv1])
 
     """randomVenueCenter"""
@@ -98,33 +98,33 @@ def uniquePaiCrimesS():
     """distinct crimes and distinct roads"""
 
     mycurs.execute("""SELECT "targettype", uniqPai, num_agents, run_id
-        FROM open.res_la_results500agent AS m
-        WHERE  "radiustype"='staticR'""")
+   FROM open.res_la_results500agent AS m
+   WHERE  "radiustype"='staticR'""")
     results=mycurs.fetchall() #returns tuple with first row (unordered list)
 
     res=collections.defaultdict(list)
     print('STATIC')
     #each row is a run_id
     for row in results:
-        targettype=row[0]
-        print(targettype)
-        uniquePai=float(row[1])
-        print(uniquePai)
-        agents=row[2]
-        print(agents)
-        runid=row[3]
-        x=[uniquePai, agents]
-        res[targettype].append(x)
-        #print(res)
+   targettype=row[0]
+   print(targettype)
+   uniquePai=float(row[1])
+   print(uniquePai)
+   agents=row[2]
+   print(agents)
+   runid=row[3]
+   x=[uniquePai, agents]
+   res[targettype].append(x)
+   #print(res)
 
 
 
     """randomRoad"""
-    rr0=[x[0] for x in res['randomRoad                                        ']]
+    rr0=[x[0] for x in res['randomRoad']]
     print(rr0)
     yrr=np.array([np.array(xi) for xi in rr0])
     print(yrr)
-    rr1=[x[1] for x in res['randomRoad                                        ']]
+    rr1=[x[1] for x in res['randomRoad']]
     xrr=np.array([np.array(xi) for xi in rr1])
 
     #"""randomRoadCenter"""
@@ -134,29 +134,29 @@ def uniquePaiCrimesS():
     #xrrc=np.array([np.array(xi) for xi in rrc1])
 
     """randomVenue"""
-    rv0=[x[0] for x in res['randomVenue                                       ']]
+    rv0=[x[0] for x in res['randomVenue']]
     yrv=np.array([np.array(xi) for xi in rv0])
-    rv1=[x[1] for x in res['randomVenue                                       ']]
+    rv1=[x[1] for x in res['randomVenue']]
     print(rv1)
     xrv=np.array([np.array(xi) for xi in rv1])
     print(xrv)
 
     """randomVenueCenter"""
-    rvc0=[x[0] for x in res['randomVenueCenter                                 ']]
+    rvc0=[x[0] for x in res['randomVenueCenter']]
     yrvc=np.array([np.array(xi) for xi in rvc0])
-    rvc1=[x[1] for x in res['randomVenueCenter                                 ']]
+    rvc1=[x[1] for x in res['randomVenueCenter']]
     xrvc=np.array([np.array(xi) for xi in rvc1])
 
     """popularVenue"""
-    pv0=[x[0] for x in res['popularVenue                                      ']]
+    pv0=[x[0] for x in res['popularVenue']]
     ypv=np.array([np.array(xi) for xi in pv0])
-    pv1=[x[1] for x in res['popularVenue                                      ']]
+    pv1=[x[1] for x in res['popularVenue']]
     xpv=np.array([np.array(xi) for xi in pv1])
 
     """popularVenueCenter"""
-    pvc0=[x[0] for x in res['popularVenueCenter                                ']]
+    pvc0=[x[0] for x in res['popularVenueCenter']]
     ypvc=np.array([np.array(xi) for xi in pvc0])
-    pvc1=[x[1] for x in res['popularVenueCenter                                ']]
+    pvc1=[x[1] for x in res['popularVenueCenter']]
     xpvc=np.array([np.array(xi) for xi in pvc1])
 
     fig=plt.figure(1)
@@ -183,23 +183,23 @@ def uniquePaiCrimesP():
     """distinct crimes and distinct roads"""
 
     mycurs.execute("""SELECT "targettype", uniqPai, num_agents, run_id
-        FROM open.res_la_results500agent
-        WHERE  "radiustype"='powerR'""")
+   FROM open.res_la_results500agent
+   WHERE  "radiustype"='powerR'""")
     results=mycurs.fetchall() #returns tuple with first row (unordered list)
 
     res=collections.defaultdict(list)
     print('POWER')
     #each row is a run_id
     for row in results:
-        targettype=row[0]
-        print(targettype)
-        uniquePai=float(row[1])
-        agents=row[2]
-        print(agents)
-        runid=row[3]
-        x=[uniquePai, agents]
-        res[targettype].append(x)
-        #print(res)
+   targettype=row[0]
+   print(targettype)
+   uniquePai=float(row[1])
+   agents=row[2]
+   print(agents)
+   runid=row[3]
+   x=[uniquePai, agents]
+   res[targettype].append(x)
+   #print(res)
 
 
     """randomRoad"""
@@ -264,23 +264,23 @@ def uniquePaiCrimesBest():
     """combines best target type strategies per radius search"""
 
     mycurs.execute("""SELECT "targettype", uniqPai, num_agents, run_id
-        FROM open.res_la_results500agent
-        Where run_id=2 or run_id=285 or run_id=5""")
+   FROM open.res_la_results500agent
+   Where run_id=2 or run_id=285 or run_id=5""")
     resultstotal=mycurs.fetchall() #returns tuple with first row (unordered list)
     
     res=collections.defaultdict(list)
     print('best combineds')
     #each row is a run_id
     for row in resultstotal:
-        targettype=row[0]
-        print(targettype)
-        uniquePai=float(row[1])
-        agents=row[2]
-        print(agents)
-        runid=row[3]
-        x=[uniquePai, agents]
-        res[targettype].append(x)
-        print(res)
+   targettype=row[0]
+   print(targettype)
+   uniquePai=float(row[1])
+   agents=row[2]
+   print(agents)
+   runid=row[3]
+   x=[uniquePai, agents]
+   res[targettype].append(x)
+   print(res)
 
 
 
@@ -327,8 +327,8 @@ def uniquePercentCrimesU():
     """distinct crimes and distinct roads"""
 
     mycurs.execute("""SELECT "targettype", PercentuniqueCrimes, num_agents, run_id
-        FROM open.res_la_results500agent
-        WHERE "radiustype"='uniformR'""")
+   FROM open.res_la_results500agent
+   WHERE "radiustype"='uniformR'""")
     results=mycurs.fetchall() #returns tuple with first row (unordered list)
 
 
@@ -336,15 +336,15 @@ def uniquePercentCrimesU():
     print('UNIFORM')
     #each row is a run_id
     for row in results:
-        targettype=row[0]
-        print(targettype)
-        uniquePercent=float(row[1])*100
-        agents=row[2]
-        print(agents)
-        runid=row[3]
-        x=[uniquePercent, agents]
-        res[targettype].append(x)
-        #print(res)
+   targettype=row[0]
+   print(targettype)
+   uniquePercent=float(row[1])*100
+   agents=row[2]
+   print(agents)
+   runid=row[3]
+   x=[uniquePercent, agents]
+   res[targettype].append(x)
+   #print(res)
 
     """randomRoad"""
     rr0=[x[0] for x in res['randomRoad']]
@@ -406,8 +406,8 @@ def uniquePercentCrimesS():
     """distinct crimes and distinct roads"""
 
     mycurs.execute("""SELECT "targettype", PercentuniqueCrimes, num_agents, run_id
-        FROM open.res_la_results500agent
-        WHERE  "radiustype"='staticR'""")
+   FROM open.res_la_results500agent
+   WHERE  "radiustype"='staticR'""")
     results=mycurs.fetchall() #returns tuple with first row (unordered list)
 
 
@@ -415,16 +415,16 @@ def uniquePercentCrimesS():
     print('STATIC')
     #each row is a run_id
     for row in results:
-        targettype=row[0]
-        print(targettype)
-        uniquePercent=float(row[1])*100
-        print(uniquePercent)
-        agents=row[2]
-        print(agents)
-        runid=row[3]
-        x=[uniquePercent, agents]
-        res[targettype].append(x)
-        #print(res)
+   targettype=row[0]
+   print(targettype)
+   uniquePercent=float(row[1])*100
+   print(uniquePercent)
+   agents=row[2]
+   print(agents)
+   runid=row[3]
+   x=[uniquePercent, agents]
+   res[targettype].append(x)
+   #print(res)
 
 
     """randomRoad"""
@@ -488,8 +488,8 @@ def uniquePercentCrimesP():
     """distinct crimes and distinct roads"""
 
     mycurs.execute("""SELECT "targettype", PercentuniqueCrimes, num_agents, run_id
-        FROM open.res_la_results500agent
-        WHERE  "radiustype"='powerR'""")
+   FROM open.res_la_results500agent
+   WHERE  "radiustype"='powerR'""")
     results=mycurs.fetchall() #returns tuple with first row (unordered list)
 
 
@@ -497,15 +497,15 @@ def uniquePercentCrimesP():
     print('POWER')
     #each row is a run_id
     for row in results:
-        targettype=row[0]
-        print(targettype)
-        uniquePercent=float(row[1])*100
-        agents=row[2]
-        print(agents)
-        runid=row[3]
-        x=[uniquePercent, agents]
-        res[targettype].append(x)
-        #print(res)
+   targettype=row[0]
+   print(targettype)
+   uniquePercent=float(row[1])*100
+   agents=row[2]
+   print(agents)
+   runid=row[3]
+   x=[uniquePercent, agents]
+   res[targettype].append(x)
+   #print(res)
 
 
     """randomRoad"""

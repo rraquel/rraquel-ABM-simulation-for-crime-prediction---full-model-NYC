@@ -258,7 +258,7 @@ burglaryTotal=1287
 robberyTotal=1301
 larcenyTotal=3555
 larcenyMTotal=580
-assaultTotal=1178
+assaultTotal=1778
 
 resultsList=[]
 configdict={}

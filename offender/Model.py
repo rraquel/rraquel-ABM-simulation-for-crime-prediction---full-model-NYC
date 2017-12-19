@@ -202,10 +202,12 @@ class Model(mesa.Model):
                 #print(roadCrime)
         typeCounter=Counter(typeList)
         self.burglaryCount=typeCounter[1]
+        print('burglary count: {}'.format(self.burglaryCount))
         self.robberyCount=typeCounter[2]
         self.larcenyCount=typeCounter[3]
         self.larcenyMCount=typeCounter[5]
         self.assualtCount=typeCounter[4]
+        print('assault count: {}'.format(self.assualtCount))
         self.totalCrimes=sum(typeCounter.values())
         self.allCrimes=roadCrime
     
