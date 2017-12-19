@@ -248,7 +248,7 @@ numagents=[5, 25, 50, 75, 100, 125, 150]
 #numagents=[5]
 
 table='open.res_la_results150agent'
-select_ids='run_id=279 OR run_id=283 OR run_id=286 OR run_id=227 OR run_id=280 OR run_id=285 OR run_id=228 OR run_id=229 OR run_id=1 OR run_id=2 OR run_id=3 OR run_id=4 OR run_id=5 OR run_id=6 OR run_id=7 OR run_id=8 OR run_id=9'
+select_ids='(run_id=279 OR run_id=283 OR run_id=286 OR run_id=227 OR run_id=280 OR run_id=285 OR run_id=228 OR run_id=229 OR run_id=1 OR run_id=2 OR run_id=3 OR run_id=4 OR run_id=5 OR run_id=6 OR run_id=7 OR run_id=8 OR run_id=9)'
 #for test
 #select_ids='run_id=279 OR run_id=283'
 

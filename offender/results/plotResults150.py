@@ -19,7 +19,7 @@ def uniquePaiCrimesU():
     """distinct crimes and distinct roads"""
 
     mycurs.execute("""SELECT "targettype",uniqPai, num_agents, run_id
-        FROM open.res_la_results500agent AS m
+        FROM open.res_la_results150agent AS m
         WHERE "radiustype"='uniformR'""")
     results=mycurs.fetchall() #returns tuple with first row (unordered list)
 
@@ -39,9 +39,9 @@ def uniquePaiCrimesU():
         #print(res)
 
     """randomRoad"""
-    rr0=[x[0] for x in res['randomRoad                                        ']]
+    rr0=[x[0] for x in res['randomRoad']]
     yrr=np.array([np.array(xi) for xi in rr0])
-    rr1=[x[1] for x in res['randomRoad                                        ']]
+    rr1=[x[1] for x in res['randomRoad']]
     xrr=np.array([np.array(xi) for xi in rr1])
 
     #"""randomRoadCenter"""
@@ -51,9 +51,9 @@ def uniquePaiCrimesU():
     #xrrc=np.array([np.array(xi) for xi in rrc1])
 
     """randomVenue"""
-    rv0=[x[0] for x in res['randomVenue                                       ']]
+    rv0=[x[0] for x in res['randomVenue']]
     yrv=np.array([np.array(xi) for xi in rv0])
-    rv1=[x[1] for x in res['randomVenue                                       ']]
+    rv1=[x[1] for x in res['randomVenue']]
     xrv=np.array([np.array(xi) for xi in rv1])
 
     """randomVenueCenter"""
@@ -82,7 +82,7 @@ def uniquePaiCrimesU():
     plot4=plt.plot(xrvc, yrvc, label='randomVenueCenter')
     plot5=plt.plot(xpv, ypv, label='popularVenue')
     plot6=plt.plot(xpvc, ypvc, label='popularVenueCenter')
-    plt.axis([25,500,1,2])
+    #plt.axis([25,150,1,2])
     #ax.set_title('adapted PAI - uniform distance')
     ax.set_xlabel('n of agents in scenario')
     ax.set_ylabel('unique adapted PAI')
@@ -98,7 +98,7 @@ def uniquePaiCrimesS():
     """distinct crimes and distinct roads"""
 
     mycurs.execute("""SELECT "targettype", uniqPai, num_agents, run_id
-        FROM open.res_la_results500agent AS m
+        FROM open.res_la_results150agent AS m
         WHERE  "radiustype"='staticR'""")
     results=mycurs.fetchall() #returns tuple with first row (unordered list)
 
@@ -120,11 +120,11 @@ def uniquePaiCrimesS():
 
 
     """randomRoad"""
-    rr0=[x[0] for x in res['randomRoad                                        ']]
+    rr0=[x[0] for x in res['randomRoad ']]
     print(rr0)
     yrr=np.array([np.array(xi) for xi in rr0])
     print(yrr)
-    rr1=[x[1] for x in res['randomRoad                                        ']]
+    rr1=[x[1] for x in res['randomRoad ']]
     xrr=np.array([np.array(xi) for xi in rr1])
 
     #"""randomRoadCenter"""
@@ -134,29 +134,29 @@ def uniquePaiCrimesS():
     #xrrc=np.array([np.array(xi) for xi in rrc1])
 
     """randomVenue"""
-    rv0=[x[0] for x in res['randomVenue                                       ']]
+    rv0=[x[0] for x in res['randomVenue']]
     yrv=np.array([np.array(xi) for xi in rv0])
-    rv1=[x[1] for x in res['randomVenue                                       ']]
+    rv1=[x[1] for x in res['randomVenue']]
     print(rv1)
     xrv=np.array([np.array(xi) for xi in rv1])
     print(xrv)
 
     """randomVenueCenter"""
-    rvc0=[x[0] for x in res['randomVenueCenter                                 ']]
+    rvc0=[x[0] for x in res['randomVenueCenter']]
     yrvc=np.array([np.array(xi) for xi in rvc0])
-    rvc1=[x[1] for x in res['randomVenueCenter                                 ']]
+    rvc1=[x[1] for x in res['randomVenueCenter']]
     xrvc=np.array([np.array(xi) for xi in rvc1])
 
     """popularVenue"""
-    pv0=[x[0] for x in res['popularVenue                                      ']]
+    pv0=[x[0] for x in res['popularVenue     ']]
     ypv=np.array([np.array(xi) for xi in pv0])
-    pv1=[x[1] for x in res['popularVenue                                      ']]
+    pv1=[x[1] for x in res['popularVenue     ']]
     xpv=np.array([np.array(xi) for xi in pv1])
 
     """popularVenueCenter"""
-    pvc0=[x[0] for x in res['popularVenueCenter                                ']]
+    pvc0=[x[0] for x in res['popularVenueCenter']]
     ypvc=np.array([np.array(xi) for xi in pvc0])
-    pvc1=[x[1] for x in res['popularVenueCenter                                ']]
+    pvc1=[x[1] for x in res['popularVenueCenter']]
     xpvc=np.array([np.array(xi) for xi in pvc1])
 
     fig=plt.figure(1)
@@ -167,7 +167,7 @@ def uniquePaiCrimesS():
     plot4=plt.plot(xrvc, yrvc, label='randomVenueCenter')
     plot5=plt.plot(xpv, ypv, label='popularVenue')
     plot6=plt.plot(xpvc, ypvc, label='popularVenueCenter')
-    plt.axis([25,500,0,3])
+    plt.axis([25,150,0,3])
     #ax.set_title('adapted PAI - static distance')
     ax.set_xlabel('n of agents in scenario')
     ax.set_ylabel('unique crimes adapted PAI')
@@ -183,7 +183,7 @@ def uniquePaiCrimesP():
     """distinct crimes and distinct roads"""
 
     mycurs.execute("""SELECT "targettype", uniqPai, num_agents, run_id
-        FROM open.res_la_results500agent
+        FROM open.res_la_results150agent
         WHERE  "radiustype"='powerR'""")
     results=mycurs.fetchall() #returns tuple with first row (unordered list)
 
@@ -246,7 +246,7 @@ def uniquePaiCrimesP():
     plot4=plt.plot(xrvc, yrvc, label='randomVenueCenter')
     plot5=plt.plot(xpv, ypv, label='popularVenue')
     plot6=plt.plot(xpvc, ypvc, label='popularVenueCenter')
-    plt.axis([25,500,0,3])
+    plt.axis([25,150,0,3])
     #ax.set_title('adapted PAI - Lévy distance')
     ax.set_xlabel('n of agents in scenario')
     ax.set_ylabel('unique crimes adapted PAI')
@@ -264,7 +264,7 @@ def uniquePaiCrimesBest():
     """combines best target type strategies per radius search"""
 
     mycurs.execute("""SELECT "targettype", uniqPai, num_agents, run_id
-        FROM open.res_la_results500agent
+        FROM open.res_la_results150agent
         Where run_id=2 or run_id=285 or run_id=5""")
     resultstotal=mycurs.fetchall() #returns tuple with first row (unordered list)
     
@@ -291,9 +291,9 @@ def uniquePaiCrimesBest():
     xrvc=np.array([np.array(xi) for xi in rvc1])
 
     """popularVenue"""
-    pv0=[x[0] for x in res['randomVenue']]
+    pv0=[x[0] for x in res['popularVenue']]
     ypv=np.array([np.array(xi) for xi in pv0])
-    pv1=[x[1] for x in res['randomVenue']]
+    pv1=[x[1] for x in res['popularVenue']]
     xpv=np.array([np.array(xi) for xi in pv1])
 
     """popularVenueCenter"""
@@ -308,7 +308,7 @@ def uniquePaiCrimesBest():
     plot6=plt.plot(xpvc, ypvc, label='uniform distance - popularVenueCenter target')
     plot5=plt.plot(xpv, ypv, label='Lévy flight distance - popularVenue target')
     #plt.axis([5,160,1,2])
-    plt.axis([25,500,0,3])
+    plt.axis([25,150,0,3])
     #ax.set_title('adapted PAI - comparing best performing scenarios')
     ax.set_xlabel('n of agents in scenario')
     ax.set_ylabel('unique adapted PAI')
@@ -327,7 +327,7 @@ def uniquePercentCrimesU():
     """distinct crimes and distinct roads"""
 
     mycurs.execute("""SELECT "targettype", PercentuniqueCrimes, num_agents, run_id
-        FROM open.res_la_results500agent
+        FROM open.res_la_results150agent
         WHERE "radiustype"='uniformR'""")
     results=mycurs.fetchall() #returns tuple with first row (unordered list)
 
@@ -390,7 +390,7 @@ def uniquePercentCrimesU():
     plot4=plt.plot(xrvc, yrvc, label='randomVenueCenter')
     plot5=plt.plot(xpv, ypv, label='popularVenue')
     plot6=plt.plot(xpvc, ypvc, label='popularVenueCenter')
-    plt.axis([5,500,0,100])
+    plt.axis([5,150,0,100])
     ax.set_title('Percent covered unique crimes - uniform distance')
     ax.set_xlabel('n of agents in simulation')
     ax.set_ylabel('% covered unique crimes')
@@ -406,7 +406,7 @@ def uniquePercentCrimesS():
     """distinct crimes and distinct roads"""
 
     mycurs.execute("""SELECT "targettype", PercentuniqueCrimes, num_agents, run_id
-        FROM open.res_la_results500agent
+        FROM open.res_la_results150agent
         WHERE  "radiustype"='staticR'""")
     results=mycurs.fetchall() #returns tuple with first row (unordered list)
 
@@ -471,8 +471,8 @@ def uniquePercentCrimesS():
     plot4=plt.plot(xrvc, yrvc, label='randomVenueCenter')
     plot5=plt.plot(xpv, ypv, label='popularVenue')
     plot6=plt.plot(xpvc, ypvc, label='popularVenueCenter')
-    plt.axis([25,500,0,100])
-    plt.xticks([25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 475, 500])
+    plt.axis([25,150,0,100])
+    plt.xticks([25, 50, 75, 100, 125, 150])
     ax.set_title('Percent covered unique crimes - static distance')
     ax.set_xlabel('n of agents in scenario')
     ax.set_ylabel('% covered unique crimes')
@@ -488,7 +488,7 @@ def uniquePercentCrimesP():
     """distinct crimes and distinct roads"""
 
     mycurs.execute("""SELECT "targettype", PercentuniqueCrimes, num_agents, run_id
-        FROM open.res_la_results500agent
+        FROM open.res_la_results150agent
         WHERE  "radiustype"='powerR'""")
     results=mycurs.fetchall() #returns tuple with first row (unordered list)
 
@@ -552,8 +552,8 @@ def uniquePercentCrimesP():
     plot4=plt.plot(xrvc, yrvc, label='randomVenueCenter')
     plot5=plt.plot(xpv, ypv, label='popularVenue')
     plot6=plt.plot(xpvc, ypvc, label='popularVenueCenter')
-    plt.axis([25,500,0,100])
-    plt.xticks([25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 475, 500])
+    plt.axis([25,150,0,100])
+    plt.xticks([25, 50, 75, 100, 125, 150])
     ax.set_title('Percent covered unique crimes - Lévy distance')
     ax.set_xlabel('n of agents in scenario')
     ax.set_ylabel('% covered unique crimes')
@@ -565,8 +565,8 @@ def uniquePercentCrimesP():
 
 
 uniquePaiCrimesS()
-#uniquePaiCrimesU()
-#uniquePaiCrimesP()
+uniquePaiCrimesU()
+uniquePaiCrimesP()
 
 #uniquePercentCrimesS()
 #uniquePercentCrimesU()
