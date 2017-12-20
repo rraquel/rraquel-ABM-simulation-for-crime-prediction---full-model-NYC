@@ -10,7 +10,5 @@
 #    sleep 100
 #done
 
-NUMPROCS=`ps -ef| grep run.py | wc -l`
-if [ $NUMPROCS -le 4 ]; then
   # starte zweite Ladung
   offender/run.py
