@@ -10,16 +10,14 @@
 #    sleep 100
 #done
 
-while true; do
-  NUMPROCS=`ps -ef| grep run.py | wc -l`
-  if [ $NUMPROCS -le 4 ]; then
-    # starte zweite Ladung
-    offender/run.py
-    sleep 10
+NUMPROCS=`ps -ef| grep run.py | wc -l`
+if [ $NUMPROCS -le 4 ]; then
+  # starte zweite Ladung
+  offender/run.py
+  sleep 10
 
 
 
 
 
  # ./multirun.sh |at now + 7 hours
-  
