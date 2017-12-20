@@ -19,24 +19,25 @@ def uniquePaiCrimesU():
     """distinct crimes and distinct roads"""
 
     mycurs.execute("""SELECT "targettype",uniqPai, num_agents, run_id
-   FROM open.res_la_results500agent AS m
-   WHERE "radiustype"='uniformR'""")
+    FROM open.res_la_results500agent AS m
+    WHERE "radiustype"='uniformR'""")
     results=mycurs.fetchall() #returns tuple with first row (unordered list)
+    #print(results)
 
     res=collections.defaultdict(list)
     print('UNIFORM')
     #each row is a run_id
     for row in results:
-   targettype=row[0]
-   print(targettype)
-   uniquePai=float(row[1])
-   print(uniquePai)
-   agents=row[2]
-   print(agents)
-   runid=row[3]
-   x=[uniquePai, agents]
-   res[targettype].append(x)
-   #print(res)
+        targettype=row[0]
+        #print(targettype)
+        uniquePai=float(row[1])
+        #print(uniquePai)
+        agents=row[2]
+        #print(agents)
+        runid=row[3]
+        x=[uniquePai, agents]
+        res[targettype].append(x)
+        #print(res)
 
     """randomRoad"""
     rr0=[x[0] for x in res['randomRoad']]
@@ -98,32 +99,32 @@ def uniquePaiCrimesS():
     """distinct crimes and distinct roads"""
 
     mycurs.execute("""SELECT "targettype", uniqPai, num_agents, run_id
-   FROM open.res_la_results500agent AS m
-   WHERE  "radiustype"='staticR'""")
+    FROM open.res_la_results500agent AS m
+    WHERE  "radiustype"='staticR'""")
     results=mycurs.fetchall() #returns tuple with first row (unordered list)
 
     res=collections.defaultdict(list)
     print('STATIC')
     #each row is a run_id
     for row in results:
-   targettype=row[0]
-   print(targettype)
-   uniquePai=float(row[1])
-   print(uniquePai)
-   agents=row[2]
-   print(agents)
-   runid=row[3]
-   x=[uniquePai, agents]
-   res[targettype].append(x)
-   #print(res)
+        targettype=row[0]
+        #print(targettype)
+        uniquePai=float(row[1])
+        #print(uniquePai)
+        agents=row[2]
+        #print(agents)
+        runid=row[3]
+        x=[uniquePai, agents]
+        res[targettype].append(x)
+        #print(res)
 
 
 
     """randomRoad"""
     rr0=[x[0] for x in res['randomRoad']]
-    print(rr0)
+    #print(rr0)
     yrr=np.array([np.array(xi) for xi in rr0])
-    print(yrr)
+    #print(yrr)
     rr1=[x[1] for x in res['randomRoad']]
     xrr=np.array([np.array(xi) for xi in rr1])
 
@@ -137,9 +138,9 @@ def uniquePaiCrimesS():
     rv0=[x[0] for x in res['randomVenue']]
     yrv=np.array([np.array(xi) for xi in rv0])
     rv1=[x[1] for x in res['randomVenue']]
-    print(rv1)
+    #print(rv1)
     xrv=np.array([np.array(xi) for xi in rv1])
-    print(xrv)
+    #print(xrv)
 
     """randomVenueCenter"""
     rvc0=[x[0] for x in res['randomVenueCenter']]
@@ -167,7 +168,7 @@ def uniquePaiCrimesS():
     plot4=plt.plot(xrvc, yrvc, label='randomVenueCenter')
     plot5=plt.plot(xpv, ypv, label='popularVenue')
     plot6=plt.plot(xpvc, ypvc, label='popularVenueCenter')
-    plt.axis([25,500,0,3])
+    plt.axis([25,500,1,2])
     #ax.set_title('adapted PAI - static distance')
     ax.set_xlabel('n of agents in scenario')
     ax.set_ylabel('unique crimes adapted PAI')
@@ -191,15 +192,15 @@ def uniquePaiCrimesP():
     print('POWER')
     #each row is a run_id
     for row in results:
-   targettype=row[0]
-   print(targettype)
-   uniquePai=float(row[1])
-   agents=row[2]
-   print(agents)
-   runid=row[3]
-   x=[uniquePai, agents]
-   res[targettype].append(x)
-   #print(res)
+        targettype=row[0]
+        #print(targettype)
+        uniquePai=float(row[1])
+        agents=row[2]
+        #print(agents)
+        runid=row[3]
+        x=[uniquePai, agents]
+        res[targettype].append(x)
+        ##print(res)
 
 
     """randomRoad"""
@@ -246,7 +247,7 @@ def uniquePaiCrimesP():
     plot4=plt.plot(xrvc, yrvc, label='randomVenueCenter')
     plot5=plt.plot(xpv, ypv, label='popularVenue')
     plot6=plt.plot(xpvc, ypvc, label='popularVenueCenter')
-    plt.axis([25,500,0,3])
+    plt.axis([25,500,1,2])
     #ax.set_title('adapted PAI - Lévy distance')
     ax.set_xlabel('n of agents in scenario')
     ax.set_ylabel('unique crimes adapted PAI')
@@ -269,18 +270,18 @@ def uniquePaiCrimesBest():
     resultstotal=mycurs.fetchall() #returns tuple with first row (unordered list)
     
     res=collections.defaultdict(list)
-    print('best combineds')
+    #print('best combineds')
     #each row is a run_id
     for row in resultstotal:
-   targettype=row[0]
-   print(targettype)
-   uniquePai=float(row[1])
-   agents=row[2]
-   print(agents)
-   runid=row[3]
-   x=[uniquePai, agents]
-   res[targettype].append(x)
-   print(res)
+        targettype=row[0]
+        #print(targettype)
+        uniquePai=float(row[1])
+        agents=row[2]
+        #print(agents)
+        runid=row[3]
+        x=[uniquePai, agents]
+        res[targettype].append(x)
+        #print(res)
 
 
 
@@ -336,15 +337,15 @@ def uniquePercentCrimesU():
     print('UNIFORM')
     #each row is a run_id
     for row in results:
-   targettype=row[0]
-   print(targettype)
-   uniquePercent=float(row[1])*100
-   agents=row[2]
-   print(agents)
-   runid=row[3]
-   x=[uniquePercent, agents]
-   res[targettype].append(x)
-   #print(res)
+        targettype=row[0]
+        #print(targettype)
+        uniquePercent=float(row[1])*100
+        agents=row[2]
+        #print(agents)
+        runid=row[3]
+        x=[uniquePercent, agents]
+        res[targettype].append(x)
+        ##print(res)
 
     """randomRoad"""
     rr0=[x[0] for x in res['randomRoad']]
@@ -415,16 +416,16 @@ def uniquePercentCrimesS():
     print('STATIC')
     #each row is a run_id
     for row in results:
-   targettype=row[0]
-   print(targettype)
-   uniquePercent=float(row[1])*100
-   print(uniquePercent)
-   agents=row[2]
-   print(agents)
-   runid=row[3]
-   x=[uniquePercent, agents]
-   res[targettype].append(x)
-   #print(res)
+        targettype=row[0]
+        #print(targettype)
+        uniquePercent=float(row[1])*100
+        #print(uniquePercent)
+        agents=row[2]
+        #print(agents)
+        runid=row[3]
+        x=[uniquePercent, agents]
+        res[targettype].append(x)
+        #print(res)
 
 
     """randomRoad"""
@@ -497,15 +498,15 @@ def uniquePercentCrimesP():
     print('POWER')
     #each row is a run_id
     for row in results:
-   targettype=row[0]
-   print(targettype)
-   uniquePercent=float(row[1])*100
-   agents=row[2]
-   print(agents)
-   runid=row[3]
-   x=[uniquePercent, agents]
-   res[targettype].append(x)
-   #print(res)
+        targettype=row[0]
+        #print(targettype)
+        uniquePercent=float(row[1])*100
+        agents=row[2]
+        #print(agents)
+        runid=row[3]
+        x=[uniquePercent, agents]
+        res[targettype].append(x)
+        ##print(res)
 
 
     """randomRoad"""
@@ -565,12 +566,12 @@ def uniquePercentCrimesP():
 
 
 uniquePaiCrimesS()
-#uniquePaiCrimesU()
-#uniquePaiCrimesP()
+uniquePaiCrimesU()
+uniquePaiCrimesP()
 
-#uniquePercentCrimesS()
-#uniquePercentCrimesU()
-#uniquePercentCrimesP()
+uniquePercentCrimesS()
+uniquePercentCrimesU()
+uniquePercentCrimesP()
 
 #unique results best combined
-#uniquePaiCrimesBest()
+uniquePaiCrimesBest()
