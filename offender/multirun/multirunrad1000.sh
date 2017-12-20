@@ -15,7 +15,7 @@ while true; do
   NUMPROCS=`ps -ef| grep run.py | wc -l`
   if [ $NUMPROCS -le 3 ]; then
     # starte zweite Ladung
-    for i in config/test1000/1/*; do 
+    for i in config/test1000/1/*.ini; do 
     offender/run.py `echo "$i"|sed -e 's:config/::'` &
     sleep 100
 done
@@ -28,7 +28,7 @@ while true; do
   NUMPROCS=`ps -ef| grep run.py | wc -l`
   if [ $NUMPROCS -le 2 ]; then
     # starte zweite Ladung
-    for i in config/test1000/2/*; do 
+    for i in config/test1000/2/*.ini; do 
     offender/run.py `echo "$i"|sed -e 's:config/::'` &
     sleep 100
 done
@@ -42,7 +42,7 @@ while true; do
   NUMPROCS=`ps -ef| grep run.py | wc -l`
   if [ $NUMPROCS -le 2 ]; then
     # starte zweite Ladung
-    for i in config/test1000/3/*; do 
+    for i in config/test1000/3/*.ini; do 
     offender/run.py `echo "$i"|sed -e 's:config/::'` &
     sleep 100
 done
