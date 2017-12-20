@@ -5,10 +5,10 @@
 
 
 
-#for i in config/numAgents/test25* config/numAgents/test100* ; do 
-#    offender/run.py `echo "$i"|sed -e 's:config/::'` &
-#    sleep 100
-#done
+for i in config/default.ini ; do 
+    offender/run.py `echo "$i"|sed -e 's:config/::'` &
+    sleep 100
+done
 
   # starte zweite Ladung
-  offender/run.py
+#  offender/run.py
