@@ -314,15 +314,20 @@ class AgentX(mesa.Agent):
             #roads are represented as nodes in G
             self.way=nx.shortest_path(self.model.G,self.road,targetRoad,weight='length')
             #print("Agent ({0}) way: {1}".format(self.unique_id,self.way))
-            self.model.insertQ.store_roads({"run_id": self.model.run_id, "step": self.model.modelStepCount,
-                     "agent": self.unique_id, "way": self.way})
+
+            ###QRunner seems not to be working --  or may be taking too long?? take out for calculating 1000 agents
+            #self.model.insertQ.store_roads({"run_id": self.model.run_id, "step": self.model.modelStepCount,
+            #          "agent": self.unique_id, "way": self.way})
             for road in self.way:
                 self.walkedDistance += self.model.G.node[road]['length']
                 self.crimesOnRoad(road)
                 self.walkedRoads +=1
-                # sql = """insert into open.res_la_roads ("id","run_id","step","agent","road_id") values
-                #     (DEFAULT,{0},{1},{2},{3} )""".format(self.model.run_id, self.model.modelStepCount, self.unique_id, road)
-                # self.model.mycurs.execute(sql)
+
+                ##has to be commented if want to use Qrunner
+                sql = """insert into open.res_la_roads ("id","run_id","step","agent","road_id") values
+                    (DEFAULT,{0},{1},{2},{3} )""".format(self.model.run_id, self.model.modelStepCount, self.unique_id, road)
+                self.model.mycurs.execute(sql)
+
             self.foundnoway=0
         except Exception as e:
             self.log.info("Exception: ", str(e))
