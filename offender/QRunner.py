@@ -64,7 +64,7 @@ class QRunner:
         self.tasks = multiprocessing.JoinableQueue()
         self.num_consumers = 2 #multiprocessing.cpu_count()
         config = configparser.ConfigParser()
-        config.read('config/dbconn.ini')
+        config.read('config/dbconn2.ini')
         dbCfg = config['general']
         dsn = "dbname='" + dbCfg.get('dbname', 'shared') + "' user='" + dbCfg.get('user') + "' host='" + dbCfg.get('host',
             'localhost') + "' port='" + str(dbCfg.getint('port', 5432)) + "' password='" + dbCfg.get('password') + "'"
