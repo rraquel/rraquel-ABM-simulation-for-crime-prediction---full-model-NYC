@@ -29,12 +29,16 @@ class Runner:
             self.cfile = os.path.join(dir_path,'..','config',sys.argv[1])
         else:
             self.cfile = os.path.join(dir_path,'..','config','default.ini')
+        print('ok 1')
         self.config = configparser.ConfigParser()
         self.config.read(self.cfile)
         # Add dbconfig
+        print('ok 2')
         cfg = configparser.ConfigParser()
         cfg.read(os.path.join(dir_path, '..', 'config', 'dbconn.ini'))
+        print('ok 3')
         dbCfg = cfg['general']
+        print('ok 4')
         self.config.set('model', 'dsn', "dbname='" + dbCfg.get('dbname', 'shared') + "' user='" + dbCfg.get('user') + "' host='" + dbCfg.get('host',
             'localhost') + "' port='" + str(dbCfg.getint('port', 5432)) + "' password='" + dbCfg.get('password') + "'")
 
