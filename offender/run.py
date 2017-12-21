@@ -35,7 +35,7 @@ class Runner:
         # Add dbconfig
         print('ok 2')
         cfg = configparser.ConfigParser()
-        cfg.read(os.path.join(dir_path, '..', 'config', 'dbconn.ini'))
+        cfg.read(os.path.join(dir_path, '..', 'config', 'dbconn2.ini'))
         print('ok 3')
         dbCfg = cfg['general']
         print('ok 4')
