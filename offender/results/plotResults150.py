@@ -90,7 +90,7 @@ def uniquePaiCrimesS():
     plot4=plt.plot(xrvc, yrvc, label='randomVenueCenter')
     plot5=plt.plot(xpv, ypv, label='popularVenue')
     plot6=plt.plot(xpvc, ypvc, label='popularVenueCenter')
-    plt.axis([25,150,0,3])
+    plt.axis([25,150,1,2])
     #ax.set_title('adapted PAI - static distance')
     ax.set_xlabel('n of agents in scenario')
     ax.set_ylabel('unique crimes adapted PAI')
@@ -250,7 +250,7 @@ def uniquePaiCrimesP():
     plot4=plt.plot(xrvc, yrvc, label='randomVenueCenter')
     plot5=plt.plot(xpv, ypv, label='popularVenue')
     plot6=plt.plot(xpvc, ypvc, label='popularVenueCenter')
-    plt.axis([25,150,0,3])
+    plt.axis([25,150,1,2])
     #ax.set_title('adapted PAI - Lévy distance')
     ax.set_xlabel('n of agents in scenario')
     ax.set_ylabel('unique crimes adapted PAI')
@@ -308,11 +308,11 @@ def uniquePaiCrimesBest():
 
     fig=plt.figure(1)
     ax=plt.subplot(111)
-    plot4=plt.plot(xrvc, yrvc, label='static distance - randomVenueCenter target')
-    plot6=plt.plot(xpvc, ypvc, label='uniform distance - popularVenueCenter target')
-    plot5=plt.plot(xpv, ypv, label='Lévy flight distance - popularVenue target')
+    plot4=plt.plot(xrvc, yrvc, label='static distance - randomVenueCenter destination')
+    plot6=plt.plot(xpvc, ypvc, label='uniform distance - popularVenueCenter destination')
+    plot5=plt.plot(xpv, ypv, label='Lévy flight distance - popularVenue destination')
     #plt.axis([5,160,1,2])
-    plt.axis([25,150,0,3])
+    plt.axis([25,150,1,2])
     #ax.set_title('adapted PAI - comparing best performing scenarios')
     ax.set_xlabel('n of agents in scenario')
     ax.set_ylabel('unique adapted PAI')
@@ -394,7 +394,7 @@ def uniquePercentCrimesU():
     plot4=plt.plot(xrvc, yrvc, label='randomVenueCenter')
     plot5=plt.plot(xpv, ypv, label='popularVenue')
     plot6=plt.plot(xpvc, ypvc, label='popularVenueCenter')
-    plt.axis([5,150,0,100])
+    plt.axis([25,150,0,100])
     ax.set_title('Percent covered unique crimes - uniform distance')
     ax.set_xlabel('n of agents in simulation')
     ax.set_ylabel('% covered unique crimes')
@@ -564,6 +564,134 @@ def uniquePercentCrimesP():
     plt.legend()
     plt.show()
 
+#-------------------------------------------------Best PAI combined----------------------------------------------
+
+def uniquePaiCrimesBest():
+
+    ####
+    ####TODO erase LIMIT 2
+    """----------ALL CRIMES----------"""
+    """combines best target type strategies per radius search"""
+
+    mycurs.execute("""SELECT "targettype", uniqPai, num_agents, run_id
+   FROM open.res_la_results150agent
+   Where run_id=2 or run_id=285 or run_id=5""")
+    resultstotal=mycurs.fetchall() #returns tuple with first row (unordered list)
+    
+    res=collections.defaultdict(list)
+    #print('best combineds')
+    #each row is a run_id
+    for row in resultstotal:
+        targettype=row[0]
+        #print(targettype)
+        uniquePai=float(row[1])
+        agents=row[2]
+        #print(agents)
+        runid=row[3]
+        #print(runid)
+        x=[uniquePai, agents]
+        res[targettype].append(x)
+        #print(res)
+
+
+    """randomVenueCenter"""
+    rvc0=[x[0] for x in res['randomVenueCenter']]
+    yrvc=np.array([np.array(xi) for xi in rvc0])
+    rvc1=[x[1] for x in res['randomVenueCenter']]
+    xrvc=np.array([np.array(xi) for xi in rvc1])
+
+    """popularVenue"""
+    pv0=[x[0] for x in res['popularVenue']]
+    print(pv0)
+    ypv=np.array([np.array(xi) for xi in pv0])
+    pv1=[x[1] for x in res['popularVenue']]
+    print(pv1)
+    xpv=np.array([np.array(xi) for xi in pv1])
+
+    """popularVenueCenter"""
+    pvc0=[x[0] for x in res['popularVenueCenter']]
+    ypvc=np.array([np.array(xi) for xi in pvc0])
+    pvc1=[x[1] for x in res['popularVenueCenter']]
+    xpvc=np.array([np.array(xi) for xi in pvc1])
+
+    fig=plt.figure(1)
+    ax=plt.subplot(111)
+    plot4=plt.plot(xrvc, yrvc, label='static distance - randomVenueCenter destination')
+    plot6=plt.plot(xpvc, ypvc, label='uniform distance - popularVenueCenter destination')
+    plot5=plt.plot(xpv, ypv, label='Lévy flight distance - popularVenue destination')
+    #plt.axis([5,160,1,2])
+    plt.axis([25,150,1,2])
+    #ax.set_title('adapted PAI - comparing best performing scenarios')
+    ax.set_xlabel('n of agents in scenario')
+    ax.set_ylabel('unique adapted PAI')
+    plt.legend()
+    plt.show()
+
+
+
+
+
+#-------------------------------------------------Best Percentage crime types----------------------------------------------
+
+def uniquePercentCrimesBest():
+
+    ####
+    ####TODO erase LIMIT 2
+    """----------ALL CRIMES----------"""
+
+    mycurs.execute("""SELECT "targettype", PercentuniqueCrimes, num_agents, run_id
+   FROM open.res_la_results150agent
+   Where run_id=2 or run_id=285 or run_id=5""")
+    resultstotal=mycurs.fetchall() #returns tuple with first row (unordered list)
+    
+    res=collections.defaultdict(list)
+    #print('best combineds')
+    #each row is a run_id
+    for row in resultstotal:
+        targettype=row[0]
+        #print(targettype)
+        uniquePercent=float(row[1])*100
+        agents=row[2]
+        #print(agents)
+        runid=row[3]
+        #print(runid)
+        x=[uniquePercent, agents]
+        res[targettype].append(x)
+        #print(res)
+
+    """randomVenueCenter"""
+    rvc0=[x[0] for x in res['randomVenueCenter']]
+    yrvc=np.array([np.array(xi) for xi in rvc0])
+    rvc1=[x[1] for x in res['randomVenueCenter']]
+    xrvc=np.array([np.array(xi) for xi in rvc1])
+
+    """popularVenue"""
+    pv0=[x[0] for x in res['popularVenue']]
+    print(pv0)
+    ypv=np.array([np.array(xi) for xi in pv0])
+    pv1=[x[1] for x in res['popularVenue']]
+    print(pv1)
+    xpv=np.array([np.array(xi) for xi in pv1])
+
+    """popularVenueCenter"""
+    pvc0=[x[0] for x in res['popularVenueCenter']]
+    ypvc=np.array([np.array(xi) for xi in pvc0])
+    pvc1=[x[1] for x in res['popularVenueCenter']]
+    xpvc=np.array([np.array(xi) for xi in pvc1])
+
+    fig=plt.figure(1)
+    ax=plt.subplot(111)
+    plot4=plt.plot(xrvc, yrvc, label='static distance - randomVenueCenter destination')
+    plot6=plt.plot(xpvc, ypvc, label='uniform distance - popularVenueCenter destination')
+    plot5=plt.plot(xpv, ypv, label='Lévy flight distance - popularVenue destination')
+    #plt.axis([5,160,1,2])
+    plt.axis([25,150,0,100])
+    #ax.set_title('adapted PAI - comparing best performing scenarios')
+    ax.set_xlabel('n of agents in scenario')
+    ax.set_ylabel('unique adapted PAI')
+    plt.legend()
+    plt.show()
+
 
 
 #------------------------------------------------Crime Types----------------------------------------------
@@ -664,7 +792,7 @@ def uniquePaiCrimesBestB():
     plot5 = plt.plot(xpv, ypv, label='Felony Assault')
     plot6 = plt.plot(xpv2, ypv2, label='All Crime types', color='k', linewidth=3)
     #plt.axis([5, 160, 1, 2.1])
-    plt.axis([25,150,1,2.2])
+    plt.axis([25,150,1,2])
     plt.xticks([25,50,75,100,125,150])
     #ax.set_title('adapted PAI - comparing best performing scenarios')
     ax.set_xlabel('n of agents in scenario')
@@ -674,7 +802,7 @@ def uniquePaiCrimesBestB():
 
 
   
-uniquePaiCrimesBestB()
+
 
 uniquePaiCrimesS()
 uniquePaiCrimesU()
@@ -686,4 +814,9 @@ uniquePercentCrimesP()
 
 #unique results best combined
 uniquePaiCrimesBest()
-"""
+
+#percentage Best
+uniquePercentCrimesBest()
+
+#crime types for best performing
+uniquePaiCrimesBestB()

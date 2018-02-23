@@ -292,9 +292,9 @@ def uniquePaiCrimesBest():
     xrvc=np.array([np.array(xi) for xi in rvc1])
 
     """popularVenue"""
-    pv0=[x[0] for x in res['randomVenue']]
+    pv0=[x[0] for x in res['popularVenue']]
     ypv=np.array([np.array(xi) for xi in pv0])
-    pv1=[x[1] for x in res['randomVenue']]
+    pv1=[x[1] for x in res['popularVenue']]
     xpv=np.array([np.array(xi) for xi in pv1])
 
     """popularVenueCenter"""
@@ -391,7 +391,8 @@ def uniquePercentCrimesU():
     plot4=plt.plot(xrvc, yrvc, label='randomVenueCenter')
     plot5=plt.plot(xpv, ypv, label='popularVenue')
     plot6=plt.plot(xpvc, ypvc, label='popularVenueCenter')
-    plt.axis([5,500,0,100])
+    plt.axis([5,1000,0,100])
+    #plt.xticks([25, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000])
     ax.set_title('Percent covered unique crimes - uniform distance')
     ax.set_xlabel('n of agents in simulation')
     ax.set_ylabel('% covered unique crimes')
@@ -473,7 +474,8 @@ def uniquePercentCrimesS():
     plot5=plt.plot(xpv, ypv, label='popularVenue')
     plot6=plt.plot(xpvc, ypvc, label='popularVenueCenter')
     plt.axis([25,1000,0,100])
-    plt.xticks([25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 475, 500, 525, 550, 575, 600, 625, 650, 675, 700, 725, 750, 775, 800, 825, 850, 875, 900, 925, 950, 975, 1000])
+    #plt.xticks([25, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000])
+    #plt.xticks([25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 475, 500, 525, 550, 575, 600, 625, 650, 675, 700, 725, 750, 775, 800, 825, 850, 875, 900, 925, 950, 975, 1000])
     ax.set_title('Percent covered unique crimes - static distance')
     ax.set_xlabel('n of agents in scenario')
     ax.set_ylabel('% covered unique crimes')
@@ -554,7 +556,8 @@ def uniquePercentCrimesP():
     plot5=plt.plot(xpv, ypv, label='popularVenue')
     plot6=plt.plot(xpvc, ypvc, label='popularVenueCenter')
     plt.axis([25,1000,0,100])
-    plt.xticks([25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 475, 500, 525, 550, 575, 600, 625, 650, 675, 700, 725, 750, 775, 800, 825, 850, 875, 900, 925, 950, 975, 1000])
+    #plt.xticks([25, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000])
+    #plt.xticks([25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 475, 500, 525, 550, 575, 600, 625, 650, 675, 700, 725, 750, 775, 800, 825, 850, 875, 900, 925, 950, 975, 1000])
     ax.set_title('Percent covered unique crimes - Lévy distance')
     ax.set_xlabel('n of agents in scenario')
     ax.set_ylabel('% covered unique crimes')
