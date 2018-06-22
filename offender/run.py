@@ -58,8 +58,12 @@ class Runner:
         """a"""
         print("Agent Data Dumping")
         agents = self.agent_df.to_dict()
+        print(agents)
+        print(len(agents))
         # Fields to be inserted
         insertf = self.getInsertFields(agents, 'res_la_agent')
+        print(insertf)
+        exit()
         insertFieldStr = '"' + str.join('", "', insertf) + '"'
         for agentId in range(self.model.numAgents):
             for stepId in range(int(round(len(agents[insertf[0]]) / self.model.numAgents))):

@@ -33,7 +33,7 @@ def roadDist():
     x=np.array(length)
     print(max(x))
     fig=plt.figure(1)
-    plot1=plt.hist(x, bins=200)
+    plot1=plt.hist(x, bins=50)
     #plt.xlim(0,2000)
     #plt.title('road lenght count distribution')
     plt.xlabel('road length in ft')

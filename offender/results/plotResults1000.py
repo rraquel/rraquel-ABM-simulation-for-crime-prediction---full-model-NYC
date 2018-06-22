@@ -266,7 +266,7 @@ def uniquePaiCrimesBest():
 
     mycurs.execute("""SELECT "targettype", uniqPai, num_agents, run_id
    FROM open.res_la_results1000agent
-   Where run_id=2 or run_id=285 or run_id=5""")
+   Where run_id=414 or run_id=419 or run_id=415""")
     resultstotal=mycurs.fetchall() #returns tuple with first row (unordered list)
     
     res=collections.defaultdict(list)
@@ -282,8 +282,6 @@ def uniquePaiCrimesBest():
         x=[uniquePai, agents]
         res[targettype].append(x)
         #print(res)
-
-
 
     """randomVenueCenter"""
     rvc0=[x[0] for x in res['randomVenueCenter']]
