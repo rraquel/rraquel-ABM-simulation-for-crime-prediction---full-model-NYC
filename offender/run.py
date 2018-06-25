@@ -148,7 +148,7 @@ class Runner:
             self.log.debug("=> step {0} performed".format(i))
             self.model.conn.commit()
         #statistics collection and data output
-        runner.model.insertQ.exit()
+        #runner.model.insertQ.exit()
         #get data as pandas data frame
         self.agent_df = self.model.dc.get_agent_vars_dataframe()
         self.model_df = self.model.dc.get_model_vars_dataframe()

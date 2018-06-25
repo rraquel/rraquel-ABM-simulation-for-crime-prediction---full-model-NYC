@@ -20,7 +20,7 @@ class Model(mesa.Model):
     def __init__(self, modelCfg):
         #for batch runner: instance attribute running in Model class - enables conditional shut off of the model once a condition is met.
         self.t=time.monotonic()
-        self.insertQ = QRunner.QRunner()
+        #self.insertQ = QRunner.QRunner()
         self.running = True
         self.run_id=0
         self.log=logging.getLogger('')
