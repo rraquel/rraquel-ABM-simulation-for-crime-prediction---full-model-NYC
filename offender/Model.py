@@ -79,6 +79,9 @@ class Model(mesa.Model):
         self.residentRoadsWeight=[]
         self.createResidential()
 
+        self.taxiTracts=dict()
+        self.createTaxiTrips()
+
         self.totalRoadDistance=40986771
 
         self.log.info("Generating Model")
@@ -130,11 +133,11 @@ class Model(mesa.Model):
         
         roadLength=0
         #crimes_2015: n crime to 1 road mapping
-        
-        self.mycurs.execute("""select intersection_id,r.gid,length,crimes_2015 from 
+        #open.nyc_road_attributes without and open.nyc_road_attributes2 with census tract for each road
+        self.mycurs.execute("""select intersection_id,r.gid,length,crimes_2015, censustract from 
             open.nyc_intersection2road i2r
             left join open.nyc_road_proj_final r on i2r.road_id = r. gid
-            left join open.nyc_road_attributes ra on ra.road_id=r.gid""")
+            left join open.nyc_road_attributes2 ra on ra.road_id=r.gid""")
         #fetch all values into tuple
         interRoad=self.mycurs.fetchall()
         #dictionary {} -  a Key and a value, in this case a key and a set() of values -unordered collection
@@ -152,7 +155,7 @@ class Model(mesa.Model):
             #add road, length and crimes as node info in graph
             #self.G.add_node(line[1], length=line[2], num_crimes=line[3])
             # TODO Parameter: Assumptions Humans walk 300 feet in 60s
-            self.G.add_node(line[1],length=line[2])
+            self.G.add_node(line[1],length=line[2],census=line[4])
         #for r in self.G.nodes_iter():
             #roadLength+=self.G.node[r]['length']
         #self.log.debug("Found {} intersections".format(len(intersect)))
@@ -226,6 +229,19 @@ class Model(mesa.Model):
             pWeightList.append(value/sumWeightList)
         self.residentRoads=roadsList
         self.residentRoadsWeight=pWeightList
+
+    def createTaxiTrips(self):
+        self.mycurs.execute("""SELECT censuspickup, censusdropoff, weight FROM
+        open.nyc_taxi_trips_new_june2015_censuscoutns""")
+        census=self.mycurs.fetchall()
+        dropoff=dict()
+        for line in census:
+            dropoff[line[1]]=line[2]
+            self.taxiTracts[line[0]]=dropoff
+
+        
+
+
 
     def step(self, i, numSteps):
         """advance model by one step."""

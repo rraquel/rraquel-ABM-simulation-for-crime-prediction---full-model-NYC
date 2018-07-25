@@ -9,6 +9,7 @@ import numpy as np
 import math
 import sys, psycopg2, os, time, random, logging
 from operator import itemgetter
+from startLocation import findStartLocation
 import globalVar
 
 
@@ -17,6 +18,8 @@ class AgentX(mesa.Agent):
     def __init__(self, unique_id, model, radiusType, targetType, startLocationType, agentTravelAvg):
         super().__init__(unique_id, model)
         self.log=logging.getLogger('')
+        self.unique_id=unique_id
+        self.model=model
         self.pos=0
         self.foundnoway=0
 
@@ -42,8 +45,8 @@ class AgentX(mesa.Agent):
         self.residentRoads=model.residentRoads
         self.residentRoadsWeight=model.residentRoadsWeight
         self.startLocationType=startLocationType
-        self.startRoad=0
-        self.road=0
+        self.startRoad=findStartLocation(self.model, self.startLocationType, self.unique_id)
+        self.road=self.startRoad
 
         self.radiusType=radiusType
         self.staticRadius=model.staticRadius
@@ -56,8 +59,14 @@ class AgentX(mesa.Agent):
         self.mu=model.mu
         self.dmin=model.dmin
         self.dmax=model.dmax
+        self.destinationCensus=None
+        self.searchRadius=0
 
-        self.searchRadius=self.radius()
+
+        if 'taxiTract' in self.radiusType:
+            self.destinationCensus=self.taxiTract()
+        else:
+            self.searchRadius=self.radius()
         #selection behavior for target type
         self.targetType=targetType
 
@@ -72,39 +81,11 @@ class AgentX(mesa.Agent):
         self.log=logging.getLogger('')
 
 
-    def findStartLocation(self):
-        access=False
-        loopCount=0
-        while access==False:
-                loopCount+=1
-                startRoad=getattr(self, self.model.startLocationType)()
-                access=self.roadAccessibility(startRoad)
-                self.log.debug('test of while loop in start {}'.format(loopCount))
-        self.log.debug("startRoad: {0}".format(startRoad))
-        self.targetRoadList.append(startRoad)
-        return startRoad
-        
-    def findStartRandom(self):
-        """select startingPoint from random sample of nodes"""
-        return random.choice(self.model.G.nodes(),1)[0]
-
-    def findStartResidence(self):
-        """Select startRoad within Residential Areas from PlutoMap"""
-        self.log.debug('weightlist p sum: {}'.format(sum(pWeightList)))
-        roadIdNp=np.random.choice(self.residentRoads,1)
-        startRoad=roadIdNp[0]
-        return startRoad
-
-    def findStartResidencePopulation(self):
-        """Select startRoad within Residential Areas from PlutoMap and population density"""
-        roadIdNp=np.random.choice(self.residentRoads, 1, True, self.residentRoadsWeight)
-        startRoad=roadIdNp[0]
-        return startRoad
-
     def resetAgent(self):
         self.tripCount=0
         self.targetRoadList.append(self.startRoad)
         self.log.debug("reset agent")
+        #TODO if agent starts at new position, need to find new start location!!!
         return self.startRoad
 
     def radius(self):
@@ -133,12 +114,40 @@ class AgentX(mesa.Agent):
         #print(round(radius))
         return round(radius)
 
+    def taxiTract(self):
+        #first find tract for current road (pickup census tract)
+        #test
+        #TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        road=7
+        print(road)
+        censustract=nx.get_node_attributes(self.model.G, 'census').get(road)
+        dropoffoptions=self.model.taxiTracts[censustract]
+        #choose destination census tract (drop off census tract by weight)
+        dcensus =list()
+        dweight =list()
+        pWeightList=list()
+        print(type(dropoffoptions.items()))
+        for k,v in dropoffoptions.items():
+            dcensus.append(k)
+            dweight.append(v)
+        weightSum=sum(dweight)
+        for v in dweight:
+            pWeightList.append(v/weightSum)
+        print(np.random.choice(dcensus, 1, p=pWeightList))
+        destinationcensus=np.random.choice(dcensus, 1, p=pWeightList)[0]
+        return destinationcensus
+
     def findTargetByType(self, road, maxRadius, minRadius):
         mycurs = self.conn.cursor()
         return(getattr(self, self.model.targetType)(road, mycurs, maxRadius, minRadius))
 
     def randomRoad(self, road, mycurs, maxRadius, minRadius):
-        if maxRadius == 41000:
+        if 'taxiTract' in self.radiusType:
+            mycurs.execute("""select gid from (select r.gid, s.new_gid,  s.new_gid_ftus
+                from open.nyc_road_proj_final as r, open.nyc_road2censustract s
+                where s.new_gid={0} and st_intersects(r.geom,s.new_gid_ftus) and
+                r.gid not in (select * from open.nyc_road_proj_final_isolates)) as bar""").format(self.destinationCensus)
+        elif maxRadius == 41000:
             mycurs.execute("""select targetroad as gid from open.nyc_road2road_precalc where startroad={0} and radius=40000 and 
                 model='road' and targetroad not in (select * from open.nyc_road_proj_final_isolates)""".format(road))
         else:
@@ -155,7 +164,12 @@ class AgentX(mesa.Agent):
 
     def randomRoadCenter(self, road, mycurs, maxRadius, minRadius):
         mycurs = self.conn.cursor()
-        if maxRadius == 41000:
+        if 'taxiTract' in self.radiusType:
+            mycurs.execute("""select gid, weight_center from (select r.gid, r.weight_center, s.new_gid,  s.new_gid_ftus
+                from open.nyc_road_weight_to_center as r, open.nyc_road2censustract s
+                where s.new_gid={0} and st_intersects(r.geom,s.new_gid_ftus) and
+                r.gid not in (select * from open.nyc_road_proj_final_isolates)) as bar""").format(self.destinationCensus)
+        elif maxRadius == 41000:
             mycurs.execute("""select gid,weight_center from (select gid, weight_center, startroad, targetroad from open.nyc_road_weight_to_center as r
                left join open.nyc_road2road_precalc as c on c.targetroad=r.gid) as f where startroad={0}
                and gid not in (select * from open.nyc_road_proj_final_isolates);""".format(road))
@@ -262,6 +276,7 @@ class AgentX(mesa.Agent):
         roads=mycurs.fetchall() #returns tuple of tuples, venue_id,weighted_checkins
         self.log.debug('popular Venue Center') 
         return roads
+    
 
     def searchTarget(self, road, searchRadius):
         """search target within radius"""
@@ -390,7 +405,8 @@ class AgentX(mesa.Agent):
         
     def daytrips(self):
         """trips in one day"""
-        self.searchRadius=self.radius()
+        if 'taxiTract' not in self.radiusType:
+            self.searchRadius=self.radius()
         #agent trip number drawn form distribution
         self.agentTravelTrip=np.random.uniform(1, (self.agentTravelAvg*2)-1)
         self.agentTravelTripList.append(self.agentTravelTrip)
@@ -434,7 +450,7 @@ class AgentX(mesa.Agent):
             self.log.debug("model needs to be run +1 step to save state of last step!!!")
             pass
         else:
-            self.startRoad=self.findStartLocation()
+            self.startRoad=findStartLocation(self.model, self.startLocationType, self.unique_id)
             self.road=self.startRoad
             self.daytrips()
             #update unique crimes
