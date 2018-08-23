@@ -244,16 +244,17 @@ class Model(mesa.Model):
         self.mycurs.execute("""SELECT censuspickup, censusdropoff, weight FROM
         open.nyc_taxi_trips_new_june2015_censuscoutns""")
         census=self.mycurs.fetchall()
-        dropoff=dict()
-        for line in census:
-            print(line[0], line[1], line[2])
-            dropoff[line[1]]=line[2]
-            self.taxiTracts[line[0]]=dropoff
-            exit()
-
         
-
-
+        for line in census:
+            dropoff=dict()                        
+            dropoff[line[1]]=line[2]
+            if line[0] in self.taxiTracts:
+                temp=self.taxiTracts[line[0]]
+                temp[line[1]]=line[2]
+                self.taxiTracts[line[0]]=temp
+            else:
+                self.taxiTracts[line[0]]=dropoff
+     
 
     def step(self, i, numSteps):
         """advance model by one step."""
