@@ -1,0 +1,409 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
+import mesa
+from mesa.time import RandomActivation
+import Model
+import networkx as nx
+import numpy as np
+import math
+from collections import OrderedDict
+import sys, psycopg2, os, time, random, logging
+from operator import itemgetter
+import globalVar
+
+
+class Path:
+    """agent path options"""
+    def __init__(self, unique_id, model, currentRoad, radiusType, targetType):
+        self.log=logging.getLogger('')
+        self.conn=model.conn
+        self.model=model
+
+        self.unique_id=unique_id
+
+        self.pos=0
+        self.foundnoway=0
+        self.walkedDistance=1 #distance walked in total
+        #TODO create array with initial position and all targets?
+        self.walkedRoads=0 
+        self.pathroadlist=list()
+        self.pathlengtdict=OrderedDict()
+        #arrays don't grow efficiently, first build list of tuples and the convert to array!!
+        self.pathroadtuple=list()
+
+        self.crimes=[]
+        for i in range(6):
+            self.crimes.append([])
+     
+        ##select starting position by type
+        self.road=currentRoad
+
+        self.radiusType=radiusType
+        self.staticRadius=model.staticRadius
+        #uniform radius
+        #minimal distance from 2.5km to foot
+        self.pmin=model.dmin*3280.84
+        #uniform radius: self.uniformRadius=self.staticRadius*2
+        self.pmax=model.uniformRadius
+        #power radius
+        self.mu=model.mu
+        self.dmin=model.dmin
+        self.dmax=model.dmax
+
+        self.searchRadius=self.radius()
+        #selection behavior for target type
+        self.targetType=targetType
+
+
+
+
+    def radius(self):
+        return(getattr(self, self.model.radiusType)())
+
+    def staticR(self):
+        self.log.info("static radius Agent")
+        return self.staticRadius
+
+    def uniformR(self):
+        #minimal distance from 2.5km to foot
+        radius=np.random.uniform(self.pmin, self.pmax)
+        #self.log.info("uniform radius Agent: {}".format(radius))
+        return (np.random.uniform(self.pmin, self.pmax))
+
+    def powerR(self):
+        beta=1+self.mu
+        pmax = math.pow(self.dmin, -beta)
+        pmin = math.pow(self.dmax, -beta)
+        uniformProb=np.random.uniform(pmin, pmax)
+        #levy flight: P(x) = Math.pow(x, -1.59) - find out x? given random probability within range
+        powerKm =  (1/uniformProb)*math.exp(1/beta)
+	    #levy flight gives distance in km - transform km to foot
+        radius=powerKm * 3280.84
+        self.log.debug("power search radius: {0}".format(round(radius)))
+        #print(round(radius))
+        return round(radius)
+
+    def taxiTract(self):
+        #first find tract for current road (pickup census tract)
+        #test
+        #TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        censustract=nx.get_node_attributes(self.model.G, 'census').get(self.road)
+        dropoffoptions=self.model.taxiTracts[censustract]
+        #choose destination census tract (drop off census tract by weight)
+        dcensus =list()
+        dweight =list()
+        pWeightList=list()
+        for k,v in dropoffoptions.items():
+            dcensus.append(k)
+            dweight.append(v)
+        weightSum=sum(dweight)
+        for v in dweight:
+            pWeightList.append(v/weightSum)
+        destinationcensus=np.random.choice(dcensus, 1, p=pWeightList)[0]
+        return destinationcensus
+
+    def findTargetByType(self, road, maxRadius, minRadius):
+        mycurs = self.conn.cursor()
+        return(getattr(self, self.model.targetType)(road, mycurs, maxRadius, minRadius))
+
+    def randomRoad(self, road, mycurs, maxRadius, minRadius):
+        if 'taxiTract' in self.radiusType:
+            mycurs.execute("""select gid from (select r.gid, s.new_gid,  s.new_gid_ftus
+                from open.nyc_road_proj_final as r, open.nyc_road2censustract s
+                where s.new_gid={0} and st_intersects(r.geom,s.new_gid_ftus) and
+                r.gid not in (select * from open.nyc_road_proj_final_isolates)) as bar""").format(self.taxiTract())
+        elif maxRadius == 41000:
+            mycurs.execute("""select targetroad as gid from open.nyc_road2road_precalc where startroad={0} and radius=40000 and 
+                model='road' and targetroad not in (select * from open.nyc_road_proj_final_isolates)""".format(road))
+        else:
+            # If something goes really wrong, we use old techniques (change min and max)
+            mycurs.execute("""select gid from (
+                select gid,geom from open.nyc_road_weight_to_center where st_dwithin(
+                (select geom from open.nyc_road_weight_to_center where gid={0}),geom,{1})
+                and not st_dwithin((select geom from open.nyc_road_weight_to_center where gid={0}) ,geom,{2})
+                and gid not in (select * from open.nyc_road_proj_final_isolates)
+                ) as bar;""".format(road,maxRadius,minRadius))
+        roads=mycurs.fetchall() #returns tuple with first row (unordered list)
+        self.log.debug('random Road')
+        return roads
+
+    def randomRoadCenter(self, road, mycurs, maxRadius, minRadius):
+        mycurs = self.conn.cursor()
+        if 'taxiTract' in self.radiusType:
+            mycurs.execute("""select gid, weight_center from (select r.gid, r.weight_center, s.new_gid,  s.new_gid_ftus
+                from open.nyc_road_weight_to_center as r, open.nyc_road2censustract s
+                where s.new_gid={0} and st_intersects(r.geom,s.new_gid_ftus) and
+                r.gid not in (select * from open.nyc_road_proj_final_isolates)) as bar""").format(self.destinationCensus)
+        elif maxRadius == 41000:
+            mycurs.execute("""select gid,weight_center from (select gid, weight_center, startroad, targetroad from open.nyc_road_weight_to_center as r
+               left join open.nyc_road2road_precalc as c on c.targetroad=r.gid) as f where startroad={0}
+               and gid not in (select * from open.nyc_road_proj_final_isolates);""".format(road))
+        else:
+            mycurs.execute("""select gid,weight_center from (
+                select gid,weight_center,geom from open.nyc_road_weight_to_center where st_dwithin(
+                (select geom from open.nyc_road_weight_to_center where gid={0}),geom,{1})
+                and not st_dwithin((select geom from open.nyc_road_weight_to_center where gid={0}) ,geom,{2})
+                and gid not in (select * from open.nyc_road_proj_final_isolates)
+                ) as bar;""".format(road,maxRadius,minRadius))
+        roads=mycurs.fetchall() #returns tuple with first row (unordered list)
+        #self.log.debug('random Road Center')
+        return roads
+
+    def randomVenue(self, road, mycurs, maxRadius, minRadius):
+        mycurs = self.conn.cursor()
+        if maxRadius == 41000:
+            """mapping results slightly different - because query roads within radius not venues like this"""
+            mycurs.execute("""select road_id from (select venue_id, startroad, targetroad, road_id from open.nyc_fs_venue_join as v
+               left join open.nyc_road2fs_near2 r2f on r2f.fs_id=v.venue_id 
+               left join open.nyc_road2road_precalc r on r.targetroad=r2f.road_id) as f where startroad={0}
+               and road_id not in (select * from open.nyc_road_proj_final_isolates);""".format(road))
+        else:
+            mycurs.execute("""select road_id from (
+                select venue_id from open.nyc_fs_venue_join where st_dwithin( (
+                select geom from open.nyc_road_proj_final where gid={0}) ,ftus_coord, {1})
+                and not st_dwithin( (
+                select geom from open.nyc_road_proj_final where gid={0}) ,ftus_coord, {2}))
+                as fs left join open.nyc_road2fs_near2 r2f on r2f.fs_id=fs.venue_id 
+                where not road_id is null
+                and road_id not in (select * from open.nyc_road_proj_final_isolates)""".format(road,maxRadius,minRadius))
+        roads=mycurs.fetchall() #returns tuple of tuples, venue_id and road_id paired
+        self.log.debug('random Venue')        
+        return roads    
+
+    def randomVenueCenter(self, road, mycurs,  maxRadius, minRadius):
+        mycurs = self.conn.cursor()
+        #venues venue_id=270363 or venue_id=300810 are incorrectly mapped and therefore have weihgt=0, should not be accoutned for
+        if maxRadius == 41000:
+            """mapping results slightly different - because query roads within radius not venues like this"""
+            mycurs.execute("""select road_id, weight_center from (
+                select venue_id,road_id, weight_center, startroad, targetroad from open.nyc_fs_venue_join_weight_to_center as fs
+    			left join open.nyc_road2fs_near2 r2f on r2f.fs_id=fs.venue_id 
+    			left join open.nyc_road2road_precalc r on r.targetroad=r2f.road_id) as f where startroad={0}
+                and not road_id is null and not weight_center=0
+                and road_id not in (select * from open.nyc_road_proj_final_isolates);;""".format(road))
+        else:
+            mycurs.execute("""select road_id, weight_center from (
+                select venue_id,weight_center from open.nyc_fs_venue_join_weight_to_center WHERE st_dwithin( (
+                select geom from open.nyc_road_proj_final where gid={0}) ,ftus_coord, {1})
+                and not st_dwithin( (
+                select geom from open.nyc_road_proj_final where gid={0}) ,ftus_coord, {2}))
+                as fs left join open.nyc_road2fs_near2 r2f on r2f.fs_id=fs.venue_id 
+                where not road_id is null and not weight_center=0
+                and road_id not in (select * from open.nyc_road_proj_final_isolates)""".format(road,maxRadius,minRadius))
+        roads=mycurs.fetchall() #returns tuple of tuples, venue_id and road_id paired
+        #self.log.debug('random Venue Center')        
+        return roads
+
+    def popularVenue(self, road, mycurs, maxRadius, minRadius):
+        mycurs = self.conn.cursor()
+        if maxRadius == 41000:
+            """mapping results slightly different - because query roads within radius not venues like this"""
+            mycurs.execute("""SELECT road_id, checkins_count FROM(
+                SELECT venue_id, checkins_count, startroad, targetroad, road_id from open.nyc_fs_venue_join as fs
+                LEFT JOIN open.nyc_road2fs_near2 r2f on r2f.fs_id=fs.venue_id
+                LEFT JOIN open.nyc_road2road_precalc r on r.targetroad=r2f.road_id) as f where startroad={0}
+                and NOT road_id is null and road_id not in (select * from open.nyc_road_proj_final_isolates);""".format(road))
+        else:
+            mycurs.execute("""SELECT road_id, checkins_count FROM(
+                SELECT venue_id, checkins_count
+                from open.nyc_fs_venue_join
+                where st_dwithin((select geom from open.nyc_road_proj_final where gid={0}),ftus_coord, {1})
+                and not st_dwithin((select geom from open.nyc_road_proj_final where gid={0}),ftus_coord, {2}))
+                AS fs LEFT JOIN open.nyc_road2fs_near2 r2f on r2f.fs_id=fs.venue_id WHERE NOT road_id is null
+                and road_id not in (select * from open.nyc_road_proj_final_isolates);"""
+                .format(road,maxRadius,minRadius))
+        roads=mycurs.fetchall() #returns tuple of tuples, venue_id,weighted_checkins
+        self.log.debug('popular Venue') 
+        return roads
+
+    def popularVenueCenter(self, road, mycurs, maxRadius, minRadius):
+        mycurs = self.conn.cursor()
+        #venues venue_id=270363 or venue_id=300810 are incorrectly mapped and therefore have weihgt=0, should not be accoutned for
+        if maxRadius == 41000:
+            """mapping results slightly different - because query roads within radius not venues like this"""
+            mycurs.execute("""SELECT road_id, weight_center, checkins_count FROM(
+                SELECT venue_id, weight_center, checkins_count, road_id, startroad, targetroad
+    			from open.nyc_fs_venue_join_weight_to_center AS fs
+    			LEFT JOIN open.nyc_road2fs_near2 r2f on r2f.fs_id=fs.venue_id 
+                left join open.nyc_road2road_precalc r on r.targetroad=r2f.road_id) as f where startroad={0}
+    			AND NOT weight_center=0 and NOT road_id is NULL
+                and road_id not in (select * from open.nyc_road_proj_final_isolates)""".format(road))
+        else:
+            mycurs.execute("""SELECT road_id, weight_center, checkins_count FROM(
+                SELECT venue_id, weight_center, checkins_count
+                from open.nyc_fs_venue_join_weight_to_center
+                where st_dwithin((select geom from open.nyc_road_proj_final where gid={0}),ftus_coord, {1})
+                and not st_dwithin((select geom from open.nyc_road_proj_final where gid={0}),ftus_coord, {2}))
+                AS fs LEFT JOIN open.nyc_road2fs_near2 r2f on r2f.fs_id=fs.venue_id
+                WHERE NOT road_id is NULL AND NOT weight_center=0 and 
+                road_id not in (select * from open.nyc_road_proj_final_isolates)"""
+                .format(road,maxRadius,minRadius))
+        roads=mycurs.fetchall() #returns tuple of tuples, venue_id,weighted_checkins
+        self.log.debug('popular Venue Center') 
+        return roads
+    
+
+    def searchTarget(self, road):
+        """search target within radius"""
+        #print('in searchTarget: current road for new target: {0}'.format(road))
+        targetRoad=0
+        count=0
+        roadId=None
+        #5% boundry ~0.6 km
+        maxRadius=self.searchRadius*1.025
+        #in repast it was set to 0.925 - error
+        minRadius=self.searchRadius*0.975
+        while targetRoad==0:
+            count+=1
+            roads=self.findTargetByType(road, maxRadius, minRadius)
+            roadId=self.weightedChoice(roads, road)
+            if not roadId is None:
+                targetRoad=roadId
+                return (targetRoad)
+            #enlarge by 10%
+            maxRadius=maxRadius*1.05
+            minRadius=minRadius*0.95
+            if count>1 and count<=5:
+                searchRadius=self.radius()
+                maxRadius=searchRadius*1.025
+                minRadius=searchRadius*0.975
+                #self.log.debug('new radius: {}'.format(self.searchRadius))
+            if count>5:
+                searchRadius=self.radius()
+                maxRadius=searchRadius*1.025
+                minRadius=searchRadius*0.975
+                #self.log.debug('new radius: {}'.format(self.searchRadius))
+            elif count>10:
+                self.log.critical("**********5 radius didn't work: agent id {0}, current road: {1} targetRoad {2} , radius {3}".format(self.unique_id, targetRoad, self.road, self.radius))
+        return targetRoad
+
+    def weightedChoice(self, roads, road):
+        """choice of target by weighting if avalable"""
+        #TODO bring weihts to same scale!!!
+        if not roads:
+            self.log.debug('no roads in radius, road {0}, search radius: {1}, radiustype: {2}'.format(road, self.searchRadius, self.radiusType))
+            roadId=None   
+        elif (len(roads[0]) is 1):
+            road=random.choice(roads)
+            roadId=road[0]
+        else:
+            roadsList=[x[0] for x in roads]
+            weightList=[x[1] for x in roads]
+            if (len(roads[0])>2): #×or if self.targetType=2
+                weightList2=[x[2] for x in roads]
+                #bring both weights to same scala
+                weightList2=[i for i in weightList2]
+                weightList=[i*j for i,j in zip(weightList,weightList2)]
+                self.log.debug('combined weights: {}'.format(weightList[0]))
+            pWeightList=[]
+            sumWeightList=sum(weightList)
+            for value in weightList:
+                pWeightList.append(value/sumWeightList)
+            self.log.debug('weightlist p sum: {}'.format(sum(pWeightList)))
+            roadIdNp=np.random.choice(roadsList, 1, True, pWeightList)
+            roadId=roadIdNp[0]  
+        return roadId
+    
+       
+    def crimesOnRoad(self, road):
+        """counts crimes found on each road"""
+        try:
+            attributList=self.model.allCrimes[road]
+            for item in attributList:
+                crimetype=item[1]
+                crime=item[0]
+                globalVar.crimesUniqueOverall.add(crime)
+                self.crimes[crimetype].append(crime)
+            #print('crimesUniqueOverall print {}'.format(globalVar.crimesUniqueOverall))   
+        except:
+            self.log.debug("road has no crime")
+            pass
+
+     #unique over all agents       
+    def uniqueCrimesOverall(self):
+        """saves crime id over all the agents in global variable"""
+        for i in range(len(self.crimes)):
+            #in set(): add is for single value and update for list of values
+            globalVar.burglaryUniqueOverall.update(self.crimes[1])
+            globalVar.robberyUniqueOverall.update(self.crimes[2])
+            globalVar.larcenyUniqueOverall.update(self.crimes[3])
+            globalVar.larcenyMUniqueOverall.update(self.crimes[5])
+            globalVar.assualtUniqueOverall.update(self.crimes[4])         
+
+    def findMyWay(self, targetroad):
+        """find way to target road and count statistics for path"""
+        #self.log.debug('search radius: {}'.format(self.searchRadius))
+        roadValuesList=[]
+        try:
+            #roads are represented as nodes in G
+            self.way=nx.shortest_path(self.model.G,self.road,targetroad,weight='length')
+            #print("Agent ({0}) way: {1}".format(self.unique_id,self.way))
+
+            ###QRunner seems not to be working --  or may be taking too long?? take out for calculating 1000 agents
+            #self.model.insertQ.store_roads({"run_id": self.model.run_id, "step": self.model.modelStepCount,
+            #          "agent": self.unique_id, "way": self.way})
+            for road in self.way:
+                print("for road: {}".format(road))
+                print(self.model.G.node[road]['length'])
+                self.walkedDistance += self.model.G.node[road]['length']
+                print("crimes")
+                self.crimesOnRoad(road)
+                print("walked")
+                self.walkedRoads +=1
+
+                ##has to be commented if want to use Qrunner
+                sql = """insert into open.res_la_roads ("id","run_id","step","agent","road_id") values
+                    (DEFAULT,{0},{1},{2},{3} )""".format(self.model.run_id, self.model.modelStepCount, self.unique_id, road)
+                self.model.mycurs.execute(sql)
+                print("execute")
+                self.pathroadlist.append(road)
+                print("pathroadlist")
+        except Exception as e:
+            self.log.critical("trip: Error: One agent found no way: agent id {0}, current road: {2} targetRoad {1} , radius {3}".format(self.unique_id, targetroad, self.road, self.radius))
+            exit()
+            #erases target from targetList
+        return True
+
+    def roadAccessibility(self):
+        """test if there is a way to the road"""
+        try:
+            self.way=nx.shortest_path(self.model.G,7,self.targetRoad)
+            return True
+        except:
+            return False
+
+    def buildpathhome(self, homeRoad):
+        #print("path back home")
+        loopCount=0
+        access=False
+        while access==False:
+            loopCount+=1
+            if loopCount==8:
+                self.log.critical("exit: could not find target current road: {0} targetRoad {1} , radius {2}".format(self.road, homeRoad, self.radius))
+            access=self.findMyWay(homeRoad)
+            #self.log.debug('count of while loop in search target {}'.format(loopCount))
+        self.uniqueCrimesOverall()
+        #return self.pathroadlist
+        return self.pathroadlist
+
+    def buildpath(self):
+        #print("path anywhere")
+        self.searchRadius=self.radius()
+        #agent trip number drawn form distribution
+        loopCount=0
+        #emulate do-while: assigns False for the loop to be executed before further condition testing
+        access=False
+        while access==False:
+            loopCount+=1
+            targetRoad=self.searchTarget(self.road)
+            if targetRoad in globalVar.isolateRoadsRNW:
+                access=False
+                continue
+            if loopCount==8:
+                self.log.critical("exit: could not find target current road: {0} targetRoad {1} , radius {2}".format(self.road, targetRoad, self.radius))
+            access=self.findMyWay(targetRoad)
+            #self.log.debug('count of while loop in search target {}'.format(loopCount))
+        self.uniqueCrimesOverall()
+        #return self.pathroadlist
+        return targetRoad

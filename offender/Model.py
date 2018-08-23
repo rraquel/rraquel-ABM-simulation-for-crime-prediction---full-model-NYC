@@ -92,10 +92,10 @@ class Model(mesa.Model):
         agent_reporters={
             "current Road": lambda a: a.road,
             "traveledDistance": lambda a: a.walkedDistance,
-            "searchRadius": lambda a: a.searchRadius
             })
         
         #create roadNW
+        self.roadLengthdict=dict
         self.G=self.createRoadNetwork()
         self.log.info("time after roadNW: {}".format(str(time.monotonic()-self.t)))
         
@@ -173,6 +173,16 @@ class Model(mesa.Model):
         #self.log.debug("Isolated roads: {0}".format(len(nx.isolates(self.G))))
         #self.log.info("roadNW built, intersection size: {0}".format(len(intersect)))
         #self.log.info("roadNW built, roads size: {0}".format(self.G.number_of_nodes()))
+        
+        """      
+        117320	total	100%
+        115694	minus isolates	98.61%
+        113182	minus detached	96.47%
+        """
+        self.mycurs.execute("""select * from open.nyc_road_proj_final_isolates""")
+        #fetch all values into tuple
+        globalVar.isolateRoadsRNW.update(self.mycurs.fetchall())
+        #output is not a list of roads, but list of ('road_id')
         return self.G
 
     def createCrimes(self):
@@ -236,8 +246,10 @@ class Model(mesa.Model):
         census=self.mycurs.fetchall()
         dropoff=dict()
         for line in census:
+            print(line[0], line[1], line[2])
             dropoff[line[1]]=line[2]
             self.taxiTracts[line[0]]=dropoff
+            exit()
 
         
 
