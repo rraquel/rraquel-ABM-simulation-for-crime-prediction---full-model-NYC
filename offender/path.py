@@ -92,15 +92,28 @@ class Path:
         dropoffoptions=self.model.taxiTracts[censustract]
         #choose destination census tract (drop off census tract by weight)
         dcensus =list()
-        dweight =list()
+        #dweight =list()
+        pweight=list()
         pWeightList=list()
         for k,v in dropoffoptions.items():
             dcensus.append(k)
-            dweight.append(v)
-        weightSum=sum(dweight)
-        for v in dweight:
-            pWeightList.append(v/weightSum)
-        destinationcensus=np.random.choice(dcensus, 1, p=pWeightList)[0]
+            #dweight.append(v)
+            pweight.append(v)
+        #weightSum=sum(dweight)
+        #for v in dweight:
+        #    pWeightList.append(v/weightSum)
+        #destinationcensus=np.random.choice(dcensus, 1, p=pWeightList)[0]
+        try:
+            destinationcensus=np.random.choice(dcensus, 1, p=pweight)[0]
+        except:
+            spweight=sum(pweight)
+            print(spweight)
+            if (spweight)!= 1:
+                val=min(pweight)
+                idx=pweight.index(min(pweight))
+                rest=1-spweight
+                pweight[idx]=val+rest
+            destinationcensus=np.random.choice(dcensus, 1, p=pweight)[0]
         return destinationcensus
 
     def findTargetByType(self, road, maxRadius, minRadius):
@@ -134,7 +147,7 @@ class Path:
             mycurs.execute("""select gid, weight_center from (select r.gid, r.weight_center, s.new_gid,  s.new_gid_ftus
                 from open.nyc_road_weight_to_center as r, open.nyc_road2censustract s
                 where s.new_gid={0} and st_intersects(r.geom,s.new_gid_ftus) and
-                r.gid not in (select * from open.nyc_road_proj_final_isolates)) as bar""").format(self.destinationCensus)
+                r.gid not in (select * from open.nyc_road_proj_final_isolates)) as bar""").format(self.taxiTract())
         elif maxRadius == 41000:
             mycurs.execute("""select gid,weight_center from (select gid, weight_center, startroad, targetroad from open.nyc_road_weight_to_center as r
                left join open.nyc_road2road_precalc as c on c.targetroad=r.gid) as f where startroad={0}
@@ -152,12 +165,20 @@ class Path:
 
     def randomVenue(self, road, mycurs, maxRadius, minRadius):
         mycurs = self.conn.cursor()
-        if maxRadius == 41000:
+        if 'taxiTract' in self.radiusType:
+            mycurs.execute("""select road_id from (select venue_id, road_id, r2c.new_gid,  r2c.new_gid_ftus
+                     from open.nyc_fs_venue_join fs
+                     left join open.nyc_road2fs_near2 r2f on r2f.fs_id=fs.venue_id 
+                     left join open.nyc_road2censustract r2c on r2c.gid=r2f.road_id
+                     where r2c.new_gid={0} and st_intersects(fs.ftus_coord,r2c.new_gid_ftus)
+                     and not r2f.road_id is null and road_id not in
+                     (select gid from open.nyc_road_proj_final_isolates)) as bar""".format(self.taxiTract()))
+        elif maxRadius == 41000:
             """mapping results slightly different - because query roads within radius not venues like this"""
             mycurs.execute("""select road_id from (select venue_id, startroad, targetroad, road_id from open.nyc_fs_venue_join as v
                left join open.nyc_road2fs_near2 r2f on r2f.fs_id=v.venue_id 
                left join open.nyc_road2road_precalc r on r.targetroad=r2f.road_id) as f where startroad={0}
-               and road_id not in (select * from open.nyc_road_proj_final_isolates);""".format(road))
+               and road_id not in (select * from open.nyc_road_proj_final_isolates)""".format(road))
         else:
             mycurs.execute("""select road_id from (
                 select venue_id from open.nyc_fs_venue_join where st_dwithin( (
@@ -174,14 +195,22 @@ class Path:
     def randomVenueCenter(self, road, mycurs,  maxRadius, minRadius):
         mycurs = self.conn.cursor()
         #venues venue_id=270363 or venue_id=300810 are incorrectly mapped and therefore have weihgt=0, should not be accoutned for
-        if maxRadius == 41000:
+        if 'taxiTract' in self.radiusType:
+            mycurs.execute("""select road_id, weight_center from (select venue_id, road_id, weight_center
+                from open.nyc_fs_venue_join_weight_to_center fs
+                left join open.nyc_road2fs_near2 r2f on r2f.fs_id=fs.venue_id 
+                left join open.nyc_road2censustract r2c on r2c.gid=r2f.road_id
+                where r2c.new_gid={} and st_intersects(fs.ftus_coord,r2c.new_gid_ftus)
+                and not r2f.road_id is null and road_id not in
+                (select gid from open.nyc_road_proj_final_isolates)) as bar""".format(self.taxiTract()))
+        elif maxRadius == 41000:
             """mapping results slightly different - because query roads within radius not venues like this"""
             mycurs.execute("""select road_id, weight_center from (
                 select venue_id,road_id, weight_center, startroad, targetroad from open.nyc_fs_venue_join_weight_to_center as fs
     			left join open.nyc_road2fs_near2 r2f on r2f.fs_id=fs.venue_id 
     			left join open.nyc_road2road_precalc r on r.targetroad=r2f.road_id) as f where startroad={0}
                 and not road_id is null and not weight_center=0
-                and road_id not in (select * from open.nyc_road_proj_final_isolates);;""".format(road))
+                and road_id not in (select * from open.nyc_road_proj_final_isolates)""".format(road))
         else:
             mycurs.execute("""select road_id, weight_center from (
                 select venue_id,weight_center from open.nyc_fs_venue_join_weight_to_center WHERE st_dwithin( (
@@ -197,13 +226,21 @@ class Path:
 
     def popularVenue(self, road, mycurs, maxRadius, minRadius):
         mycurs = self.conn.cursor()
-        if maxRadius == 41000:
+        if 'taxiTract' in self.radiusType:
+            mycurs.execute("""select road_id, checkins_count from (select venue_id, road_id, checkins_count
+                from open.nyc_fs_venue_join fs
+                left join open.nyc_road2fs_near2 r2f on r2f.fs_id=fs.venue_id 
+                left join open.nyc_road2censustract r2c on r2c.gid=r2f.road_id
+                where r2c.new_gid={} and st_intersects(fs.ftus_coord,r2c.new_gid_ftus)
+                and not r2f.road_id is null and road_id not in
+                (select gid from open.nyc_road_proj_final_isolates)) as bar""".format(self.taxiTract()))
+        elif maxRadius == 41000:
             """mapping results slightly different - because query roads within radius not venues like this"""
             mycurs.execute("""SELECT road_id, checkins_count FROM(
                 SELECT venue_id, checkins_count, startroad, targetroad, road_id from open.nyc_fs_venue_join as fs
                 LEFT JOIN open.nyc_road2fs_near2 r2f on r2f.fs_id=fs.venue_id
                 LEFT JOIN open.nyc_road2road_precalc r on r.targetroad=r2f.road_id) as f where startroad={0}
-                and NOT road_id is null and road_id not in (select * from open.nyc_road_proj_final_isolates);""".format(road))
+                and NOT road_id is null and road_id not in (select * from open.nyc_road_proj_final_isolates)""".format(road))
         else:
             mycurs.execute("""SELECT road_id, checkins_count FROM(
                 SELECT venue_id, checkins_count
@@ -211,7 +248,7 @@ class Path:
                 where st_dwithin((select geom from open.nyc_road_proj_final where gid={0}),ftus_coord, {1})
                 and not st_dwithin((select geom from open.nyc_road_proj_final where gid={0}),ftus_coord, {2}))
                 AS fs LEFT JOIN open.nyc_road2fs_near2 r2f on r2f.fs_id=fs.venue_id WHERE NOT road_id is null
-                and road_id not in (select * from open.nyc_road_proj_final_isolates);"""
+                and road_id not in (select * from open.nyc_road_proj_final_isolates)"""
                 .format(road,maxRadius,minRadius))
         roads=mycurs.fetchall() #returns tuple of tuples, venue_id,weighted_checkins
         self.log.debug('popular Venue') 
@@ -220,7 +257,16 @@ class Path:
     def popularVenueCenter(self, road, mycurs, maxRadius, minRadius):
         mycurs = self.conn.cursor()
         #venues venue_id=270363 or venue_id=300810 are incorrectly mapped and therefore have weihgt=0, should not be accoutned for
-        if maxRadius == 41000:
+        if 'taxiTract' in self.radiusType:
+            mycurs.execute("""select road_id, weight_center, checkins_count from (
+    			select venue_id, road_id, checkins_count, weight_center
+                from open.nyc_fs_venue_join_weight_to_center fs
+                left join open.nyc_road2fs_near2 r2f on r2f.fs_id=fs.venue_id 
+                left join open.nyc_road2censustract r2c on r2c.gid=r2f.road_id
+                where r2c.new_gid={} and st_intersects(fs.ftus_coord,r2c.new_gid_ftus)
+                and not r2f.road_id is null and road_id not in
+                (select gid from open.nyc_road_proj_final_isolates)) as bar""".format(self.taxiTract()))
+        elif maxRadius == 41000:
             """mapping results slightly different - because query roads within radius not venues like this"""
             mycurs.execute("""SELECT road_id, weight_center, checkins_count FROM(
                 SELECT venue_id, weight_center, checkins_count, road_id, startroad, targetroad
@@ -360,7 +406,7 @@ class Path:
                 self.pathroadlist.append(road)
                 print("pathroadlist")
         except Exception as e:
-            self.log.critical("trip: Error: One agent found no way: agent id {0}, current road: {2} targetRoad {1} , radius {3}".format(self.unique_id, targetroad, self.road, self.radius))
+            self.log.critical("trip: Error: One agent found no way: agent id {0}, current road: {2} targetRoad {1}, stepcount: {3}".format(self.unique_id, targetroad, self.road, self.model.modelStepCount))
             exit()
             #erases target from targetList
         return True

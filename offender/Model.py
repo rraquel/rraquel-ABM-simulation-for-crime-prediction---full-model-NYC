@@ -228,7 +228,8 @@ class Model(mesa.Model):
         self.mycurs.execute("""select distinct(r2p.road_id),census_population_weight
             from open.nyc_road2pluto_80ft r2p left join open.nyc_pluto_areas p 
             on r2p.road_id=p.gid where census_population_weight >0 AND 
-            (landuse='01' OR landuse='02'  OR landuse='03' OR landuse='04')""") 
+            (landuse='01' OR landuse='02'  OR landuse='03' OR landuse='04')
+            AND road_id not in (select gid from open.nyc_road_proj_final_isolates)""") 
         roads=self.mycurs.fetchall()
         self.totalresidentialRoads=len(roads)
         roadsList=[x[0] for x in roads]
@@ -241,8 +242,9 @@ class Model(mesa.Model):
         self.residentRoadsWeight=pWeightList
 
     def createTaxiTrips(self):
-        self.mycurs.execute("""SELECT censuspickup, censusdropoff, weight FROM
-        open.nyc_taxi_trips_new_june2015_censuscoutns""")
+        self.mycurs.execute("""SELECT censuspickup, censusdropoff, pweight FROM
+        open.nyc_taxi_trips_new_june2015_censuscoutns_weight""")
+        #TODO fix open.nyc_taxi_trips_new_june2015_censuscoutns_weight; pweight
         census=self.mycurs.fetchall()
         
         for line in census:
