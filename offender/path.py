@@ -89,7 +89,11 @@ class Path:
         #test
         #TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         censustract=nx.get_node_attributes(self.model.G, 'census').get(self.road)
-        dropoffoptions=self.model.taxiTracts[censustract]
+        try:
+            dropoffoptions=self.model.taxiTracts[censustract]
+        except:
+            print("census tract: {} not found as key in taxiTracts dictionary".format(censustract))
+            exit()
         #choose destination census tract (drop off census tract by weight)
         dcensus =list()
         #dweight =list()

@@ -256,6 +256,16 @@ class Model(mesa.Model):
                 self.taxiTracts[line[0]]=temp
             else:
                 self.taxiTracts[line[0]]=dropoff
+
+    def createCrimeCT(self):
+        self.mycurs.execute("""SELECT gid, pweight FROM
+        open.nyc_police_incident2CT_weight""")
+        #TODO fix open.nyc_taxi_trips_new_june2015_censuscoutns_weight; pweight
+        census=self.mycurs.fetchall()
+        
+        for line in census:
+            crimeCT=dict()                        
+            crimeCT[line[0]]=line[1]
      
 
     def step(self, i, numSteps):
