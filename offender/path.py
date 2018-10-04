@@ -15,7 +15,7 @@ import globalVar
 
 class Path:
     """agent path options"""
-    def __init__(self, unique_id, model, currentRoad, radiusType, targetType):
+    def __init__(self, unique_id, model, currentRoad, distanceType, targetType):
         self.log=logging.getLogger('')
         self.conn=model.conn
         self.model=model
@@ -39,7 +39,7 @@ class Path:
         ##select starting position by type
         self.road=currentRoad
 
-        self.radiusType=radiusType
+        self.distanceType=distanceType
         self.staticRadius=model.staticRadius
         #uniform radius
         #minimal distance from 2.5km to foot
@@ -59,7 +59,7 @@ class Path:
 
 
     def radius(self):
-        return(getattr(self, self.model.radiusType)())
+        return(getattr(self, self.model.distanceType)())
 
     def staticR(self):
         self.log.info("static radius Agent")
@@ -120,12 +120,19 @@ class Path:
             destinationcensus=np.random.choice(dcensus, 1, p=pweight)[0]
         return destinationcensus
 
+    def crimeTract(self):
+        crimeCT=self.model.crimeCT
+        destinationcensus=np.random.choice(list(crimeCT.keys()), 1, p=list(crimeCT.values()))[0]
+        return destinationcensus
+
+
+
     def findTargetByType(self, road, maxRadius, minRadius):
         mycurs = self.conn.cursor()
         return(getattr(self, self.model.targetType)(road, mycurs, maxRadius, minRadius))
 
     def randomRoad(self, road, mycurs, maxRadius, minRadius):
-        if 'taxiTract' in self.radiusType:
+        if 'taxiTract' in self.distanceType:
             mycurs.execute("""select gid from (select r.gid, s.new_gid,  s.new_gid_ftus
                 from open.nyc_road_proj_final as r, open.nyc_road2censustract s
                 where s.new_gid={0} and st_intersects(r.geom,s.new_gid_ftus) and
@@ -147,7 +154,7 @@ class Path:
 
     def randomRoadCenter(self, road, mycurs, maxRadius, minRadius):
         mycurs = self.conn.cursor()
-        if 'taxiTract' in self.radiusType:
+        if 'taxiTract' in self.distanceType:
             mycurs.execute("""select gid, weight_center from (select r.gid, r.weight_center, s.new_gid,  s.new_gid_ftus
                 from open.nyc_road_weight_to_center as r, open.nyc_road2censustract s
                 where s.new_gid={0} and st_intersects(r.geom,s.new_gid_ftus) and
@@ -169,7 +176,7 @@ class Path:
 
     def randomVenue(self, road, mycurs, maxRadius, minRadius):
         mycurs = self.conn.cursor()
-        if 'taxiTract' in self.radiusType:
+        if 'taxiTract' in self.distanceType:
             mycurs.execute("""select road_id from (select venue_id, road_id, r2c.new_gid,  r2c.new_gid_ftus
                      from open.nyc_fs_venue_join fs
                      left join open.nyc_road2fs_near2 r2f on r2f.fs_id=fs.venue_id 
@@ -199,7 +206,7 @@ class Path:
     def randomVenueCenter(self, road, mycurs,  maxRadius, minRadius):
         mycurs = self.conn.cursor()
         #venues venue_id=270363 or venue_id=300810 are incorrectly mapped and therefore have weihgt=0, should not be accoutned for
-        if 'taxiTract' in self.radiusType:
+        if 'taxiTract' in self.distanceType:
             mycurs.execute("""select road_id, weight_center from (select venue_id, road_id, weight_center
                 from open.nyc_fs_venue_join_weight_to_center fs
                 left join open.nyc_road2fs_near2 r2f on r2f.fs_id=fs.venue_id 
@@ -230,7 +237,7 @@ class Path:
 
     def popularVenue(self, road, mycurs, maxRadius, minRadius):
         mycurs = self.conn.cursor()
-        if 'taxiTract' in self.radiusType:
+        if 'taxiTract' in self.distanceType:
             mycurs.execute("""select road_id, checkins_count from (select venue_id, road_id, checkins_count
                 from open.nyc_fs_venue_join fs
                 left join open.nyc_road2fs_near2 r2f on r2f.fs_id=fs.venue_id 
@@ -261,7 +268,7 @@ class Path:
     def popularVenueCenter(self, road, mycurs, maxRadius, minRadius):
         mycurs = self.conn.cursor()
         #venues venue_id=270363 or venue_id=300810 are incorrectly mapped and therefore have weihgt=0, should not be accoutned for
-        if 'taxiTract' in self.radiusType:
+        if 'taxiTract' in self.distanceType:
             mycurs.execute("""select road_id, weight_center, checkins_count from (
     			select venue_id, road_id, checkins_count, weight_center
                 from open.nyc_fs_venue_join_weight_to_center fs
@@ -332,7 +339,7 @@ class Path:
         """choice of target by weighting if avalable"""
         #TODO bring weihts to same scale!!!
         if not roads:
-            self.log.debug('no roads in radius, road {0}, search radius: {1}, radiustype: {2}'.format(road, self.searchRadius, self.radiusType))
+            self.log.debug('no roads in radius, road {0}, search radius: {1}, distanceType: {2}'.format(road, self.searchRadius, self.distanceType))
             roadId=None   
         elif (len(roads[0]) is 1):
             road=random.choice(roads)

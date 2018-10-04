@@ -55,7 +55,7 @@ class Model(mesa.Model):
         self.dmax=530
        
         #no switch case in python - can use dictionary and switch function
-        self.radiusType=modelCfg.get('radiusType')
+        self.distanceType=modelCfg.get('distanceType')
 
         #self.agentStartLocationFinder=modelCfg.get('agentStartLocationFinder', findStartLocationRandom)
         self.schedule=RandomActivation(self)
@@ -82,6 +82,9 @@ class Model(mesa.Model):
         self.taxiTracts=dict()
         self.createTaxiTrips()
 
+        self.crimeCT=dict()
+        self.createCrimeCT()
+
         self.totalRoadDistance=40986771
 
         self.log.info("Generating Model")
@@ -104,7 +107,7 @@ class Model(mesa.Model):
         #TODO include start location type (to tune starting point with PLUTO info) and demographics
         for i in range(self.numAgents):
             try:
-                a=AgentX(i, self, self.radiusType, self.targetType, self.startLocationType, self.agentTravelAvg)
+                a=AgentX(i, self, self.distanceType, self.targetType, self.startLocationType, self.agentTravelAvg)
                 self.schedule.add(a)
                 #self.log.info("Offender created")
             except Exception as e:
@@ -261,11 +264,10 @@ class Model(mesa.Model):
         self.mycurs.execute("""SELECT gid, pweight FROM
         open.nyc_police_incident2CT_weight""")
         #TODO fix open.nyc_taxi_trips_new_june2015_censuscoutns_weight; pweight
-        census=self.mycurs.fetchall()
-        
-        for line in census:
-            crimeCT=dict()                        
-            crimeCT[line[0]]=line[1]
+        census=self.mycurs.fetchall()       
+        for line in census:                                 
+            self.crimeCT[line[0]]=line[1]
+
      
 
     def step(self, i, numSteps):

@@ -114,7 +114,7 @@ class Runner:
         self.dbIgnoreFields = ["run_id", "step", "agent"]
         sql = """insert into open.res_la_run values (DEFAULT, current_timestamp, NULL, {0}, '{1}', '{2}','{3}','{4}',{5}) 
             returning run_id""".format(self.model.schedule.get_agent_count(),self.cfile,self.model.startLocationType,
-              self.model.radiusType, self.model.targetType,self.config.getint('general','numSteps', fallback=1))
+              self.model.distanceType, self.model.targetType,self.config.getint('general','numSteps', fallback=1))
         self.mycurs.execute(sql)
         self.run_id = self.mycurs.fetchone()[0]
         self.model.run_id = self.run_id
