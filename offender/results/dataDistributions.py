@@ -213,7 +213,10 @@ def crimeCorr():
     g=sc.spearmanr(q, w)
     print("mar and feb {}".format(g))
     h=sc.spearmanr(q, z)
-    print("mar and jun {}".format(h))    
+    print("mar and jun {}".format(h))   
+
+    plt.hist(x, bins=50)
+    plt.show()
     
     
     
