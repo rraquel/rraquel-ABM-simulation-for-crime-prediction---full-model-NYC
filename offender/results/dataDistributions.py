@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import collections
 import scipy.stats as sc
+from statsmodels.stats.contingency_tables import mcnemar
 
 
 conn= psycopg2.connect("dbname='shared' user='rraquel' host='localhost' password='Mobil4b' ")        
@@ -149,7 +150,7 @@ def crimesPerCT():
 
 def crimeCorr():
 
-    mycurs.execute("""select gid, may, june, jan, feb, mar, apr, jul FROM open.nyc_police_incident2CT_month""")
+    mycurs.execute("""select gid, may, june, jan, feb, mar, apr, jul, jun14 FROM open.nyc_police_incident2CT_month""")
     results=mycurs.fetchall() #returns tuple with first row (unordered list)
 
     #each row is a run_id
@@ -160,6 +161,8 @@ def crimeCorr():
     crimecmar=list()
     crimecapr=list()
     crimecjul=list()
+    crimecjun14=list()
+
     for row in results:
         gid=row[0]
         may=row[1]
@@ -169,6 +172,7 @@ def crimeCorr():
         mar=row[5]
         apr=row[6]
         jul=row[7]
+        jun14=row[8]
         crimecmay.append(may)
         crimecjun.append(jun)
         crimecjan.append(jan)
@@ -176,6 +180,7 @@ def crimeCorr():
         crimecmar.append(mar)
         crimecapr.append(apr)
         crimecjul.append(jul)
+        crimecjun14.append(jun14)
 
     x=np.array(crimecmay)
     z=np.array(crimecjun)
@@ -184,8 +189,9 @@ def crimeCorr():
     s=np.array(crimecmar)
     q=np.array(crimecapr)
     p=np.array(crimecjul)
+    t=np.array(crimecjun14)
 
-    listx=[x, z, y, w, s, q, p]
+    listx=[x, z, y, w, s, q, p, t]
 
     count=0
     count1=0
@@ -214,6 +220,27 @@ def crimeCorr():
     print("mar and feb {}".format(g))
     h=sc.spearmanr(q, z)
     print("mar and jun {}".format(h))   
+    k=sc.spearmanr(t, z)
+    print("jun14 and jun15 {}".format(k))  
+
+    xz=np.column_stack((x, z))
+    tz=np.column_stack((t, z))
+
+    a2=mcnemar(xz)
+    print("may and june {}".format(a2.statistic))
+    print("may and june {}".format(a2.pvalue))
+    if a2.pvalue > 0.05:
+    	print('Same proportions')
+    else:
+	    print('Different proportions')
+    k2=mcnemar(tz)
+    print("jun14 and jun15 {}".format(k2.statistic))
+    print("jun14 and jun15 {}".format(k2.pvalue)) 
+    if k2.pvalue > 0.05:
+        	print('Same proportions')
+    else:
+	    print('Different proportions')
+
 
     plt.hist(x, bins=50)
     plt.show()

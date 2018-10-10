@@ -191,9 +191,10 @@ class Model(mesa.Model):
     def createCrimes(self):
         #used until 13.12.2018 - also in for AAMAS submission
         #self.mycurs.execute("""SELECT * from open.nyc_road2police_incident_5ft_types_Jun WHERE NOT off_type is NULL""")
-        self.mycurs.execute("""SELECT * from open.nyc_road2pi_5ft_2015_jun""")
+        self.mycurs.execute("""SELECT road_id, object_id, offense, off_type from open.nyc_road2pi_5ft_2015_jun""")
         #Burglary 1, robbery 2, grand Larceny 3, assualt 4, grand larceny motor 5
         rows=self.mycurs.fetchall()
+        #print(rows[0])
         self.totalCrimes=len(rows)
         self.log.info("total number of crimes {}".format(self.totalCrimes))
         roadCrime={} 
@@ -204,9 +205,13 @@ class Model(mesa.Model):
         for line in rows:  
             crimes=[]            
             road=line[0]
+            #print(road)
             crime=line[1]
+            #print(crime)
             crimetype1=line[2]
+            #print(crimetype1)
             crimetype=line[3]
+            #print(crimetype)
             typeList.append(crimetype)
             #tuple with crime and crimetype
             tup=(crime,crimetype,crimetype1)
@@ -217,7 +222,7 @@ class Model(mesa.Model):
                 existingvalue=roadCrime[road]
                 newvalue=existingvalue+crimes
                 roadCrime[road]=newvalue
-                #print(roadCrime)
+            #print(roadCrime)
         typeCounter=Counter(typeList)
         self.burglaryCount=typeCounter[1]
         self.robberyCount=typeCounter[2]
@@ -225,7 +230,7 @@ class Model(mesa.Model):
         self.larcenyMCount=typeCounter[5]
         self.assualtCount=typeCounter[4]
         self.totalCrimes=sum(typeCounter.values())
-        self.allCrimes=roadCrime
+        self.allCrimes=dict(roadCrime)
     
     def createResidential(self):
         self.mycurs.execute("""select distinct(r2p.road_id),census_population_weight
@@ -259,15 +264,20 @@ class Model(mesa.Model):
                 self.taxiTracts[line[0]]=temp
             else:
                 self.taxiTracts[line[0]]=dropoff
-
+        #if not len(self.taxiTracts.keys())==2162:
+        #    self.log.critical("number of keys in TaxiTracts should be 2162, is : {} ".format(len(self.taxiTracts.keys())))
+            #exit()
     def createCrimeCT(self):
-        self.mycurs.execute("""SELECT gid, pweight FROM
+        self.mycurs.execute("""SELECT gid, pweightMay2015, pweightJun14May15, pweightJun14May15x2, pweightJun14May15x6, pweightJun14May15x12 FROM
         open.nyc_police_incident2CT_weight""")
         #TODO fix open.nyc_taxi_trips_new_june2015_censuscoutns_weight; pweight
-        census=self.mycurs.fetchall()       
-        for line in census:                                 
-            self.crimeCT[line[0]]=line[1]
-
+        census=self.mycurs.fetchall()    
+        for line in census:
+            #list( may2015, june14-may15,  june14-may15+may15*2, june14-may15+may15*6, june14-may15+may15*12)                  
+            self.crimeCT[line[0]]=[line[1], line[2], line[3], line[4], line[5]]
+        if not len(self.crimeCT.keys())==2162:
+            self.log.critical("number of keys in CrimeCT should be 2162, is : {} ".format(len(self.crimeCT.keys())))
+            exit()
      
 
     def step(self, i, numSteps):
