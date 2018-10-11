@@ -346,13 +346,13 @@ class Path:
             minRadius=minRadius*0.95
             if count>1 and count<=5:
                 self.radius()
-                maxRadius=searchRadius*1.025
-                minRadius=searchRadius*0.975
+                maxRadius=self.radiusR*1.025
+                minRadius=self.radiusR*0.975
                 #self.log.debug('new radius: {}'.format(self.radius))
             if count>5:
                 self.radius()
-                maxRadius=searchRadius*1.025
-                minRadius=searchRadius*0.975
+                maxRadius=self.radiusR*1.025
+                minRadius=self.radiusR*0.975
                 #self.log.debug('new radius: {}'.format(self.radius))
             elif count>10:
                 self.log.critical("**********5 radius didn't work: agent id {0}, current road: {1} targetRoad {2} , radius {3}".format(self.unique_id, targetRoad, self.road, self.radiusR))
