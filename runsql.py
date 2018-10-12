@@ -9,7 +9,7 @@ mycurs=conn.cursor()
 
 count=99
 i=0
-while not count==0 and i>20:
+while not count==0:
     print("sleep")
     sleep(18000)
     print("try count")
@@ -18,6 +18,9 @@ while not count==0 and i>20:
     i=i+1
     print(i)
     print(count)
+    if i>20:
+        print("exit")
+        exit()
 
 print("start query")
 mycurs.execute("""CREATE TABLE open.nyc_taxi_trips_new_censuspickup
