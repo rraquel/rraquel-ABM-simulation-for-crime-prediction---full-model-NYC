@@ -158,7 +158,7 @@ class Runner:
             self.writeDB()
         except Exception as e:
             print("Exception",e)
-        self.log.debug(self.agent_df)
+        #self.log.debug(self.agent_df)
         self.log.info('Global stats: \n{}'.format(self.model_df.tail()))
 
 if __name__ == '__main__':

@@ -113,7 +113,6 @@ class Path:
             destinationcensus=np.random.choice(dcensus, 1, p=pweight)[0]
         except:
             spweight=sum(pweight)
-            print(spweight)
             if (spweight)!= 1:
                 val=min(pweight)
                 idx=pweight.index(min(pweight))
@@ -129,6 +128,7 @@ class Path:
         self.destinationcensus=destinationcensus
         return destinationcensus  
     def crimeTract1(self):
+        crimeCT=self.model.crimeCT
         p=list([item[1] for item in crimeCT.values()])
         destinationcensus=np.random.choice(list(crimeCT.keys()), 1, p=p)[0]
         self.destinationcensus=destinationcensus
