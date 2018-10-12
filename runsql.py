@@ -7,14 +7,17 @@ from time import sleep
 conn= psycopg2.connect("dbname='shared' user='rraquel' host='127.0.0.1' password='Mobil4b' ")
 mycurs=conn.cursor()
 
-mycurs.execute("""select count(*) from open.nyc_taxi_trips_new where trip_month_pickup is null;""")
-count=mycurs.fetchall()[0][0]
-print(count)
+count=99
 i=0
 while not count==0 and i>20:
     print("sleep")
-    i=i+1
     sleep(18000)
+    print("try count")
+    mycurs.execute("""select count(*) from open.nyc_taxi_trips_new where trip_month_pickup is null;""")
+    count=mycurs.fetchall()[0][0]
+    i=i+1
+    print(i)
+    print(count)
 
 print("start query")
 mycurs.execute("""CREATE TABLE open.nyc_taxi_trips_new_censuspickup
