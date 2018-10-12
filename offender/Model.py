@@ -91,7 +91,6 @@ class Model(mesa.Model):
 
         #collect statistics from peragent&step (can be more) - see output in model
         #!!!!LOGS VARIABLES OF THE AGENT AT THE BEGINNING OF THE STEP!!!!!! THEREFORE NEED TO ADD 1 STEP TO THE RUN
-        print(lambda a: a.road)
         self.dc=DataCollector(model_reporters={} ,
         agent_reporters={
             "current Road": lambda a: a.road,
