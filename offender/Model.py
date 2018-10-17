@@ -96,9 +96,8 @@ class Model(mesa.Model):
         #!!!!LOGS VARIABLES OF THE AGENT AT THE BEGINNING OF THE STEP!!!!!! THEREFORE NEED TO ADD 1 STEP TO THE RUN
         self.dc=DataCollector(model_reporters={} ,
         agent_reporters={
-            "current Road": lambda a: a.road,
-            
-            #"traveledDistance": lambda a: a.walkedDistance,
+            #"current Road": lambda a: a.road,
+            "traveledDistance": lambda a: a.walkedDistance,
             })
         
         #create roadNW
