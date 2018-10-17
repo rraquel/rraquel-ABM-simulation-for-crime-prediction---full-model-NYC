@@ -26,7 +26,7 @@ print("start query")
 mycurs.execute("""CREATE TABLE open.nyc_taxi_trips_new_censuspickup
     AS (select r.trip_id, r.pickup_ftus, r.passenger_count, ct.gid
     FROM open.nyc_taxi_trips_new as r, open_shapes.nyc_census_tract_e ct
-    WHERE ST_DWithin(r.pickup_ftus, ct.geom_ftus, 5))""")
+    WHERE ST_DWithin(r.pickup_ftus, ct.geom_ftus, 5)  and trip_month_pickup>6)""")
 #fetch all values into tuple
 print("CREATE TABLE open.nyc_taxi_trips_new_censuspickup done")
 sleep(500)
@@ -34,7 +34,7 @@ sleep(500)
 mycurs.execute("""CREATE TABLE open.nyc_taxi_trips_new_censusdropoff
     AS (select r.trip_id, r.dropoff_ftus, r.passenger_count, ct.gid
     FROM open.nyc_taxi_trips_new as r, open_shapes.nyc_census_tract_e ct
-    WHERE ST_DWithin(r.dropoff_ftus, ct.geom_ftus, 50))""")
+    WHERE ST_DWithin(r.dropoff_ftus, ct.geom_ftus, 50)  and trip_month_pickup>6)""")
 print("CREATE TABLE open.nyc_taxi_trips_new_censusdropoff done")
 sleep(500)
 
