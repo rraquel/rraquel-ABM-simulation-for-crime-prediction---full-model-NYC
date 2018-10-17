@@ -138,7 +138,7 @@ class Model(mesa.Model):
         roadLength=0
         #crimes_2015: n crime to 1 road mapping
         #open.nyc_road_attributes without and open.nyc_road_attributes2 with census tract for each road
-        self.mycurs.execute("""select intersection_id,r.gid,length,crimes_2015, censustract from 
+        self.mycurs.execute("""select intersection_id,r.gid, length, ra.st_width, road_group, crimes_2015, censustract from 
             open.nyc_intersection2road i2r
             left join open.nyc_road_proj_final r on i2r.road_id = r. gid
             left join open.nyc_road_attributes2 ra on ra.road_id=r.gid""")
@@ -159,7 +159,7 @@ class Model(mesa.Model):
             #add road, length and crimes as node info in graph
             #self.G.add_node(line[1], length=line[2], num_crimes=line[3])
             # TODO Parameter: Assumptions Humans walk 300 feet in 60s
-            self.G.add_node(line[1],length=line[2],census=line[4])
+            self.G.add_node(line[1],length=line[2], width=line[3], roadtype=line[4], census=line[6])
         #for r in self.G.nodes_iter():
             #roadLength+=self.G.node[r]['length']
         #self.log.debug("Found {} intersections".format(len(intersect)))
@@ -186,6 +186,8 @@ class Model(mesa.Model):
         self.mycurs.execute("""select * from open.nyc_road_proj_final_isolates""")
         #fetch all values into tuple
         globalVar.isolateRoadsRNW.update(self.mycurs.fetchall())
+
+        #print(self.model.G.node[road]['length'])
         #output is not a list of roads, but list of ('road_id')
         return self.G
 
