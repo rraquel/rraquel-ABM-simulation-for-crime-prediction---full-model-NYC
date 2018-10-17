@@ -29,12 +29,14 @@ mycurs.execute("""CREATE TABLE open.nyc_taxi_trips_new_censuspickup
     WHERE ST_DWithin(r.pickup_ftus, ct.geom_ftus, 5))""")
 #fetch all values into tuple
 print("CREATE TABLE open.nyc_taxi_trips_new_censuspickup done")
+sleep(500)
 
 mycurs.execute("""CREATE TABLE open.nyc_taxi_trips_new_censusdropoff
     AS (select r.trip_id, r.dropoff_ftus, r.passenger_count, ct.gid
     FROM open.nyc_taxi_trips_new as r, open_shapes.nyc_census_tract_e ct
     WHERE ST_DWithin(r.dropoff_ftus, ct.geom_ftus, 50))""")
 print("CREATE TABLE open.nyc_taxi_trips_new_censusdropoff done")
+sleep(500)
 
 mycurs.execute("""CREATE TABLE open.nyc_taxi_trips_new_censuscoutns as (
     SELECT p.gid as censuspickup, d.gid as censusdropoff, count(*) as weight
@@ -43,6 +45,7 @@ mycurs.execute("""CREATE TABLE open.nyc_taxi_trips_new_censuscoutns as (
     RIGHT JOIN open.nyc_taxi_trips_new_censusdropoff as d ON t.trip_id=d.trip_id
     where t.trip_id is not null group by censuspickup, censusdropoff)""")
 print("CREATE TABLE open.nyc_taxi_trips_new_censuscoutns done")
+sleep(500)
 
 mycurs.execute("""SELECT count(distinct(censuspickup)) FROM open.nyc_taxi_trips_new_censuscoutns""")
 result=mycurs.fetchall()
