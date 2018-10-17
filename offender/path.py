@@ -4,6 +4,7 @@
 import mesa
 from mesa.time import RandomActivation
 import Model
+from way import Way
 import networkx as nx
 import numpy as np
 import math
@@ -409,16 +410,16 @@ class Path:
             globalVar.robberyUniqueOverall.update(self.crimes[2])
             globalVar.larcenyUniqueOverall.update(self.crimes[3])
             globalVar.larcenyMUniqueOverall.update(self.crimes[5])
-            globalVar.assualtUniqueOverall.update(self.crimes[4])         
+            globalVar.assualtUniqueOverall.update(self.crimes[4])      
+
 
     def findMyWay(self, targetroad):
         """find way to target road and count statistics for path"""
         #self.log.debug('search radius: {}'.format(self.radiusR))
         roadValuesList=[]
         try:
-            #roads are represented as nodes in G
-            self.way=nx.shortest_path(self.model.G,self.road,targetroad,weight='length')
-            #print("Agent ({0}) way: {1}".format(self.unique_id,self.way))
+            w=Way(self.unique_id, self.model, self.road)
+            self.way=w.waybytype(targetroad)
 
             ###QRunner seems not to be working --  or may be taking too long?? take out for calculating 1000 agents
             #self.model.insertQ.store_roads({"run_id": self.model.run_id, "step": self.model.modelStepCount,
@@ -443,7 +444,8 @@ class Path:
             self.log.critical("trip: Error: One agent found no way: agent id {0}, current road: {2} targetRoad {1}, stepcount: {3}".format(self.unique_id, targetroad, self.road, self.model.modelStepCount))
             exit()
             #erases target from targetList
-        return True
+        return True   
+
 
     def roadAccessibility(self):
         """test if there is a way to the road"""

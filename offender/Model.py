@@ -57,6 +57,9 @@ class Model(mesa.Model):
         #no switch case in python - can use dictionary and switch function
         self.distanceType=modelCfg.get('distanceType')
 
+        #wayfindingType
+        self.wayfindingType=modelCfg.get('wayfindingType')
+
         #self.agentStartLocationFinder=modelCfg.get('agentStartLocationFinder', findStartLocationRandom)
         self.schedule=RandomActivation(self)
 
