@@ -22,7 +22,7 @@ mycurs=conn.cursor()
 #        print("exit")
 #        exit()
 
-#◙sleep(36000)
+sleep(86400)
 
 print("start query")
 mycurs.execute("""CREATE TABLE open.nyc_taxi_trips0106_new_censuspickup
@@ -53,3 +53,5 @@ sleep(500)
 mycurs.execute("""SELECT count(distinct(censuspickup)) FROM open.nyc_taxi_trips0106_new_censuscoutns""")
 result=mycurs.fetchall()
 print(result)
+
+conn.commit()
