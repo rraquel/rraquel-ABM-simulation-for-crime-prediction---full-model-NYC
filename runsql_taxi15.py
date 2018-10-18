@@ -22,6 +22,8 @@ mycurs=conn.cursor()
 #        print("exit")
 #        exit()
 
+sleep(36000)
+
 print("start query")
 mycurs.execute("""CREATE TABLE open.nyc_taxi_trips0106_new_censuspickup
   AS (select r.trip_id, r.pickup_ftus, r.passenger_count, ct.gid

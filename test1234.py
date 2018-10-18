@@ -1,27 +1,8 @@
 from collections import defaultdict
+from time import sleep
 
-a=dict()
-c=dict()
-b=defaultdict(dict)
+print("hello")
 
+sleep(5)
 
-c[3]=30
-c[4]=40
-
-a[55]=c
-print(a)
-temp=a[55]
-temp[10]=20
-a[55]=temp
-print(temp)
-print(a)
-
-print(a[55][10])
-
-b[1]=10
-b[2]=20
-
-
-
-print(a)
-print(c)
+print("hello")

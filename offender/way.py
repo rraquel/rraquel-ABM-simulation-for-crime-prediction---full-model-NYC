@@ -56,9 +56,9 @@ class Way:
         #self.log.debug('search radius: {}'.format(self.radiusR))
         try:
             #roads are represented as nodes in G
-            self.way=nx.shortest_path(self.model.G,self.road,targetroad,weight='length')
-            #print("Agent ({0}) way: {1}".format(self.unique_id,self.way))
-
+            self.way=nx.shortest_path(self.model.G,self.road,targetroad,weight='length'*'width')
+            print("Agent ({0}) way: {1}".format(self.unique_id,self.way))
+            exit()
         except Exception as e:
             self.log.critical("trip: Error: wayfinding: agent id {0}, current road: {2} targetRoad {1}, stepcount: {3}".format(self.unique_id, targetroad, self.road, self.model.modelStepCount))
             exit()
@@ -68,9 +68,15 @@ class Way:
         #self.log.debug('search radius: {}'.format(self.radiusR))
         try:
             #roads are represented as nodes in G
+            self.way=nx.shortest_path(self.model.G,self.road,targetroad,weight='roadtypew')
+            print("Agent ({0}) way: {1}".format(self.unique_id,self.way))
+            self.way=nx.shortest_path(self.model.G,self.road,targetroad,weight='width')
+            print("Agent ({0}) way: {1}".format(self.unique_id,self.way))
             self.way=nx.shortest_path(self.model.G,self.road,targetroad,weight='length')
-            #print("Agent ({0}) way: {1}".format(self.unique_id,self.way))
-
+            print("Agent ({0}) way: {1}".format(self.unique_id,self.way))
+            self.way=nx.shortest_path(self.model.G,self.road,targetroad,weight=None)
+            print("Agent ({0}) way: {1}".format(self.unique_id,self.way))
+            exit()
         except Exception as e:
             self.log.critical("trip: Error: wayfinding: agent id {0}, current road: {2} targetRoad {1}, stepcount: {3}".format(self.unique_id, targetroad, self.road, self.model.modelStepCount))
             exit()

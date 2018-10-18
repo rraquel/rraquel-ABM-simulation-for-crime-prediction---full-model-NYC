@@ -140,7 +140,7 @@ class Model(mesa.Model):
         roadLength=0
         #crimes_2015: n crime to 1 road mapping
         #open.nyc_road_attributes without and open.nyc_road_attributes2 with census tract for each road
-        self.mycurs.execute("""select intersection_id,r.gid, length, ra.st_width, road_group, crimes_2015, censustract from 
+        self.mycurs.execute("""select intersection_id,r.gid, length, ra.st_width, roadtypew, crimes_2015, censustract from 
             open.nyc_intersection2road i2r
             left join open.nyc_road_proj_final r on i2r.road_id = r. gid
             left join open.nyc_road_attributes2 ra on ra.road_id=r.gid""")
@@ -189,7 +189,8 @@ class Model(mesa.Model):
         #fetch all values into tuple
         globalVar.isolateRoadsRNW.update(self.mycurs.fetchall())
 
-        #print(self.model.G.node[road]['length'])
+        #print(self.G.node[5134]['length'])
+        #print(self.G.node[5134]['width'])
         #output is not a list of roads, but list of ('road_id')
         return self.G
 
