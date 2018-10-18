@@ -22,7 +22,7 @@ mycurs=conn.cursor()
 #        print("exit")
 #        exit()
 
-sleep(36000)
+#◙sleep(36000)
 
 print("start query")
 mycurs.execute("""CREATE TABLE open.nyc_taxi_trips0106_new_censuspickup
