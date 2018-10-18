@@ -51,3 +51,5 @@ sleep(500)
 mycurs.execute("""SELECT count(distinct(censuspickup)) FROM open.nyc_taxi_trips0712_censuscoutns""")
 result=mycurs.fetchall()
 print(result)
+
+conn.commit()
