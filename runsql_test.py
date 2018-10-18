@@ -24,7 +24,7 @@ mycurs=conn.cursor()
 
 print("start query")
 mycurs.execute("""CREATE TABLE open.aaaaaaaaTest
-  AS (select * FROM open.nyc_taxi_trips limit 10""")
+  AS (select * FROM open.nyc_taxi_trips limit 10)""")
 #fetch all values into tuple
 print("CREATE TABLE open.nyc_taxi_trips0712_censuspickup done")
 
