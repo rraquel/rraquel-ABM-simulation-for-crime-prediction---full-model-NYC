@@ -246,14 +246,13 @@ def crimeCorr():
     plt.show()
     
 def venueCatCorr():
-    #categories=["'Arts & Entertainment'", "'College & University'", "'Event'", "'Food'", "'Nightlife Spot'", "'Outdoors & Recreation'", "'Professional & Other Places'", "'Residence'", "'Shop & Service'", "'Travel & Transport'"]
-    #crimes=["'ROBBERY'", "'GRAND LARCENY'", "'FELONY ASSAULT'", "'BURGLARY'", "'GRAND LARCENY OF MOTOR VEHICLE'"]
-    categories=["'Arts & Entertainment'", "'Travel & Transport'"]
-    crimes=["'ROBBERY'", "'GRAND LARCENY OF MOTOR VEHICLE'"]
+    categories=["'Arts & Entertainment'", "'College & University'", "'Event'", "'Food'", "'Nightlife Spot'", "'Outdoors & Recreation'", "'Professional & Other Places'", "'Residence'", "'Shop & Service'", "'Travel & Transport'"]
+    crimes=["'ROBBERY'", "'GRAND LARCENY'", "'FELONY ASSAULT'", "'BURGLARY'", "'GRAND LARCENY OF MOTOR VEHICLE'"]
+    #categories=["'Event'"]
+    #crimes=["'ROBBERY'"]
     #dictionary of categories with list assigned
     d=dict()
     #dictionary of roads
-    r=dict()
     roads=list()
     crimescount=list()
     venuescount=list()
@@ -265,7 +264,7 @@ def venueCatCorr():
     for row in res:
         road=row[0]
         roads.append(road)
-        r[road]=0
+    print("lenght roads list: {}".format(len(roads)))
     for cat in categories:
         mycurs.execute("""SELECT distinct(r2.road_id), count(distinct(venue_id))
         FROM open.nyc_fs_venue_join r
@@ -273,15 +272,18 @@ def venueCatCorr():
             where parent_name={} group by r2.road_id;""".format(cat))
         results=mycurs.fetchall() #returns tuple with first row (unordered list)
         venuescount=list()
+        r=dict()
         for row in results:
-            r2=dict(r)
             venuec=row[1]
             road=row[0]
-            r2[road]=venuec
+            r[road]=venuec
         for road in roads:
-            venuescount.append(r2[road])
+            try:
+                venuescount.append(r[road])
+            except:
+                venuescount.append(0)
         d[cat]=venuescount
-    print(len(d[cat]))
+    print("lenght d[cat] {0} list: {1}".format(cat, len(d[cat])))
     #crimes
     for cr in crimes:
         mycurs.execute("""SELECT distinct(road_id), count(distinct(object_id))
@@ -291,54 +293,56 @@ def venueCatCorr():
         results=mycurs.fetchall() #returns tuple with first row (unordered list)
         print(results[0])
         crimescount=list()
+        r=dict()
         for row in results:
-            r2=dict(r)
             crimec=row[1]
             road=row[0]
-            print(crimec)
-            r2[road]=crimec
+            if not road==None:
+                r[road]=crimec
         for road in roads:
-            c=r2[road]
-            print(c)
-            crimescount.append(c)
+            try:
+                crimescount.append(r[road])
+            except:
+                crimescount.append(0)
         d[cr]=crimescount
-    print(len(d[cr]))
+    print("lenght d[cr] {0} list: {1}".format(cr, len(d[cr])))
     listx=list()
     lista=list()
     for cat in categories:
-        a=list(d[cat])
-        x=np.array(a)
+        x=list(d[cat])
         listx.append(x)
         lista.append(cat)
     for  cr in crimes:
-        a=list(d[cat])
-        x=np.array(a)
+        x=list(d[cat])
         listx.append(x)
         lista.append(cr)
 
 
     count=0
     count1=0
-    for item in listx:
+    for item1 in listx:
         count+=1
         count1=0
         for item2 in listx:
             count1+=1
-            #erase same level 0:
-            if not item.size==item2.size:
-                print((item.size))
-                print(item2.size)
+            #build array
+            a1=np.array(item1)
+            a2=np.array(item2)
+            #erase same level 0 from array only:
+            if not a1.size==a2.size:
+                print((a1.size))
+                print(a2.size)
                 print("exit")
                 exit()
             i=0
-            while i<item.size-1:
-                if item[i]==0 and item2[i]==0:
-                    np.delete(item, i)
-                    np.delete(item2, i)
+            while i<a1.size or i<a2.size:
+                if a1[i]==0 and a2[i]==0:
+                    np.delete(a1, i)
+                    np.delete(a2, i)
             
-            result=sc.pearsonr(item, item2)
+            result=sc.pearsonr(a1, a2)
             print("Pearson r{0}, {1}, correlation {2}".format(lista[count-1], lista[count1-1], result))
-            result=sc.spearmanr(item, item2)
+            result=sc.spearmanr(a1, a2)
             print("Spearman r{0}, {1}, correlation {2}".format(lista[count-1], lista[count1-1], result))
     
     """
