@@ -256,8 +256,8 @@ class Model(mesa.Model):
         self.residentRoadsWeight=pWeightList
 
     def createTaxiTrips(self):
-        self.mycurs.execute("""SELECT censuspickup, censusdropoff, pweight FROM
-        open.nyc_taxi_trips_new_june2015_censuscoutns_weight""")
+        self.mycurs.execute("""SELECT censuspickup, censusdropoff, weight FROM
+        open.nyc_taxi_trips0706_1415_censuscoutns""")
         #TODO fix open.nyc_taxi_trips_new_june2015_censuscoutns_weight; pweight
         census=self.mycurs.fetchall()
         
