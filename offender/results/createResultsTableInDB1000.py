@@ -238,6 +238,7 @@ def insertValuesInTable():
             element.uniqPai, element.uniquePaiBurglary, element.uniquePaiRobbery, element.uniquePaiLarceny, element.uniquePaiLarcneyM,
             element.uniquePaiAssault, element.walkedD, element.walkedDPercent))
             conn.commit()
+        conn.commit()
         conn.close()
 
 conn= psycopg2.connect("dbname='shared' user='rraquel' host='127.0.0.1' password='Mobil4b' ")        
@@ -247,8 +248,9 @@ numagents=[5, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350,
 #for test
 #numagents=[5]
 
-table='open.res_la_results1000agent'
-select_ids='(run_id=412 OR run_id=413 OR run_id=414 OR run_id=415 OR run_id=416 OR run_id=417 OR run_id=418 OR run_id=419 OR run_id=420 OR run_id=421 OR run_id=422 OR run_id=423 OR run_id=424 OR run_id=425 OR run_id=426)'
+table='open.res_la_results1000agent_2'
+select_ids='(run_id=763 OR run_id=762)'
+#'(run_id=412 OR run_id=413 OR run_id=414 OR run_id=415 OR run_id=416 OR run_id=417 OR run_id=418 OR run_id=419 OR run_id=420 OR run_id=421 OR run_id=422 OR run_id=423 OR run_id=424 OR run_id=425 OR run_id=426)'
 
 
 #for test
@@ -271,4 +273,6 @@ allCrimes()
 typesCrimes()
 calculatePAI()
 insertValuesInTable()
+
+print("inserted")
 

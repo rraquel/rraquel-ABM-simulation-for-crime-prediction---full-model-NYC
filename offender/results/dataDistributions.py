@@ -245,12 +245,146 @@ def crimeCorr():
     plt.hist(x, bins=50)
     plt.show()
     
+def venueCatCorr():
+    #categories=["'Arts & Entertainment'", "'College & University'", "'Event'", "'Food'", "'Nightlife Spot'", "'Outdoors & Recreation'", "'Professional & Other Places'", "'Residence'", "'Shop & Service'", "'Travel & Transport'"]
+    #crimes=["'ROBBERY'", "'GRAND LARCENY'", "'FELONY ASSAULT'", "'BURGLARY'", "'GRAND LARCENY OF MOTOR VEHICLE'"]
+    categories=["'Arts & Entertainment'", "'Travel & Transport'"]
+    crimes=["'ROBBERY'", "'GRAND LARCENY OF MOTOR VEHICLE'"]
+    #dictionary of categories with list assigned
+    d=dict()
+    #dictionary of roads
+    r=dict()
+    roads=list()
+    crimescount=list()
+    venuescount=list()
+    #venues
+    mycurs.execute("""SELECT distinct(r2.road_id) from open.nyc_road_proj_final  r
+    left join open.nyc_road2fs_near2 r2 on r2.road_id=r.gid
+    left join open.nyc_road2pi_5ft r3 on r3.road_id=r2.road_id""")
+    res=mycurs.fetchall() #returns tuple with first row (unordered list)
+    for row in res:
+        road=row[0]
+        roads.append(road)
+        r[road]=0
+    for cat in categories:
+        mycurs.execute("""SELECT distinct(r2.road_id), count(distinct(venue_id))
+        FROM open.nyc_fs_venue_join r
+            left join open.nyc_road2fs_near2 r2 on r2.fs_id=r.venue_id
+            where parent_name={} group by r2.road_id;""".format(cat))
+        results=mycurs.fetchall() #returns tuple with first row (unordered list)
+        venuescount=list()
+        for row in results:
+            r2=dict(r)
+            venuec=row[1]
+            road=row[0]
+            r2[road]=venuec
+        for road in roads:
+            venuescount.append(r2[road])
+        d[cat]=venuescount
+    print(len(d[cat]))
+    #crimes
+    for cr in crimes:
+        mycurs.execute("""SELECT distinct(road_id), count(distinct(object_id))
+        FROM open.nyc_road_proj_final r
+            left join open.nyc_road2pi_5ft r2 on r2.road_id=r.gid
+            where offense={}  group by road_id""".format(cr))
+        results=mycurs.fetchall() #returns tuple with first row (unordered list)
+        crimescount=list()
+        for row in results:
+            r2=dict(r)
+            crimec=row[1]
+            road=row[0]
+            r2[road]=crimec
+        for road in roads:
+            crimescount.append(r2[road])
+        d[cr]=crimescount
+    print(len(d[cr]))
+    listx=list()
+    lista=list()
+    for cat in categories:
+        a=list(d[cat])
+        x=np.array(a)
+        listx.append(x)
+        lista.append(cat)
+    for  cr in crimes:
+        a=list(d[cat])
+        x=np.array(a)
+        listx.append(x)
+        lista.append(cr)
+
+
+    count=0
+    count1=0
+    for item in listx:
+        count+=1
+        count1=0
+        for item2 in listx:
+            count1+=1
+            #erase same level 0:
+            if not item.size==item2.size:
+                print((item.size))
+                print(item2.size)
+                print("exit")
+                exit()
+            i=0
+            while i<item.size-1:
+                if item[i]==0 and item2[i]==0:
+                    np.delete(item, i)
+                    np.delete(item2, i)
+            
+            result=sc.pearsonr(item, item2)
+            print("Pearson r{0}, {1}, correlation {2}".format(lista[count-1], lista[count1-1], result))
+            result=sc.spearmanr(item, item2)
+            print("Spearman r{0}, {1}, correlation {2}".format(lista[count-1], lista[count1-1], result))
     
+    """
+    a=sc.spearmanr(x, z)
+    print("may and june {}".format(a))
+    b=sc.spearmanr(y, z)
+    print("may and jan {}".format(b))
+    c=sc.spearmanr(y, w)
+    print("jan and feb {}".format(c))
+    d=sc.spearmanr(z, w)
+    print("jun and feb {}".format(d))
+    e=sc.spearmanr(s, w)
+    print("mar and feb {}".format(e))
+    f=sc.spearmanr(s, z)
+    print("mar and jun {}".format(f))
+    g=sc.spearmanr(q, w)
+    print("mar and feb {}".format(g))
+    h=sc.spearmanr(q, z)
+    print("mar and jun {}".format(h))   
+    k=sc.spearmanr(t, z)
+    print("jun14 and jun15 {}".format(k))  
+
+    xz=np.column_stack((x, z))
+    tz=np.column_stack((t, z))
+
+    a2=mcnemar(xz)
+    print("may and june {}".format(a2.statistic))
+    print("may and june {}".format(a2.pvalue))
+    if a2.pvalue > 0.05:
+    	print('Same proportions')
+    else:
+	    print('Different proportions')
+    k2=mcnemar(tz)
+    print("jun14 and jun15 {}".format(k2.statistic))
+    print("jun14 and jun15 {}".format(k2.pvalue)) 
+    if k2.pvalue > 0.05:
+        	print('Same proportions')
+    else:
+	    print('Different proportions')
+
+    """
+    plt.hist(x, bins=50)
+    plt.show()
+        
     
 
 
 #crimesPerCT()
-crimeCorr()
+#crimeCorr()
+venueCatCorr()
 #roadDist()
 #crimesPerRoad()
 #venuesPerRoad()
