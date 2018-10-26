@@ -23,14 +23,26 @@ mycurs=conn.cursor()
 #        exit()
 
 print("start query")
-mycurs.execute("""CREATE TABLE open.aaaaaaaaTest
-  AS (select * FROM open.nyc_taxi_trips limit 10)""")
+mycurs.execute("""CREATE TABLE open.nyc_taxi_trips0706_1415_censuscoutns AS
+SELECT censuspickup, censusdropoff, weight FROM (
+(SELECT censuspickup, censusdropoff, SUM(weight) as weight, COUNT(*) as c FROM(
+SELECT * FROM open.nyc_taxi_trips0106_new_censuscoutns
+UNION ALL
+SELECT * FROM open.nyc_taxi_trips0712_censuscoutns) as f1
+GROUP BY censuspickup, censusdropoff
+HAVING COUNT(*) > 1 Order by censuspickup, censusdropoff)
+UNION ALL (
+SELECT censuspickup, censusdropoff, SUM(weight) as weight, COUNT(*) as c FROM(
+SELECT * FROM open.nyc_taxi_trips0106_new_censuscoutns
+UNION ALL
+SELECT * FROM open.nyc_taxi_trips0712_censuscoutns) as f2
+GROUP BY censuspickup, censusdropoff
+HAVING COUNT(*) = 1 Order by censuspickup, censusdropoff)) as g)""")
 #fetch all values into tuple
-print("CREATE TABLE open.nyc_taxi_trips0712_censuspickup done")
-
-
-mycurs.execute("""select * from open.aaaaaaaaTest""")
-result=mycurs.fetchall()
-print(result)
+print("CREATE TABLE open.nyc_taxi_trips0706_1415_censuscoutns done")
 
 conn.commit()
+mycurs.execute("""select * from open.nyc_taxi_trips0706_1415_censuscoutns""")
+result=mycurs.fetchall()
+print(result[0])
+
