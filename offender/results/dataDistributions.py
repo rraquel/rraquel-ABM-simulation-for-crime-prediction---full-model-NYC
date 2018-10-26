@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import collections
 import scipy.stats as sc
-from statsmodels.stats.contingency_tables import mcnemar
+#from statsmodels.stats.contingency_tables import mcnemar
 
 
 conn= psycopg2.connect("dbname='shared' user='rraquel' host='localhost' password='Mobil4b' ")        
@@ -289,14 +289,18 @@ def venueCatCorr():
             left join open.nyc_road2pi_5ft r2 on r2.road_id=r.gid
             where offense={}  group by road_id""".format(cr))
         results=mycurs.fetchall() #returns tuple with first row (unordered list)
+        print(results[0])
         crimescount=list()
         for row in results:
             r2=dict(r)
             crimec=row[1]
             road=row[0]
+            print(crimec)
             r2[road]=crimec
         for road in roads:
-            crimescount.append(r2[road])
+            c=r2[road]
+            print(c)
+            crimescount.append(c)
         d[cr]=crimescount
     print(len(d[cr]))
     listx=list()
