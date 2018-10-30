@@ -53,9 +53,11 @@ def stat():
     x varchar,
     y varchar,
     r_pearson numeric,
-    p_person numeric,
+    p_pearson numeric,
+    sig_pearson boolean,
     r_spearman numeric,
-    p_spearman numeric
+    p_spearman numeric,
+    sig_spearman boolean
     )""")
     conn.commit()
     print("table created")
@@ -89,16 +91,27 @@ def stat():
             ay=np.array(ly)
             print(len(ax), len(ay))
             
+            a=0.001
             result1=sc.pearsonr(ax, ay)
             print("Pearson r {0}, {1}: {2}".format(x, y, result1))
+            if result1[1] <= a:
+                sig1=True
+            else:
+                sig1=False
+
             result2=sc.spearmanr(ax, ay)
             print("Spearman r {0}, {1}:  {2}".format(x, y, result2))
+            if result2[1] <= a:
+                sig2=True
+            else:
+                sig2=False
 
 
             mycurs.execute("""Insert into open.roadsItemsCorr 
-                (x, y, r_pearson, p_person, r_spearman, p_spearman) values
-                ('{0}', '{1}', {2}, {3}, {4}, {5})"""
-                .format(x, str(y), result1[0], result1[1], result2[0], result2[1]))
+                (x, y, r_pearson, p_pearson, sig_pearson, r_spearman, p_spearman, sig_spearman) values
+                ('{0}', '{1}', {2}, {3}, {4}, {5}, {6}, {7})"""
+                .format(x, (y), result1[0], result1[1], sig1, result2[0], result2[1], sig2))
+   
     conn.commit()
 
 
