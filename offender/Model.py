@@ -102,7 +102,11 @@ class Model(mesa.Model):
         
         #create roadNW
         self.roadLengthdict=dict
-        self.G=self.createRoadNetwork()
+        self.G=nx.Graph()
+        self.G2=nx.Graph()
+        self.roads=dict()
+        self.intersect=dict()
+        self.createRoadNetwork()
         self.log.info("time after roadNW: {}".format(str(time.monotonic()-self.t)))
         
         #create agent
@@ -138,6 +142,7 @@ class Model(mesa.Model):
         # join tables using road_id into gid
         
         roadLength=0
+        weightdict=dict()
         #crimes_2015: n crime to 1 road mapping
         #open.nyc_road_attributes without and open.nyc_road_attributes2 with census tract for each road
         self.mycurs.execute("""select intersection_id,r.gid, length, ra.st_width, roadtypew, crimes_2015, censustract from 
@@ -147,38 +152,54 @@ class Model(mesa.Model):
         #fetch all values into tuple
         interRoad=self.mycurs.fetchall()
         #dictionary {} -  a Key and a value, in this case a key and a set() of values -unordered collection
-        intersect={}
-        self.G=nx.Graph()
+        
         #for each line in interRoad 
         for line in interRoad:
             #if attribute[0] (intersection_id) is not in intersect
-            if not line[0] in intersect:
+            if not line[0] in self.intersect:
                 #initialize a set for the key (intersect_id)
-                intersect[line[0]]=set()
+                self.intersect[line[0]]=set()
             #add current road_id to key
-            intersect[line[0]].add(line[1])
-            
+            self.intersect[line[0]].add(line[1])
+        #for G2
+        for line in interRoad:
+            if not line[1] in self.roads:
+                self.roads[line[1]]=set()
+            self.roads[line[1]].add(line[0])            
             #add road, length and crimes as node info in graph
             #self.G.add_node(line[1], length=line[2], num_crimes=line[3])
             # TODO Parameter: Assumptions Humans walk 300 feet in 60s
             self.G.add_node(line[1],length=line[2], width=line[3], roadtype=line[4], census=line[6])
+            self.G2.add_node(line[0])
+            weightdict[line[1]]=[line[2], line[3], line[4], line[6]]
         #for r in self.G.nodes_iter():
             #roadLength+=self.G.node[r]['length']
         #self.log.debug("Found {} intersections".format(len(intersect)))
         #self.log.debug("roadlenght: {}".format(roadLength))
         #build edges with information on nodes (roads)
         # loops over each intersection in intersect[]     
-        for interKey in intersect.keys():
+        for interKey in self.intersect.keys():
             #loops over each road in the current intersection
-            for road in intersect[interKey]:
+            for road in self.intersect[interKey]:
                 #loops over roads again to compare roads and map relationship
-                for road2 in intersect[interKey]:
+                for road2 in self.intersect[interKey]:
                     if not road==road2:
                         self.G.add_edge(road, road2)
+        #for G2
+        for roadKey in self.roads.keys():
+            #loop over each intersection in roads
+            for inters in self.roads[roadKey]:
+                #loop over intersection again to compare intersect and map relationship
+                for inters2 in self.roads[roadKey]:
+                    if not inters==inters2:
+                        self.G2.add_edge(inters, inters2, length=weightdict[roadKey][0], width=weightdict[roadKey][1], lengthwidth=(weightdict[roadKey][0]*weightdict[roadKey][1]), roadtype=weightdict[roadKey][2], roadtypelength=(weightdict[roadKey][0]*weightdict[roadKey][2]), census=weightdict[roadKey][3])
+
         self.log.debug("Number of  G: roads: {0}, intersections: {1}".format(self.G.number_of_nodes(), self.G.number_of_edges))
+        self.log.debug("Number of  G2: roads: {1}, intersections: {0}".format(self.G2.number_of_nodes(), self.G2.number_of_edges))
         #self.log.debug("Isolated roads: {0}".format(len(nx.isolates(self.G))))
         #self.log.info("roadNW built, intersection size: {0}".format(len(intersect)))
         #self.log.info("roadNW built, roads size: {0}".format(self.G.number_of_nodes()))
+        
         
         """      
         117320	total	100%
@@ -192,7 +213,7 @@ class Model(mesa.Model):
         #print(self.G.node[5134]['length'])
         #print(self.G.node[5134]['width'])
         #output is not a list of roads, but list of ('road_id')
-        return self.G
+
 
     def createCrimes(self):
         #used until 13.12.2018 - also in for AAMAS submission

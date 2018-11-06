@@ -15,8 +15,8 @@ class Runner:
         self.model=""
         self.config=""
         self.log=logging.getLogger('')
-        logging.basicConfig(stream=sys.stdout, level=logging.CRITICAL)
-        #logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+        #logging.basicConfig(stream=sys.stdout, level=logging.CRITICAL)
+        logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
         self.t=time.monotonic()
         print("time at start of model {}".format(str(time.monotonic()-self.t)))
 
