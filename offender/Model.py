@@ -149,6 +149,7 @@ class Model(mesa.Model):
             open.nyc_intersection2road i2r
             left join open.nyc_road_proj_final r on i2r.road_id = r. gid
             left join open.nyc_road_attributes2 ra on ra.road_id=r.gid""")
+        # total attributes: 148466 roads; st_width=0 '6061' --> 4%
         #fetch all values into tuple
         interRoad=self.mycurs.fetchall()
         #dictionary {} -  a Key and a value, in this case a key and a set() of values -unordered collection
@@ -192,7 +193,7 @@ class Model(mesa.Model):
                 #loop over intersection again to compare intersect and map relationship
                 for inters2 in self.roads[roadKey]:
                     if not inters==inters2:
-                        self.G2.add_edge(inters, inters2, length=weightdict[roadKey][0], width=weightdict[roadKey][1], lengthwidth=(weightdict[roadKey][0]*weightdict[roadKey][1]), roadtype=weightdict[roadKey][2], roadtypelength=(weightdict[roadKey][0]*weightdict[roadKey][2]), census=weightdict[roadKey][3])
+                        self.G2.add_edge(inters, inters2, length=weightdict[roadKey][0], width=weightdict[roadKey][1], lengthwidth=((10*weightdict[roadKey][0])*weightdict[roadKey][1]), roadtype=weightdict[roadKey][2], roadtypelength=(weightdict[roadKey][0]*weightdict[roadKey][2]), census=weightdict[roadKey][3])
 
         self.log.debug("Number of  G: roads: {0}, intersections: {1}".format(self.G.number_of_nodes(), self.G.number_of_edges))
         self.log.debug("Number of  G2: roads: {1}, intersections: {0}".format(self.G2.number_of_nodes(), self.G2.number_of_edges))

@@ -85,6 +85,17 @@ class Way:
             way=way+way2
         return way
 
+    def oldWaynetwork(self, targetroad):
+            #nodes for self.road
+            roadNode=random.choice(list(self.model.roads[self.road]))
+            targetNode=random.choice(list(self.model.roads[targetroad]))
+            wayN=nx.shortest_path(self.model.G2,roadNode,targetNode)
+            way1=self.wayComplete(targetroad, wayN)
+            print("way normal {}".format(way1))
+            wayN=nx.shortest_path(self.model.G2,roadNode,targetNode, weight='length')
+            self.way=self.wayComplete(targetroad, wayN)
+            #print("way length {}".format(self.way))
+
 
     def wayLength(self, targetroad):
 
@@ -95,32 +106,11 @@ class Way:
             #nodes for self.road
             #self.road=16123
             #targetroad=12195
-            
             roadNode=random.choice(list(self.model.roads[self.road]))
             targetNode=random.choice(list(self.model.roads[targetroad]))
-            wayN=nx.shortest_path(self.model.G2,roadNode,targetNode)
-            #print(wayN)
-            wayX=self.wayComplete(targetroad, wayN)
-            print("way normal {}".format(wayX))
-            wayN=nx.shortest_path(self.model.G2,roadNode,targetNode, weight='length')
-            #print(wayN)
-            self.way=self.wayComplete(targetroad, wayN)
-            print("way length {}".format(self.way))
-            exit()
-
-             
-            #nodes for self.road
-            roadNode=random.choice(list(self.model.roads[self.road]))
-            targetNode=random.choice(list(self.model.roads[targetroad]))
-            wayN=nx.shortest_path(self.model.G2,roadNode,targetNode)
-            way1=self.wayComplete(targetroad, wayN)
-            print("way normal {}".format(way1))
             wayN=nx.shortest_path(self.model.G2,roadNode,targetNode, weight='length')
             self.way=self.wayComplete(targetroad, wayN)
-            print("way length {}".format(self.way))
-            #roads are represented as nodes in G
-
-
+            #print("way length {}".format(self.way))
         except Exception as e:
             self.log.critical("trip: Error: wayfinding: agent id {0}, current road: {2} targetRoad {1}, stepcount: {3}".format(self.unique_id, targetroad, self.road, self.model.modelStepCount))
             exit()
@@ -129,12 +119,15 @@ class Way:
         """find way using road lenght"""
         #self.log.debug('search radius: {}'.format(self.radiusR))
         try:
+            #test
+            #nodes for self.road
+            #self.road=28729
+            #targetroad=81317
             roadNode=random.choice(list(self.model.roads[self.road]))
             targetNode=random.choice(list(self.model.roads[targetroad]))
             wayN=nx.shortest_path(self.model.G2,roadNode,targetNode, weight='width')
-            #print("way length {}".format(wayN))
             self.way=self.wayComplete(targetroad, wayN)
-
+            #print("way width {}".format(self.way))
         except Exception as e:
             self.log.critical("trip: Error: wayfinding: agent id {0}, current road: {2} targetRoad {1}, stepcount: {3}".format(self.unique_id, targetroad, self.road, self.model.modelStepCount))
             exit()
@@ -143,12 +136,16 @@ class Way:
         """find way using road lenght"""
         #self.log.debug('search radius: {}'.format(self.radiusR))
         try:
+            #test
+            #nodes for self.road
+            #self.road=28729
+            #targetroad=81317
             roadNode=random.choice(list(self.model.roads[self.road]))
             targetNode=random.choice(list(self.model.roads[targetroad]))
             wayN=nx.shortest_path(self.model.G2,roadNode,targetNode, weight='lengthwidth')
             #print("way length {}".format(wayN))
             self.way=self.wayComplete(targetroad, wayN)
-
+            #print("way lengthwidth {}".format(self.way))
         except Exception as e:
             self.log.critical("trip: Error: wayfinding: agent id {0}, current road: {2} targetRoad {1}, stepcount: {3}".format(self.unique_id, targetroad, self.road, self.model.modelStepCount))
             exit()
@@ -157,12 +154,16 @@ class Way:
         """find way using road lenght"""
         #self.log.debug('search radius: {}'.format(self.radiusR))
         try:
+            #test
+            #nodes for self.road
+            #self.road=28729
+            #targetroad=81317            
             roadNode=random.choice(list(self.model.roads[self.road]))
             targetNode=random.choice(list(self.model.roads[targetroad]))
             wayN=nx.shortest_path(self.model.G2,roadNode,targetNode, weight='roadtypelength')
             #print("way length {}".format(wayN))
             self.way=self.wayComplete(targetroad, wayN)
-
+            #print("way roadtypelength {}".format(self.way))
         except Exception as e:
             self.log.critical("trip: Error: wayfinding: agent id {0}, current road: {2} targetRoad {1}, stepcount: {3}".format(self.unique_id, targetroad, self.road, self.model.modelStepCount))
             exit()

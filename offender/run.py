@@ -15,8 +15,8 @@ class Runner:
         self.model=""
         self.config=""
         self.log=logging.getLogger('')
-        #logging.basicConfig(stream=sys.stdout, level=logging.CRITICAL)
-        logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+        logging.basicConfig(stream=sys.stdout, level=logging.CRITICAL)
+        #logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
         self.t=time.monotonic()
         print("time at start of model {}".format(str(time.monotonic()-self.t)))
 
@@ -61,7 +61,7 @@ class Runner:
         print(agents)
         print(len(agents))
         # Fields to be inserted
-        insertf = self.getInsertFields(agents, 'res_la_agent')
+        insertf = self.getInsertFields(agents, 'res_la_agentprototype')
         insertFieldStr = '"' + str.join('", "', insertf) + '"'
         for agentId in range(self.model.numAgents):
             for stepId in range(int(round(len(agents[insertf[0]]) / self.model.numAgents))):
@@ -70,7 +70,7 @@ class Runner:
                     insertValues.append( str(agents[f][(stepId, agentId)]) )
                 insertValues = [str(self.run_id), str(stepId), str(agentId)] + insertValues
                 insertValuesStr = str.join(", ", insertValues)
-                sql = """insert into open.res_la_agent ("run_id","step","agent",{0}) values ({1})""".format(insertFieldStr, insertValuesStr )
+                sql = """insert into abm_res.res_la_agentprototype ("run_id","step","agent",{0}) values ({1})""".format(insertFieldStr, insertValuesStr )
                 self.mycurs.execute(sql)
         #self.model.conn.commit()
         print("End Agent data dumping")
@@ -95,7 +95,7 @@ class Runner:
         print("Model Data Dumping")
         modelData = self.model_df.to_dict()
         # Fields to be inserted
-        insertf = self.getInsertFields(modelData,'res_la_model')
+        insertf = self.getInsertFields(modelData,'res_la_modelprototype')
         #print("insertf",insertf)
         insertFieldStr = '"' + str.join('", "', insertf) + '"'
         for stepId in range(len(modelData[insertf[0]])):
@@ -104,7 +104,7 @@ class Runner:
                 insertValues.append( str(modelData[f][stepId]) )
             insertValues = [str(self.run_id), str(stepId)] + insertValues
             insertValuesStr = str.join(", ", insertValues)
-            sql = """insert into open.res_la_model ("run_id","step",{0}) values ({1})""".format(insertFieldStr, insertValuesStr )
+            sql = """insert into abm_res.res_la_modelprototype ("run_id","step",{0}) values ({1})""".format(insertFieldStr, insertValuesStr )
             #print("SQL: ", sql)
             self.mycurs.execute(sql)
         self.model.conn.commit()
@@ -112,7 +112,7 @@ class Runner:
     def writeDBstart(self):
         self.mycurs = self.model.conn.cursor()
         self.dbIgnoreFields = ["run_id", "step", "agent"]
-        sql = """insert into open.res_la_run values (DEFAULT, current_timestamp, NULL, {0}, '{1}', '{2}','{3}','{4}',{5}) 
+        sql = """insert into abm_res.res_la_runprototype values (DEFAULT, current_timestamp, NULL, {0}, '{1}', '{2}','{3}','{4}',{5}) 
             returning run_id""".format(self.model.schedule.get_agent_count(),self.cfile,self.model.startLocationType,
               self.model.distanceType, self.model.targetType,self.config.getint('general','numSteps', fallback=1))
         self.mycurs.execute(sql)
@@ -124,7 +124,7 @@ class Runner:
         """Push data to DB"""
         self.writeDBagent()
         #self.writeDBmodel()
-        sql = """update open.res_la_run set end_date = current_timestamp where run_id={0}""".format(self.run_id)
+        sql = """update abm_res.res_la_runprototype set end_date = current_timestamp where run_id={0}""".format(self.run_id)
         self.mycurs.execute(sql)
         self.model.conn.commit()
 
@@ -157,7 +157,7 @@ class Runner:
         try:
             self.writeDB()
         except Exception as e:
-            print("Exception",e)
+            print("Exception in writeDB",e)
         #self.log.debug(self.agent_df)
         self.log.info('Global stats: \n{}'.format(self.model_df.tail()))
 
