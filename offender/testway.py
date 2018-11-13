@@ -93,11 +93,9 @@ roadNode=random.choice(list(roads[road]))
 targetNode=random.choice(list(roads[targetroad]))
 if roadNode==targetNode:
     way=[road, targetroad]
-    print("targetNode and roadNode are the same")
+    #print("targetNode and roadNode are the same")
 else:
     wayN=nx.shortest_path(G2,roadNode,targetNode, weight='length')
-
-    print("start")
     i=0
     way=list()
     while i<len(wayN)-1:
@@ -107,21 +105,17 @@ else:
         #road needs to be first road
         way.append(list(r)[0])
         i+=1
-    print(way)
+    #print(way)
     #print("print roads in way {}".format(way))
     count=0
     #fix beginning and end of way
     l=len(way)
-    print(l)
     r0=list()
     for r in way[:3]:
         r0.append(r)
-        print(r, r0)
     rn=list()
     for r in way[-3:]:
         rn.append(r)
-        print(r, rn)
-
 
     #START: self road is within 3 first roads, remove rest
     #print(road, r0, r1, r2)
@@ -135,7 +129,7 @@ else:
         #print("else")
         way1=nx.shortest_path(G,road,r0[0])
         #will give start and end road if they are the only ones in path
-        print(way1)
+        #print(way1)
         way1.pop()
         way=way1+way
     #print(way)
@@ -153,11 +147,11 @@ else:
                 way.remove(r)
     else:
         #print("else")
-        print(rn)
+        #print(rn)
         way2=nx.shortest_path(G,rn[-1], targetroad)
-        print(way2)
+        #print(way2)
         del way2[0]
-        print(way2)
+        #print(way2)
         way=way+way2
 print(way)
 print("way works number of roads {}".format(len(way)))
