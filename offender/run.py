@@ -112,12 +112,14 @@ class Runner:
     def writeDBstart(self):
         self.mycurs = self.model.conn.cursor()
         self.dbIgnoreFields = ["run_id", "step", "agent"]
-        sql = """insert into abm_res.res_la_runprototype values (DEFAULT, current_timestamp, NULL, {0}, '{1}', '{2}','{3}','{4}',{5}) 
+        sql = """insert into abm_res.res_la_runprototype values (DEFAULT, current_timestamp, NULL, {0}, '{1}', '{2}','{3}','{4}','{5}', {6}, {7}, {8}, {9}) 
             returning run_id""".format(self.model.schedule.get_agent_count(),self.cfile,self.model.startLocationType,
-              self.model.distanceType, self.model.targetType,self.config.getint('general','numSteps', fallback=1))
+              self.model.distanceType, self.model.targetType, self.model.wayfindingType, self.model.agentTravelAvg,
+              self.model.staticRadius, self.model.mu, self.config.getint('general','numSteps', fallback=1))
         self.mycurs.execute(sql)
         self.run_id = self.mycurs.fetchone()[0]
         self.model.run_id = self.run_id
+        print("run_id: {}".format(self.run_id))
         self.model.conn.commit()
 
     def writeDB(self):
