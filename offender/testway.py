@@ -64,8 +64,8 @@ for roadKey in roads.keys():
             if not inters==inters2:
                 G2.add_edge(inters, inters2, length=weightdict[roadKey][0], width=weightdict[roadKey][1], lengthwidth=((10*weightdict[roadKey][0])*weightdict[roadKey][1]), roadtype=weightdict[roadKey][2], roadtypelength=(weightdict[roadKey][0]*weightdict[roadKey][2]), census=weightdict[roadKey][3])
 
-log.debug("Number of  G: roads: {0}, intersections: {1}".format(G.number_of_nodes(), G.number_of_edges))
-log.debug("Number of  G2: roads: {1}, intersections: {0}".format(G2.number_of_nodes(), G2.number_of_edges))
+print("Number of  G: roads: {0}, intersections: {1}".format(G.number_of_nodes(), G.number_of_edges))
+print("Number of  G2: roads: {1}, intersections: {0}".format(G2.number_of_nodes(), G2.number_of_edges))
 #log.debug("Isolated roads: {0}".format(len(nx.isolates(G))))
 #log.info("roadNW built, intersection size: {0}".format(len(intersect)))
 #log.info("roadNW built, roads size: {0}".format(G.number_of_nodes()))
@@ -81,9 +81,14 @@ mycurs.execute("""select * from open.nyc_road_proj_final_isolates""")
 globalVar.isolateRoadsRNW.update(mycurs.fetchall())
 
 
-road=61202
 road=7
-targetroad=35068
+targetroad=50935
+
+if targetroad in globalVar.isolateRoadsRNW:
+    print("targetroad in isolates")
+elif road in globalVar.isolateRoadsRNW:
+    print("road in isolates")
+
 roadNode=random.choice(list(roads[road]))
 targetNode=random.choice(list(roads[targetroad]))
 wayN=nx.shortest_path(G2,roadNode,targetNode, weight='length')
