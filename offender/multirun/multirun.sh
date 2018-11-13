@@ -11,7 +11,7 @@
 #done
 
 for i in config/test1000_new/1/*.ini ; do 
-    offender/run.py `echo "$i"|sed -e 's:config/::'` &
+    python3 offender/run.py `echo "$i"|sed -e 's:config/::'` &
     sleep 100
 done
 
