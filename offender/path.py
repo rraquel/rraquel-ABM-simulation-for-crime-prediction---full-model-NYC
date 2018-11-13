@@ -417,32 +417,36 @@ class Path:
         """find way to target road and count statistics for path"""
         #self.log.debug('search radius: {}'.format(self.radiusR))
         roadValuesList=[]
-        try:
-            w=Way(self.unique_id, self.model, self.road)
-            self.way=w.waybytype(targetroad)
+        if self.road==targetroad:
+            self.way=[targetroad]
+            self.log.debug("road and target road are the same")
+        else:
+            try:
+                w=Way(self.unique_id, self.model, self.road)
+                self.way=w.waybytype(targetroad)
 
-            ###QRunner seems not to be working --  or may be taking too long?? take out for calculating 1000 agents
-            #self.model.insertQ.store_roads({"run_id": self.model.run_id, "step": self.model.modelStepCount,
-            #          "agent": self.unique_id, "way": self.way})
-            for road in self.way:
-                #print("for road: {}".format(road))
-                #print(self.model.G.node[road]['length'])
-                self.walkedDistance += self.model.G.node[road]['length']
-                #print("crimes")
-                self.crimesOnRoad(road)
-                #print("walked")
-                self.walkedRoads +=1
+                ###QRunner seems not to be working --  or may be taking too long?? take out for calculating 1000 agents
+                #self.model.insertQ.store_roads({"run_id": self.model.run_id, "step": self.model.modelStepCount,
+                #          "agent": self.unique_id, "way": self.way})
+                for road in self.way:
+                    #print("for road: {}".format(road))
+                    #print(self.model.G.node[road]['length'])
+                    self.walkedDistance += self.model.G.node[road]['length']
+                    #print("crimes")
+                    self.crimesOnRoad(road)
+                    #print("walked")
+                    self.walkedRoads +=1
 
-                ##has to be commented if want to use Qrunner
-                sql = """insert into open.res_la_roads ("id","run_id","step","agent","road_id") values
-                    (DEFAULT,{0},{1},{2},{3} )""".format(self.model.run_id, self.model.modelStepCount, self.unique_id, road)
-                self.model.mycurs.execute(sql)
-                #print("execute")
-                self.pathroadlist.append(road)
-                #print("pathroadlist")
-        except Exception as e:
-            self.log.critical("trip: Error: One agent found no way: agent id {0}, current road: {2} targetRoad {1}, stepcount: {3}".format(self.unique_id, targetroad, self.road, self.model.modelStepCount))
-            exit()
+                    ##has to be commented if want to use Qrunner
+                    sql = """insert into open.res_la_roads ("id","run_id","step","agent","road_id") values
+                        (DEFAULT,{0},{1},{2},{3} )""".format(self.model.run_id, self.model.modelStepCount, self.unique_id, road)
+                    self.model.mycurs.execute(sql)
+                    #print("execute")
+                    self.pathroadlist.append(road)
+                    #print("pathroadlist")
+            except Exception as e:
+                self.log.critical("trip: Error: One agent found no way: agent id {0}, current road: {2} targetRoad {1}, stepcount: {3}".format(self.unique_id, targetroad, self.road, self.model.modelStepCount))
+                exit()
             #erases target from targetList
         return True   
 

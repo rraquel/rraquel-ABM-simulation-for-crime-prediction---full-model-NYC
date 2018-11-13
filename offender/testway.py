@@ -64,8 +64,8 @@ for roadKey in roads.keys():
             if not inters==inters2:
                 G2.add_edge(inters, inters2, length=weightdict[roadKey][0], width=weightdict[roadKey][1], lengthwidth=((10*weightdict[roadKey][0])*weightdict[roadKey][1]), roadtype=weightdict[roadKey][2], roadtypelength=(weightdict[roadKey][0]*weightdict[roadKey][2]), census=weightdict[roadKey][3])
 
-print("Number of  G: roads: {0}, intersections: {1}".format(G.number_of_nodes(), G.number_of_edges))
-print("Number of  G2: roads: {1}, intersections: {0}".format(G2.number_of_nodes(), G2.number_of_edges))
+#print("Number of  G: roads: {0}, intersections: {1}".format(G.number_of_nodes(), G.number_of_edges))
+#print("Number of  G2: roads: {1}, intersections: {0}".format(G2.number_of_nodes(), G2.number_of_edges))
 #log.debug("Isolated roads: {0}".format(len(nx.isolates(G))))
 #log.info("roadNW built, intersection size: {0}".format(len(intersect)))
 #log.info("roadNW built, roads size: {0}".format(G.number_of_nodes()))
@@ -81,8 +81,8 @@ mycurs.execute("""select * from open.nyc_road_proj_final_isolates""")
 globalVar.isolateRoadsRNW.update(mycurs.fetchall())
 
 
-road=7
-targetroad=50935
+road=115425
+targetroad=43681
 
 if targetroad in globalVar.isolateRoadsRNW:
     print("targetroad in isolates")
@@ -91,60 +91,73 @@ elif road in globalVar.isolateRoadsRNW:
 
 roadNode=random.choice(list(roads[road]))
 targetNode=random.choice(list(roads[targetroad]))
-wayN=nx.shortest_path(G2,roadNode,targetNode, weight='length')
-
-i=0
-way=list()
-while i<len(wayN)-1:
-    rl1=set(intersect[wayN[i]])
-    rl2=set(intersect[wayN[i+1]])
-    r=rl1.intersection(rl2)
-    #road needs to be first road
-    way.append(list(r)[0])
-    i+=1
-#print("print roads in way {}".format(way))
-count=0
-#fix beginning and end of way
-l=len(way)
-r0=way[0]
-r1=way[1]
-r2=way[2]
-rn0=way[l-3]
-rn1=way[l-2]
-rn2=way[l-1]
-#START: self road is within 3 first roads, remove rest
-#print(road, r0, r1, r2)
-if road in {r0, r1, r2}:
-    for r in [r0, r1, r2]:
-        if r==road:
-            break
-        else:
-            way.remove(r)
+if roadNode==targetNode:
+    way=[road, targetroad]
+    print("targetNode and roadNode are the same")
 else:
-    #print("else")
-    way1=nx.shortest_path(G,road,r0)
-    #will give start and end road if they are the only ones in path
-    #print(way1)
-    way1.pop()
-    way=way1+way
-#print(way)
-#print("end")
-#print(targetroad, rn2, rn1, rn0)
-if targetroad in {rn2, rn1, rn0}:
-    for r in [rn2, rn1, rn0]:
-        #print("for")
-        #print(r, targetroad)
-        if r==targetroad:
-            #print("f: if")
-            break
-        else:
-            #print("f: else")
-            way.remove(r)
-else:
-    #print("else")
-    way2=nx.shortest_path(G,rn2, targetroad)
-    #print(way2)
-    way2.remove(rn2)
-    way=way+way2
+    wayN=nx.shortest_path(G2,roadNode,targetNode, weight='length')
 
+    print("start")
+    i=0
+    way=list()
+    while i<len(wayN)-1:
+        rl1=set(intersect[wayN[i]])
+        rl2=set(intersect[wayN[i+1]])
+        r=rl1.intersection(rl2)
+        #road needs to be first road
+        way.append(list(r)[0])
+        i+=1
+    print(way)
+    #print("print roads in way {}".format(way))
+    count=0
+    #fix beginning and end of way
+    l=len(way)
+    print(l)
+    r0=list()
+    for r in way[:3]:
+        r0.append(r)
+        print(r, r0)
+    rn=list()
+    for r in way[-3:]:
+        rn.append(r)
+        print(r, rn)
+
+
+    #START: self road is within 3 first roads, remove rest
+    #print(road, r0, r1, r2)
+    if road in r0:
+        for r in r0:
+            if r==road:
+                break
+            else:
+                way.remove(r)
+    else:
+        #print("else")
+        way1=nx.shortest_path(G,road,r0[0])
+        #will give start and end road if they are the only ones in path
+        print(way1)
+        way1.pop()
+        way=way1+way
+    #print(way)
+    #print("end")
+    #print(targetroad, rn2, rn1, rn0)
+    if targetroad in rn:
+        for r in rn:
+            #print("for")
+            #print(r, targetroad)
+            if r==targetroad:
+                #print("f: if")
+                break
+            else:
+                #print("f: else")
+                way.remove(r)
+    else:
+        #print("else")
+        print(rn)
+        way2=nx.shortest_path(G,rn[-1], targetroad)
+        print(way2)
+        del way2[0]
+        print(way2)
+        way=way+way2
 print(way)
+print("way works number of roads {}".format(len(way)))
