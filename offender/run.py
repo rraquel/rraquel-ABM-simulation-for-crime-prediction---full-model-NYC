@@ -104,7 +104,7 @@ class Runner:
                 insertValues.append( str(modelData[f][stepId]) )
             insertValues = [str(self.run_id), str(stepId)] + insertValues
             insertValuesStr = str.join(", ", insertValues)
-            sql = """insert into abm_res.res_la_modelprototype ("run_id","step",{0}) values ({1})""".format(insertFieldStr, insertValuesStr )
+            sql = """insert into abm_res.res_la_modelprototype("run_id","step",{0}) values ({1})""".format(insertFieldStr, insertValuesStr )
             #print("SQL: ", sql)
             self.mycurs.execute(sql)
         self.model.conn.commit()
@@ -125,6 +125,7 @@ class Runner:
     def writeDB(self):
         """Push data to DB"""
         self.writeDBagent()
+        #not needed as model setup is written in run
         #self.writeDBmodel()
         sql = """update abm_res.res_la_runprototype set end_date = current_timestamp where run_id={0}""".format(self.run_id)
         self.mycurs.execute(sql)

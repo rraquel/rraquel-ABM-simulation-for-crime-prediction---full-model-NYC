@@ -438,12 +438,13 @@ class Path:
                     self.walkedRoads +=1
 
                     ##has to be commented if want to use Qrunner
-                    sql = """insert into open.res_la_roads ("id","run_id","step","agent","road_id") values
+                    sql = """insert into abm_res.res_la_roadsprototype ("id","run_id","step","agent","road_id") values
                         (DEFAULT,{0},{1},{2},{3} )""".format(self.model.run_id, self.model.modelStepCount, self.unique_id, road)
                     self.model.mycurs.execute(sql)
                     #print("execute")
                     self.pathroadlist.append(road)
                     #print("pathroadlist")
+                self.model.conn.commit()
             except Exception as e:
                 self.log.critical("trip: Error: One agent found no way: agent id {0}, current road: {2} targetRoad {1}, stepcount: {3}".format(self.unique_id, targetroad, self.road, self.model.modelStepCount))
                 exit()
