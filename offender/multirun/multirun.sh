@@ -10,11 +10,22 @@
 #    sleep 100
 #done
 
-for i in config/test1000_new/6/*.ini ; do 
+for i in config/test1000_new/2/1000_p_P*.ini  ; do 
     python3 offender/run.py `echo "$i"|sed -e 's:config/::'` &
     sleep 100
 done
 
+
+#for i in config/test10002/1000_p_R*.ini ; do 
+#    python3 offender/run.py `echo "$i"|sed -e 's:config/::'` &
+#    sleep 100
+#done
+
+
+#for i in config/test1000_new/2/*.ini ; do 
+#    python3 offender/run.py `echo "$i"|sed -e 's:config/::'` &
+#    sleep 100
+#done
 
 
   # starte zweite Ladung
