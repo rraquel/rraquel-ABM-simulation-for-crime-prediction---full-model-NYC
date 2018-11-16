@@ -11,7 +11,7 @@
 #done
 
 
-for i in config/test10002/1000_p_R*.ini ; do 
+for i in config/test1000/2/1000_p_R*.ini ; do 
     python3 offender/run.py `echo "$i"|sed -e 's:config/::'` &
     sleep 100
 done
