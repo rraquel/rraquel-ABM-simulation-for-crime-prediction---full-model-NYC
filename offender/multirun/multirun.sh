@@ -10,8 +10,6 @@
 #    sleep 100
 #done
 
-# h
-
 for i in config/test1000_new/5/1000_t_P*.ini ; do 
     python3 offender/run.py `echo "$i"|sed -e 's:config/::'` &
     sleep 100
