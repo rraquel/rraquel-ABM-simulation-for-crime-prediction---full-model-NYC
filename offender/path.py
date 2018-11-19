@@ -99,17 +99,21 @@ class Path:
             exit()
         #choose destination census tract (drop off census tract by weight)
         dcensus =list()
-        #dweight =list()
+        dweight =list()
         pweight=list()
         pWeightList=list()
         for k,v in dropoffoptions.items():
             dcensus.append(k)
-            #dweight.append(v)
-            pweight.append(v)
-        #weightSum=sum(dweight)
-        #for v in dweight:
-        #    pWeightList.append(v/weightSum)
-        #destinationcensus=np.random.choice(dcensus, 1, p=pWeightList)[0]
+            dweight.append(v)
+            pweight.append(int(v))
+        weightSum=sum(dweight)
+        print(weightSum)
+        for v in dweight:
+            pWeightList.append(v/weightSum)
+        destinationcensus=np.random.choice(dcensus, 1, p=pWeightList)[0]
+        print(destinationcensus)
+        print(dcensus)
+        print(pweight)
         try:
             destinationcensus=np.random.choice(dcensus, 1, p=pweight)[0]
         except:
