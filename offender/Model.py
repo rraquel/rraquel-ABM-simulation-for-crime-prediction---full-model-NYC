@@ -280,7 +280,7 @@ class Model(mesa.Model):
     def createTaxiTrips(self):
         self.mycurs.execute("""SELECT censuspickup, censusdropoff, weight FROM
         open.nyc_taxi_trips0706_1415_censuscoutns""")
-        #TODO fix open.nyc_taxi_trips_new_june2015_censuscoutns_weight; pweight
+        #TODO fix pweight
         census=self.mycurs.fetchall()
         
         for line in census:

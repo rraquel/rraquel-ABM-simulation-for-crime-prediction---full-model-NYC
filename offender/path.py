@@ -93,37 +93,37 @@ class Path:
         censustract=nx.get_node_attributes(self.model.G, 'census').get(self.road)
         try:
             dropoffoptions=self.model.taxiTracts[censustract]
+            #print(dropoffoptions)
         except:
             #if census tract not found then random? or most popular? or what??
             print("census tract: {} not found as key in taxiTracts dictionary".format(censustract))
             exit()
         #choose destination census tract (drop off census tract by weight)
+        #TODO get pweight from table
         dcensus =list()
         dweight =list()
         pweight=list()
         pWeightList=list()
         for k,v in dropoffoptions.items():
             dcensus.append(k)
-            dweight.append(v)
-            pweight.append(int(v))
+            dweight.append(int(v))
         weightSum=sum(dweight)
-        print(weightSum)
         for v in dweight:
             pWeightList.append(v/weightSum)
-        destinationcensus=np.random.choice(dcensus, 1, p=pWeightList)[0]
-        print(destinationcensus)
-        print(dcensus)
-        print(pweight)
+        #print(sum(pWeightList))
         try:
-            destinationcensus=np.random.choice(dcensus, 1, p=pweight)[0]
+            destinationcensus=np.random.choice(dcensus, 1, p=pWeightList)[0]
+            #print(destinationcensus)
+            #destinationcensus=np.random.choice(dcensus, 1, p=pweight)
         except:
-            spweight=sum(pweight)
+            #print("except")
+            spweight=sum(pWeightList)
             if (spweight)!= 1:
-                val=min(pweight)
-                idx=pweight.index(min(pweight))
+                val=min(pWeightList)
+                idx=pweight.index(min(pWeightList))
                 rest=1-spweight
                 pweight[idx]=val+rest
-            destinationcensus=np.random.choice(dcensus, 1, p=pweight)[0]
+            destinationcensus=np.random.choice(dcensus, 1, p=pWeightList)[0]
         self.destinationcensus=destinationcensus
 
     def crimeTractM(self):
