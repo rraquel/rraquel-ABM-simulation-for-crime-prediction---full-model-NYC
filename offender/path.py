@@ -86,6 +86,7 @@ class Path:
         #print(round(radius))
         self.radiusR=round(radius)
 
+
     def taxiTract(self):
         #first find tract for current road (pickup census tract)
         #test
@@ -102,7 +103,6 @@ class Path:
         #TODO get pweight from table
         dcensus =list()
         dweight =list()
-        pweight=list()
         pWeightList=list()
         for k,v in dropoffoptions.items():
             dcensus.append(k)
@@ -120,40 +120,135 @@ class Path:
             spweight=sum(pWeightList)
             if (spweight)!= 1:
                 val=min(pWeightList)
-                idx=pweight.index(min(pWeightList))
+                idx=pWeightList.index(val)
                 rest=1-spweight
-                pweight[idx]=val+rest
+                pWeightList[idx]=val+rest
             destinationcensus=np.random.choice(dcensus, 1, p=pWeightList)[0]
         self.destinationcensus=destinationcensus
 
+    def taxiTractD(self):
+        #first find tract for current road (pickup census tract)
+        censustract=nx.get_node_attributes(self.model.G, 'census').get(self.road)
+        try:
+            dropoffoptions=self.model.taxiTracts[censustract]
+            #print(dropoffoptions)
+            distanceCT=self.model.distanceCT[censustract]
+        except:
+            #if census tract not found then random? or most popular? or what??
+            print("census tract: {} not found as key in taxiTracts dictionary".format(censustract))
+            exit()
+        #choose destination census tract (drop off census tract by weight)
+        #TODO get pweight from table
+        #taxi data
+        tcensus =list()
+        tweight =list()
+        #census tract distance data
+        dweight =list()
+        for k,v in dropoffoptions.items():
+            tcensus.append(k)
+            #weight from taxi data
+            tweight.append(int(v))
+            #distance for same census tract
+            dweight.append(distanceCT[k])
+        pWeightList=self.combine2weights(tweight, dweight)
+        self.destinationcensus=self.selectCensuswithWeight(tcensus, pWeightList)
+
     def crimeTractM(self):
+        """data for may2015"""
         crimeCT=self.model.crimeCT
         p=list([item[0] for item in crimeCT.values()])
         destinationcensus=np.random.choice(list(crimeCT.keys()), 1, p=p)[0]
         self.destinationcensus=destinationcensus
-        return destinationcensus  
+        return destinationcensus 
+    def crimeTractMD(self):
+        """data for may2015 weighted by census tract distance"""
+        #distance from current CT to others
+        censustract=nx.get_node_attributes(self.model.G, 'census').get(self.road)
+        distanceCT=self.model.distanceCT[censustract]
+        #probabilities for CT by crime
+        crimeCT=self.model.crimeCT
+        census=list(crimeCT.keys())
+        p=list([item[0] for item in crimeCT.values()])
+        dcensus=list()
+        #distance weight in same order as census and p
+        for c in census:
+            dcensus.append(distanceCT[c])
+        pWeightList=self.combine2weights(p, dcensus)
+        self.destinationcensus=self.selectCensuswithWeight(census, pWeightList) 
     def crimeTract1(self):
+        """data for june14-may15"""
         crimeCT=self.model.crimeCT
         p=list([item[1] for item in crimeCT.values()])
         destinationcensus=np.random.choice(list(crimeCT.keys()), 1, p=p)[0]
         self.destinationcensus=destinationcensus
     def crimeTract1x2(self):
+        """data for june14-may15*2"""
         crimeCT=self.model.crimeCT
         p=list([item[2] for item in crimeCT.values()])
         destinationcensus=np.random.choice(list(crimeCT.keys()), 1, p=p)[0]
         self.destinationcensus=destinationcensus
     def crimeTract1x6(self):
+        """data for june14-may15*6"""
         crimeCT=self.model.crimeCT
         p=list([item[3] for item in crimeCT.values()])
         destinationcensus=np.random.choice(list(crimeCT.keys()), 1, p=p)[0]
         self.destinationcensus=destinationcensus
     def crimeTract1x12(self):
+        """june14-may15*12"""
         crimeCT=self.model.crimeCT
         p=list([item[4] for item in crimeCT.values()])
         destinationcensus=np.random.choice(list(crimeCT.keys()), 1, p=p)[0]
         self.destinationcensus=destinationcensus
+    def crimeTract1x12D(self):
+        """june14-may15*12 weighted by census tract distance"""
+        #distance from current CT to others
+        censustract=nx.get_node_attributes(self.model.G, 'census').get(self.road)
+        distanceCT=self.model.distanceCT[censustract]
+        #probabilities for CT by crime
+        crimeCT=self.model.crimeCT
+        census=list(crimeCT.keys())
+        p=list([item[4] for item in crimeCT.values()])
+        dcensus=list()
+        #distance weight in same order as census and p
+        for c in census:
+            dcensus.append(distanceCT[c])
+        pWeightList=self.combine2weights(p, dcensus)
+        self.destinationcensus=self.selectCensuswithWeight(census, pWeightList)
+    
+    def selectCensuswithWeight(censusList, pWeightList):
+        try:
+            destinationcensus=np.random.choice(censusList, 1, p=pWeightList)[0]
+            #print(destinationcensus)
+        except:
+            #correct weights if it list does not sum up to 1
+            spweight=sum(pWeightList)
+            if (spweight)!= 1:
+                val=min(pWeightList)
+                idx=pWeightList.index(val)
+                rest=1-spweight
+                pWeightList[idx]=val+rest
+            destinationcensus=np.random.choice(censusList, 1, p=pWeightList)[0]
+        return destinationcensus
 
 
+    def combine2weights(self, weight1, weight2):
+        combineW=list()
+        pWeightList=list()
+        weight1Sum=sum(weight1)
+        weight2Sum=sum(weight2)
+        if not len(weight1)==len(weight2):
+            self.log.critical("in path weight1 and teight2 do not have same length")
+        i=0
+        while i<len(weight1):
+            combineW.append((weight1[i]/weight1Sum)*(weight2[i]/weight2Sum))
+            i+=1
+        combineWSum=sum(combineW)
+        i=0
+        while i<len(weight1):
+            pWeightList.append(combineW[i]/combineWSum)
+            i+=1
+        #print(sum(pWeightList))
+        return pWeightList
 
     def findTargetByType(self, road, maxRadius, minRadius):
         mycurs = self.conn.cursor()

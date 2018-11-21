@@ -83,10 +83,15 @@ class Model(mesa.Model):
         self.createResidential()
 
         self.taxiTracts=dict()
+        #format {taxiTracts[censuspick]: {taxiTracts2[censusdrop]: w1, taxiTracts2[censusdrop]: w2}}
         self.createTaxiTrips()
 
         self.crimeCT=dict()
         self.createCrimeCT()
+
+        self.distanceCT=dict()
+        #format {distanceCT[gid1]: {distanceCT2[gid2]: d1, distanceCT2[gid2]: d2}}
+        self.createDistanceCT()
 
         self.totalRoadDistance=40986771
 
@@ -306,7 +311,21 @@ class Model(mesa.Model):
         if not len(self.crimeCT.keys())==2162:
             self.log.critical("number of keys in CrimeCT should be 2162, is : {} ".format(len(self.crimeCT.keys())))
             exit()
-     
+        
+    def createDistanceCT(self):
+        self.mycurs.execute("""select gid1, gid2, centroiddistance from open.nyc_census_Tract_e_distances""")
+        censusD=self.mycurs.fetchall()  
+        #TODO remove same gid if not done yet!! gid1=gid2 should not exist?? would mean stay in same gid?
+        for line in censusD:
+            gidD=dict()                        
+            gidD[line[1]]=line[2]
+            if line[0] in self.distanceCT:
+                temp=self.distanceCT[line[0]]
+                temp[line[1]]=line[2]
+                self.distanceCT[line[0]]=temp
+            else:
+                self.distanceCT[line[0]]=gidD
+        
 
     def step(self, i, numSteps):
         """advance model by one step."""
