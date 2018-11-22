@@ -16,7 +16,7 @@ import globalVar
 
 class Path:
     """agent path options"""
-    def __init__(self, unique_id, model, currentRoad, distanceType, targetType):
+    def __init__(self, unique_id, model, currentRoad, distanceType, targetType, tripcount):
         self.log=logging.getLogger('')
         self.conn=model.conn
         self.model=model
@@ -32,6 +32,7 @@ class Path:
         self.pathlengtdict=OrderedDict()
         #arrays don't grow efficiently, first build list of tuples and the convert to array!!
         self.pathroadtuple=list()
+        self.tripcount=tripcount
 
         self.crimes=[]
         for i in range(6):
@@ -117,7 +118,6 @@ class Path:
     def taxiTractD(self):
         #first find tract for current road (pickup census tract)
         censustract=nx.get_node_attributes(self.model.G, 'census').get(self.road)
-        print(censustract)
         try:
             dropoffoptions=self.model.taxiTracts[censustract]
             #print(dropoffoptions)
@@ -138,8 +138,6 @@ class Path:
             #weight from taxi data
             tweight.append(int(v))
             #distance for same census tract
-            print(k)
-            print(distanceCT[k])
             dweight.append(distanceCT[k])
         pWeightList=self.combine2weights(tweight, dweight)
         self.destinationcensus=self.selectCensuswithWeight(tcensus, pWeightList)
@@ -506,6 +504,7 @@ class Path:
     def findMyWay(self, targetroad):
         """find way to target road and count statistics for path"""
         #self.log.debug('search radius: {}'.format(self.radiusR))
+        print(self.road, targetroad)
         roadValuesList=[]
         if self.road==targetroad:
             self.way=[targetroad]
@@ -518,6 +517,7 @@ class Path:
                 ###QRunner seems not to be working --  or may be taking too long?? take out for calculating 1000 agents
                 #self.model.insertQ.store_roads({"run_id": self.model.run_id, "step": self.model.modelStepCount,
                 #          "agent": self.unique_id, "way": self.way})
+                i=0
                 for road in self.way:
                     #print("for road: {}".format(road))
                     #print(self.model.G.node[road]['length'])
@@ -526,14 +526,14 @@ class Path:
                     self.crimesOnRoad(road)
                     #print("walked")
                     self.walkedRoads +=1
-
                     ##has to be commented if want to use Qrunner
-                    sql = """insert into abm_res.res_la_roadsprototype ("id","run_id","step","agent","road_id") values
-                        (DEFAULT,{0},{1},{2},{3} )""".format(self.model.run_id, self.model.modelStepCount, self.unique_id, road)
+                    sql = """insert into abm_res.res_la_roadsprototype ("id","run_id","step","agent","road_id", i, trip) values
+                        (DEFAULT,{0},{1},{2},{3},{4},{5})""".format(self.model.run_id, self.model.modelStepCount, self.unique_id, road, i, self.tripcount)
                     self.model.mycurs.execute(sql)
                     #print("execute")
                     self.pathroadlist.append(road)
                     #print("pathroadlist")
+                    i+=1
                 self.model.conn.commit()
             except Exception as e:
                 self.log.critical("trip: Error: One agent found no way: agent id {0}, current road: {2} targetRoad {1}, stepcount: {3}".format(self.unique_id, targetroad, self.road, self.model.modelStepCount))
@@ -562,7 +562,7 @@ class Path:
             #self.log.debug('count of while loop in search target {}'.format(loopCount))
         self.uniqueCrimesOverall()
         #return self.pathroadlist
-        return self.pathroadlist
+        return homeRoad
 
     def buildpath(self):
         #print("path anywhere")

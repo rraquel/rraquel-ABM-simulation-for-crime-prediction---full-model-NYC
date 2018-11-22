@@ -59,27 +59,31 @@ class Way:
         for r in way[:3]:
             r0.append(r)
         rn=list()
+        #print(way[-3:])
         for r in way[-3:]:
+            #print(r)
             rn.append(r)
+        rn.reverse()
 
         #START: self road is within 3 first roads, remove rest
-        #print( self.road, r0, r1, r2)
+        #print( self.road, r0)
         if self.road in r0:
             for r in r0:
                 if r==self.road:
                     break
                 else:
+                    #print("remove start {}".format(r))
                     way.remove(r)
         else:
             #print("else")
             way1=nx.shortest_path(self.model.G,self.road,r0[0])
             #will give start and end road if they are the only ones in path
-            #print(way1)
+
             way1.pop()
             way=way1+way
         #print(way)
         #print("end")
-        #print( self.targetroad, rn2, rn1, rn0)
+        #print( self.targetroad, rn)
         if  self.targetroad in rn:
             for r in rn:
                 #print("for")
@@ -89,15 +93,18 @@ class Way:
                     break
                 else:
                     #print("f: else")
+                    #print("remove end {}".format(r))
                     way.remove(r)
         else:
             #print("else")
             #print(rn)
-            way2=nx.shortest_path(self.model.G,rn[-1],  self.targetroad)
+            way2=nx.shortest_path(self.model.G,rn[0],  self.targetroad)
             #print(way2)
+            #print("del first duplicate {}".format(way2[0]))
             del way2[0]
             #print(way2)
             way=way+way2
+            #print(way)
         return way
 
     def oldWaynetwork(self, roadNode, targetNode):
