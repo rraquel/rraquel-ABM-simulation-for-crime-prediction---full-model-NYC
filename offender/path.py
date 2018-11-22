@@ -101,34 +101,23 @@ class Path:
             exit()
         #choose destination census tract (drop off census tract by weight)
         #TODO get pweight from table
-        dcensus =list()
-        dweight =list()
+        census =list()
+        weight =list()
         pWeightList=list()
         for k,v in dropoffoptions.items():
-            dcensus.append(k)
-            dweight.append(int(v))
-        weightSum=sum(dweight)
-        for v in dweight:
+            census.append(k)
+            weight.append(int(v))
+        weightSum=sum(weight)
+        for v in weight:
             pWeightList.append(v/weightSum)
         #print(sum(pWeightList))
-        try:
-            destinationcensus=np.random.choice(dcensus, 1, p=pWeightList)[0]
-            #print(destinationcensus)
-            #destinationcensus=np.random.choice(dcensus, 1, p=pweight)
-        except:
-            #print("except")
-            spweight=sum(pWeightList)
-            if (spweight)!= 1:
-                val=min(pWeightList)
-                idx=pWeightList.index(val)
-                rest=1-spweight
-                pWeightList[idx]=val+rest
-            destinationcensus=np.random.choice(dcensus, 1, p=pWeightList)[0]
-        self.destinationcensus=destinationcensus
+        self.destinationcensus=self.selectCensuswithWeight(census, pWeightList)
+        print(self.destinationcensus)
 
     def taxiTractD(self):
         #first find tract for current road (pickup census tract)
         censustract=nx.get_node_attributes(self.model.G, 'census').get(self.road)
+        print(censustract)
         try:
             dropoffoptions=self.model.taxiTracts[censustract]
             #print(dropoffoptions)
@@ -149,6 +138,8 @@ class Path:
             #weight from taxi data
             tweight.append(int(v))
             #distance for same census tract
+            print(k)
+            print(distanceCT[k])
             dweight.append(distanceCT[k])
         pWeightList=self.combine2weights(tweight, dweight)
         self.destinationcensus=self.selectCensuswithWeight(tcensus, pWeightList)
@@ -215,7 +206,7 @@ class Path:
         pWeightList=self.combine2weights(p, dcensus)
         self.destinationcensus=self.selectCensuswithWeight(census, pWeightList)
     
-    def selectCensuswithWeight(censusList, pWeightList):
+    def selectCensuswithWeight(self, censusList, pWeightList):
         try:
             destinationcensus=np.random.choice(censusList, 1, p=pWeightList)[0]
             #print(destinationcensus)
