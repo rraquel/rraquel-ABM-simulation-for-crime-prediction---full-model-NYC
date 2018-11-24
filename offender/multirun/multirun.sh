@@ -9,9 +9,9 @@
 #    offender/run.py `echo "$i"|sed -e 's:config/::'` &
 #    sleep 100
 #done
+#ssd
 
-
-for i in config/test1000_new/3/1000_u_R*.ini ; do 
+for i in config/test1000_new/3/1000_u*.ini ; do 
     python3 offender/run.py `echo "$i"|sed -e 's:config/::'` &
     sleep 100
 done
