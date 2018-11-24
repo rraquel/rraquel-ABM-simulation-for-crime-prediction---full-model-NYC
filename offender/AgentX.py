@@ -80,22 +80,22 @@ class AgentX(mesa.Agent):
         roundTravelTrip=int(round(self.agentTravelTrip))
         while self.agentTravelTrip >0 and (self.tripCount+1)<roundTravelTrip:
             #emulate do-while: assigns False for the loop to be executed before further condition testing
-            print(self.road)
+            #print(self.road)
             f=Path(self.unique_id, self.model, self.road, self.distanceType, self.targetType, self.tripCount)
             targetRoad=f.buildpath()
             self.targetRoadList.append(targetRoad)
             self.road=targetRoad
             self.tripCount+=1
-            print(targetRoad, self.tripCount, self.model.modelStepCount)
+            #print(targetRoad, self.tripCount, self.model.modelStepCount)
             self.log.info("agent {0}, trip count: {1}, trip avg: {2}, number of trips: {3}".format(self.unique_id, self.tripCount, self.agentTravelAvg, self.agentTravelTrip))
         self.log.debug('reset agent  {0}, trip should {1}, trip count {2}'.format(self.unique_id,self.agentTravelTrip,self.tripCount))
         #go back to starting road targetRoad=startRoad
-        print(self.road)
+        #print(self.road)
         targetRoad=self.resetAgent()
         f=Path(self.unique_id, self.model, self.road, self.distanceType, self.targetType, self.tripCount)
         targetRoad=f.buildpathhome(self.startRoad)
         self.targetRoadList.append(targetRoad)
-        print(targetRoad, self.tripCount, self.model.modelStepCount)
+        #print(targetRoad, self.tripCount, self.model.modelStepCount)
         self.road=targetRoad
 
    
