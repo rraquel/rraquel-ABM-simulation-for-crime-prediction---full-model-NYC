@@ -11,7 +11,7 @@
 #done
 #ssd
 
-for i in config/test1000_new/5/1000_t_P*.ini ; do 
+for i in config/test1000_new/5/1000_t_R*.ini ; do 
     python3 offender/run.py `echo "$i"|sed -e 's:config/::'` &
     sleep 100
 done
