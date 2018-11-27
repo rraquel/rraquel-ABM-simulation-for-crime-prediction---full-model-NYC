@@ -11,14 +11,15 @@ import uuid
 class Results():
     """object containing each Scenario's results"""
     _ID = 0
-    def __init__(self, result_id, run_id, totalnumagents, radiusType, targetType, numsteps, num_agents):
+    def __init__(self, result_id, run_id, totalnumagents, distanceType, targetType, wayfindingType, numsteps, num_agents):
         self.result_id=result_id
         self.id = self._ID; self.__class__._ID += 1
 
         self.run_id=run_id
         self.totalnumagents=totalnumagents
-        self.radiusType=radiusType
+        self.distanceType=distanceType
         self.targetType=targetType
+        self.wayfindingType=wayfindingType
         self.numsteps=numsteps
         self.num_agents=num_agents
 
@@ -55,7 +56,7 @@ class Results():
 
 
 def buildbase():
-    mycurs.execute("""SELECT run_id, num_agents, "radiustype", "targettype", numsteps
+    mycurs.execute("""SELECT run_id, num_agents, "distancetype", "targettype", "wayfindingtype", numsteps
         from abm_res.res_la_runprototype
         WHERE {0}""".format(select_ids))
     a=mycurs.fetchall() #returns tuple with first row (unordered list)
@@ -66,7 +67,7 @@ def buildbase():
         #rArray=[line[1], line[2], line[3], int(line[4])]
         #configdict[resultKey]=rArray
         for a in numagents:
-            results=Results(result_id, line[0], line[1], str(line[2]), str(line[3]), int(line[4]), a)
+            results=Results(result_id, line[0], line[1], str(line[2]), str(line[3]), str(line[4]), int(line[5]), a)
             resultsList.append(results)
             result_id+=1
             #print(results)
@@ -183,8 +184,9 @@ def insertValuesInTable():
         run_id integer,
         num_agents numeric,
         totalnumagents numeric,
-        "radiustype" varchar,
+        "distancetype" varchar,
         "targettype" varchar,
+        "wayfindingType" varchar,
         uniqueCrimes numeric,
         BurglaryUniq numeric,
         RobberyUniq numeric,
@@ -219,16 +221,16 @@ def insertValuesInTable():
         
         for element in resultsList:
             mycurs.execute("""Insert into {0} ("run_id", "num_agents", "totalnumagents",
-            "radiustype", "targettype", uniqueCrimes, BurglaryUniq, RobberyUniq, LarcenyUniq,
+            "distancetype", "targettype", "wayfindingType", uniqueCrimes, BurglaryUniq, RobberyUniq, LarcenyUniq,
             LarcenyMotorUnique, AssaultUnique, cummCrimes, BurglaryCumm, RobberyCumm, LarcenyCumm,
             LarcenyMotorCumm, AssaultCumm, PercentuniqueCrimes, PercentBurglaryUniq, PercentRobberyUniq,
             PercentLarcenyUniq, PercentLarcenyMotorUnique, PercentAssaultUnique, uniqPai, uniquePaiBurglary,
             uniquePaiRobbery, uniquePaiLarceny, uniquePaiLarcneyM, uniquePaiAssault, walkedD, walkedDPercent
             ) values
-            ({1},{2},{3},'{4}','{5}',{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18},{19},{20},{21},{22},{23},{24},{25},{26},{27},{28},{29},{30},{31})""".format(
+            ({1},{2},{3},'{4}','{5}',{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18},{19},{20},{21},{22},{23},{24},{25},{26},{27},{28},{29},{30},{31},{32})""".format(
             table,             
-            element.run_id, element.num_agents, element.totalnumagents, str(element.radiusType), str(element.targetType), element.uniqueCrimes,
-            element.BurglaryUniq, element.RobberyUniq, element.LarcenyUniq, 
+            element.run_id, element.num_agents, element.totalnumagents, str(element.distanceType), str(element.targetType), str(element.wayfindingType),
+            element.uniqueCrimes, element.BurglaryUniq, element.RobberyUniq, element.LarcenyUniq, 
             element.LarcenyMotorUnique, element.AssaultUnique, element.cummCrimes, element.BurglaryCumm, element.RobberyCumm,
             element.LarcenyCumm, element.LarcenyMotorCumm, element.AssaultCumm, element.PercentuniqueCrimes, element.PercentBurglaryUniq,
             element.PercentRobberyUniq, element.PercentLarcenyUniq, element.PercentLarcenyMotorUnique, element.PercentAssaultUnique,
@@ -246,7 +248,8 @@ numagents=[5, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350,
 #numagents=[5]
 
 table='abm_res.res_la_results1000agent_2'
-select_ids='(run_id=620 OR run_id=621 OR run_id=622 OR run_id=623 OR run_id=624 OR run_id=625 OR  OR run_id=626  OR run_id=629  OR run_id=631  OR run_id=632  OR run_id=633)'
+select_ids='(run_id=620)'
+#'(run_id=620 OR run_id=621 OR run_id=622 OR run_id=623 OR run_id=624 OR run_id=625 OR  OR run_id=626  OR run_id=629  OR run_id=631  OR run_id=632  OR run_id=633)'
 #'(run_id=412 OR run_id=413 OR run_id=414 OR run_id=415 OR run_id=416 OR run_id=417 OR run_id=418 OR run_id=419 OR run_id=420 OR run_id=421 OR run_id=422 OR run_id=423 OR run_id=424 OR run_id=425 OR run_id=426)'
 
 
