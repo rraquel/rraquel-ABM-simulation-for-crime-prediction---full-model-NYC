@@ -248,7 +248,7 @@ numagents=[5, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350,
 #numagents=[5]
 
 table='abm_res.res_la_results1000agent_2'
-select_ids='(run_id=620 OR run_id=621 OR run_id=622 OR run_id=623 OR run_id=624 OR run_id=625 OR  OR run_id=626 OR run_id=627 OR run_id=629  OR run_id=631  OR run_id=632 OR run_id=633 OR run_id=634 OR run_id=635 OR run_id=636)'
+select_ids='(run_id=620 OR run_id=621 OR run_id=622 OR run_id=623 OR run_id=624 OR run_id=625 OR run_id=626 OR run_id=627 OR run_id=629 OR run_id=631 OR run_id=632 OR run_id=633 OR run_id=634 OR run_id=635 OR run_id=636)'
 
 #for test
 #select_ids='run_id=320 OR run_id=321'
