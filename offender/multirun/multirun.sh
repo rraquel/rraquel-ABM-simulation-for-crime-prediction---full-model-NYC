@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #list=[]
-#to run: in pythonprototype folder: q
+#to run: in pythonprototype folder: bash offender/multirun/multirun.sh
 
 
 

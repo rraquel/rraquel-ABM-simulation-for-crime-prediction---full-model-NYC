@@ -227,7 +227,7 @@ def insertValuesInTable():
             PercentLarcenyUniq, PercentLarcenyMotorUnique, PercentAssaultUnique, uniqPai, uniquePaiBurglary,
             uniquePaiRobbery, uniquePaiLarceny, uniquePaiLarcneyM, uniquePaiAssault, walkedD, walkedDPercent
             ) values
-            ({1},{2},{3},'{4}','{5}',{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18},{19},{20},{21},{22},{23},{24},{25},{26},{27},{28},{29},{30},{31},{32})""".format(
+            ({1},{2},{3},'{4}','{5}','{6}',{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18},{19},{20},{21},{22},{23},{24},{25},{26},{27},{28},{29},{30},{31},{32})""".format(
             table,             
             element.run_id, element.num_agents, element.totalnumagents, str(element.distanceType), str(element.targetType), str(element.wayfindingType),
             element.uniqueCrimes, element.BurglaryUniq, element.RobberyUniq, element.LarcenyUniq, 
@@ -248,10 +248,7 @@ numagents=[5, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350,
 #numagents=[5]
 
 table='abm_res.res_la_results1000agent_2'
-select_ids='(run_id=620)'
-#'(run_id=620 OR run_id=621 OR run_id=622 OR run_id=623 OR run_id=624 OR run_id=625 OR  OR run_id=626  OR run_id=629  OR run_id=631  OR run_id=632  OR run_id=633)'
-#'(run_id=412 OR run_id=413 OR run_id=414 OR run_id=415 OR run_id=416 OR run_id=417 OR run_id=418 OR run_id=419 OR run_id=420 OR run_id=421 OR run_id=422 OR run_id=423 OR run_id=424 OR run_id=425 OR run_id=426)'
-
+select_ids='(run_id=620 OR run_id=621 OR run_id=622 OR run_id=623 OR run_id=624 OR run_id=625 OR  OR run_id=626 OR run_id=627 OR run_id=629  OR run_id=631  OR run_id=632 OR run_id=633 OR run_id=634 OR run_id=635 OR run_id=636)'
 
 #for test
 #select_ids='run_id=320 OR run_id=321'
