@@ -113,7 +113,7 @@ class Path:
             pWeightList.append(v/weightSum)
         #print(sum(pWeightList))
         self.destinationcensus=self.selectCensuswithWeight(census, pWeightList)
-        print(self.destinationcensus)
+        #print(self.destinationcensus)
 
     def taxiTractD(self):
         #first find tract for current road (pickup census tract)
@@ -504,7 +504,7 @@ class Path:
     def findMyWay(self, targetroad):
         """find way to target road and count statistics for path"""
         #self.log.debug('search radius: {}'.format(self.radiusR))
-        print(self.road, targetroad)
+        #print(self.road, targetroad)
         roadValuesList=[]
         if self.road==targetroad:
             self.way=[targetroad]

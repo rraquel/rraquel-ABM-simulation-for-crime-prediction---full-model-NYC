@@ -58,8 +58,6 @@ class Runner:
         """a"""
         print("Agent Data Dumping")
         agents = self.agent_df.to_dict()
-        print(agents)
-        print(len(agents))
         # Fields to be inserted
         insertf = self.getInsertFields(agents, 'res_la_agentprototype')
         insertFieldStr = '"' + str.join('", "', insertf) + '"'

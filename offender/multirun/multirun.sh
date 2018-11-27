@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #list=[]
-#to run: in pythonprototype folder: bash offender/multirun/multirun.sh
+#to run: in pythonprototype folder: q
 
 
 
@@ -11,7 +11,7 @@
 #done
 #ssd
 
-for i in config/test1000_new/5/1000_t_R*.ini ; do 
+for i in config/test1000_new/7/1000_td_*.ini ; do 
     python3 offender/run.py `echo "$i"|sed -e 's:config/::'` &
     sleep 100
 done
