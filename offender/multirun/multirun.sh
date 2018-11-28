@@ -11,10 +11,30 @@
 #done
 #ssd
 
-for i in config/test1000_new/7/1000_td_*.ini ; do 
+#runs 5
+for i in config/test1000_new/all/1000_p*.ini ; do 
     python3 offender/run.py `echo "$i"|sed -e 's:config/::'` &
     sleep 100
 done
+
+#runs 10
+for i in config/test1000_new/all/1000_ctmd*.ini ; do 
+    python3 offender/run.py `echo "$i"|sed -e 's:config/::'` &
+    sleep 100
+done
+
+#runs 10
+#for i in config/test1000_new/all/1000_ct12*.ini ; do 
+#    python3 offender/run.py `echo "$i"|sed -e 's:config/::'` &
+#    sleep 100
+#done
+
+#runs 1
+#for i in config/test1000_new/all/1000_ct1_*.ini ; do 
+#    python3 offender/run.py `echo "$i"|sed -e 's:config/::'` &
+#    sleep 100
+#done
+
 
 
 #for i in config/test1000_new/2/*.ini ; do 

@@ -93,6 +93,10 @@ class Model(mesa.Model):
         #format {distanceCT[gid1]: {distanceCT2[gid2]: d1, distanceCT2[gid2]: d2}}
         self.createDistanceCT()
 
+        self.venueTypeweight=dict()
+        self.createVenueTypeWeight()
+
+
         self.totalRoadDistance=40986771
 
         self.log.info("Generating Model")
@@ -325,6 +329,15 @@ class Model(mesa.Model):
                 self.distanceCT[line[0]]=temp
             else:
                 self.distanceCT[line[0]]=gidD
+
+    def createVenueTypeWeight(self):
+        self.mycurs.execute("""SELECT  parent_name, numberofvenues, checkins, checkinvscount, weight FROM open.nyc_fs_venue_join_categoriesagg""")
+        venues=self.mycurs.fetchall()
+        # sum checkinvscount 5650
+        for line in venues:
+            self.venueTypeweight[line[0]]=line[4]
+
+
         
 
     def step(self, i, numSteps):

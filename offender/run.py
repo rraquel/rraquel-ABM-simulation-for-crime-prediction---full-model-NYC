@@ -172,7 +172,8 @@ if __name__ == '__main__':
     runner.createModel()
     print("time at model created {}".format(str(time.monotonic()-runner.t)))
 
-    runner.writeDBstart()
+    #runner.writeDBstart()
+    
     # If you need profiling use the following lines
     # import cProfile
     # cProfile.run('runner.stepModel()','profiler_stats')

@@ -347,6 +347,36 @@ class Path:
         #self.log.debug('random Venue Center')        
         return roads
 
+    def randomVenueType(self, road, mycurs, maxRadius, minRadius):
+        mycurs = self.conn.cursor()
+        if 'Tract' in self.distanceType:
+            mycurs.execute("""select road_id, parent_name from (select venue_id, road_id, r2c.new_gid,  r2c.new_gid_ftus, parent_name
+                     from open.nyc_fs_venue_join fs
+                     left join open.nyc_road2fs_near2 r2f on r2f.fs_id=fs.venue_id 
+                     left join open.nyc_road2censustract r2c on r2c.gid=r2f.road_id
+                     where r2c.new_gid={0} and st_intersects(fs.ftus_coord,r2c.new_gid_ftus)
+                     and not r2f.road_id is null and road_id not in
+                     (select gid from open.nyc_road_proj_final_isolates)) as bar""".format(self.destinationcensus))
+        elif maxRadius == 41000:
+            """mapping results slightly different - because query roads within radius not venues like this"""
+            mycurs.execute("""select road_id, parent_name from (select venue_id, startroad, targetroad, road_id, parent_name
+               from open.nyc_fs_venue_join as v
+               left join open.nyc_road2fs_near2 r2f on r2f.fs_id=v.venue_id 
+               left join open.nyc_road2road_precalc r on r.targetroad=r2f.road_id) as f where startroad={0}
+               and road_id not in (select * from open.nyc_road_proj_final_isolates)""".format(road))
+        else:
+            mycurs.execute("""select road_id, parent_name from (
+                select venue_id, parent_name from open.nyc_fs_venue_join where st_dwithin( (
+                select geom from open.nyc_road_proj_final where gid={0}) ,ftus_coord, {1})
+                and not st_dwithin( (
+                select geom from open.nyc_road_proj_final where gid={0}) ,ftus_coord, {2}))
+                as fs left join open.nyc_road2fs_near2 r2f on r2f.fs_id=fs.venue_id 
+                where not road_id is null
+                and road_id not in (select * from open.nyc_road_proj_final_isolates)""".format(road,maxRadius,minRadius))
+        roads=mycurs.fetchall() #returns tuple of tuples, venue_id and road_id paired
+        self.log.debug('random Venue')        
+        return roads  
+
     def popularVenue(self, road, mycurs, maxRadius, minRadius):
         mycurs = self.conn.cursor()
         if 'Tract' in self.distanceType:
@@ -412,6 +442,38 @@ class Path:
         self.log.debug('popular Venue Center') 
         return roads
     
+    def popularVenueType(self, road, mycurs, maxRadius, minRadius):
+        mycurs = self.conn.cursor()
+        if 'Tract' in self.distanceType:
+            mycurs.execute("""select road_id, checkins_count, parent_name from (select venue_id, road_id, checkins_count, parent_name
+                from open.nyc_fs_venue_join fs
+                left join open.nyc_road2fs_near2 r2f on r2f.fs_id=fs.venue_id 
+                left join open.nyc_road2censustract r2c on r2c.gid=r2f.road_id
+                where r2c.new_gid={} and st_intersects(fs.ftus_coord,r2c.new_gid_ftus)
+                and not r2f.road_id is null and road_id not in
+                (select gid from open.nyc_road_proj_final_isolates)) as bar""".format(self.destinationcensus))
+        elif maxRadius == 41000:
+            """mapping results slightly different - because query roads within radius not venues like this"""
+            mycurs.execute("""SELECT road_id, checkins_count, parent_name FROM(
+                SELECT venue_id, checkins_count, startroad, targetroad, road_id, parent_name from open.nyc_fs_venue_join as fs
+                LEFT JOIN open.nyc_road2fs_near2 r2f on r2f.fs_id=fs.venue_id
+                LEFT JOIN open.nyc_road2road_precalc r on r.targetroad=r2f.road_id) as f where startroad={0}
+                and NOT road_id is null and road_id not in (select * from open.nyc_road_proj_final_isolates)""".format(road))
+        else:
+            mycurs.execute("""SELECT road_id, checkins_count, parent_name FROM(
+                SELECT venue_id, checkins_count, parent_name
+                from open.nyc_fs_venue_join
+                where st_dwithin((select geom from open.nyc_road_proj_final where gid={0}),ftus_coord, {1})
+                and not st_dwithin((select geom from open.nyc_road_proj_final where gid={0}),ftus_coord, {2}))
+                AS fs LEFT JOIN open.nyc_road2fs_near2 r2f on r2f.fs_id=fs.venue_id WHERE NOT road_id is null
+                and road_id not in (select * from open.nyc_road_proj_final_isolates)"""
+                .format(road,maxRadius,minRadius))
+        roads=mycurs.fetchall() #returns tuple of tuples, road_id, checkins, venueType
+        self.log.debug('popular Venue Type') 
+        return roads
+
+    
+
 
     def searchTarget(self, road):
         """search target within radius"""
@@ -456,6 +518,25 @@ class Path:
         elif (len(roads[0]) is 1):
             road=random.choice(roads)
             roadId=road[0]
+        elif 'Type' in str(self.targetType):
+            #line0: roads, line[1]: checkins, line[2]:parent_name or venue type
+            roadsList=[x[0] for x in roads]           
+            if (len(roads[0])>2): #×or if self.targetType=2
+                weightList=[x[1] for x in roads]
+                venueType=[x[2] for x in roads]
+                weightListT=list()
+                for v in venueType:
+                    vtw=self.model.venueTypeweight[v]
+                    weightListT.append(vtw)
+                weightList=[i*j for i,j in zip(weightList,weightListT)]
+                self.log.debug('combined weights: {}'.format(weightList[0]))
+            else:
+                venueType=[x[1] for x in roads]
+                weightList=list()
+                for v in venueType:
+                    vtw=self.model.venueTypeweight[v]
+                    weightList.append(vtw)
+                self.log.debug('weights: {}'.format(weightList[0]))
         else:
             roadsList=[x[0] for x in roads]
             weightList=[x[1] for x in roads]
@@ -465,6 +546,7 @@ class Path:
                 weightList2=[i for i in weightList2]
                 weightList=[i*j for i,j in zip(weightList,weightList2)]
                 self.log.debug('combined weights: {}'.format(weightList[0]))
+            exit()
             pWeightList=[]
             sumWeightList=sum(weightList)
             for value in weightList:

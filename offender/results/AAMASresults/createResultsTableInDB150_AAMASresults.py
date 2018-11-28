@@ -8,18 +8,20 @@ import collections
 import uuid
 
 
+
+
+
 class Results():
     """object containing each Scenario's results"""
     _ID = 0
-    def __init__(self, result_id, run_id, totalnumagents, distanceType, targetType, wayfindingType, numsteps, num_agents):
+    def __init__(self, result_id, run_id, totalnumagents, radiusType, targetType, numsteps, num_agents):
         self.result_id=result_id
         self.id = self._ID; self.__class__._ID += 1
 
         self.run_id=run_id
         self.totalnumagents=totalnumagents
-        self.distanceType=distanceType
+        self.radiusType=radiusType
         self.targetType=targetType
-        self.wayfindingType=wayfindingType
         self.numsteps=numsteps
         self.num_agents=num_agents
 
@@ -56,8 +58,8 @@ class Results():
 
 
 def buildbase():
-    mycurs.execute("""SELECT run_id, num_agents, "distancetype", "targettype", "wayfindingtype", numsteps
-        from abm_res.res_la_runprototype
+    mycurs.execute("""SELECT run_id, num_agents, "radiustype", "targettype", numsteps
+        from open.res_la_run
         WHERE {0}""".format(select_ids))
     a=mycurs.fetchall() #returns tuple with first row (unordered list)
     #resultsList=[]
@@ -67,7 +69,7 @@ def buildbase():
         #rArray=[line[1], line[2], line[3], int(line[4])]
         #configdict[resultKey]=rArray
         for a in numagents:
-            results=Results(result_id, line[0], line[1], str(line[2]), str(line[3]), str(line[4]), int(line[5]), a)
+            results=Results(result_id, line[0], line[1], str(line[2]), str(line[3]), int(line[4]), a)
             resultsList.append(results)
             result_id+=1
             #print(results)
@@ -81,9 +83,9 @@ def distance():
     for x in numagents:
         """select uniqueCrimes and cummCrimes"""
         mycurs.execute("""SELECT run_id, sum(distinct(shape_leng)) AS distinctSum FROM
-        (SELECT run.run_id, run.road_id, road.shape_leng from abm_res.res_la_roadsprototype run
-        LEFT JOIN open.nyc_road_proj_final as road on road.gid=run.road_id WHERE run.agent<{0} and {1})
-        as f group by f.run_id""".format(x,select_ids))
+        (SELECT run.run_id, run.road_id, road.shape_leng from open.res_la_roads run
+        LEFT JOIN open.nyc_road_proj_final as road on road.gid=run.road_id WHERE run.agent<{0} and
+        {1}) as f group by f.run_id""".format(x,select_ids))
         a=mycurs.fetchall() #returns tuple with first row (unordered list)
         for line in a:
             run_id=line[0]
@@ -100,15 +102,15 @@ def allCrimes():
         mycurs.execute("""SELECT  run_id,
         COUNT(DISTINCT(object_id)),
         COUNT(object_id)
-        FROM abm_res.res_la_roadsprototype f
+        FROM open.res_la_roads f
         LEFT JOIN open.nyc_road_proj_final r
         ON r.gid=f.road_id
         LEFT JOIN open.nyc_road2pi_5ft_2015_jun p
         ON f.road_id=p.road_id
-        WHERE NOT f.road_id is NULL AND agent<{0} AND {1}
-        group by run_id""".format(x, select_ids))
+        WHERE NOT f.road_id is NULL AND agent<{0} AND
+        {1} group by run_id""".format(x,select_ids))
         a=mycurs.fetchall() #returns tuple with first row (unordered list)
-        print("current numagents: {}".format(x,select_ids))
+        print("current numagents: {}".format(x))
         for line in a:
             run_id=line[0]
             for element in resultsList:
@@ -126,13 +128,13 @@ def typesCrimes():
             mycurs.execute("""SELECT  run_id,
             COUNT(DISTINCT(object_id)),
             COUNT(object_id)
-            FROM abm_res.res_la_roadsprototype f
+            FROM open.res_la_roads f
             LEFT JOIN open.nyc_road_proj_final r
             ON r.gid=f.road_id
             LEFT JOIN open.nyc_road2pi_5ft_2015_jun p
             ON f.road_id=p.road_id
-            WHERE NOT f.road_id is NULL AND agent<{0} AND offense={1} AND {2}
-            group by run_id""".format(x, crimetype, select_ids))
+            WHERE NOT f.road_id is NULL AND agent<{0} AND offense={1} AND
+            {2} group by run_id""".format(x, crimetype, select_ids))
             a=mycurs.fetchall() #returns tuple with first row (unordered list)
             for line in a:
                 run_id=line[0]
@@ -184,9 +186,8 @@ def insertValuesInTable():
         run_id integer,
         num_agents numeric,
         totalnumagents numeric,
-        "distancetype" varchar,
+        "radiustype" varchar,
         "targettype" varchar,
-        "wayfindingType" varchar,
         uniqueCrimes numeric,
         BurglaryUniq numeric,
         RobberyUniq numeric,
@@ -221,37 +222,35 @@ def insertValuesInTable():
         
         for element in resultsList:
             mycurs.execute("""Insert into {0} ("run_id", "num_agents", "totalnumagents",
-            "distancetype", "targettype", "wayfindingType", uniqueCrimes, BurglaryUniq, RobberyUniq, LarcenyUniq,
+            "radiustype", "targettype", uniqueCrimes, BurglaryUniq, RobberyUniq, LarcenyUniq,
             LarcenyMotorUnique, AssaultUnique, cummCrimes, BurglaryCumm, RobberyCumm, LarcenyCumm,
             LarcenyMotorCumm, AssaultCumm, PercentuniqueCrimes, PercentBurglaryUniq, PercentRobberyUniq,
             PercentLarcenyUniq, PercentLarcenyMotorUnique, PercentAssaultUnique, uniqPai, uniquePaiBurglary,
             uniquePaiRobbery, uniquePaiLarceny, uniquePaiLarcneyM, uniquePaiAssault, walkedD, walkedDPercent
             ) values
-            ({1},{2},{3},'{4}','{5}','{6}',{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18},{19},{20},{21},{22},{23},{24},{25},{26},{27},{28},{29},{30},{31},{32})""".format(
+            ({1},{2},{3},'{4}','{5}',{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18},{19},{20},{21},{22},{23},{24},{25},{26},{27},{28},{29},{30},{31})""".format(
             table,             
-            element.run_id, element.num_agents, element.totalnumagents, str(element.distanceType), str(element.targetType), str(element.wayfindingType),
-            element.uniqueCrimes, element.BurglaryUniq, element.RobberyUniq, element.LarcenyUniq, 
+            element.run_id, element.num_agents, element.totalnumagents, str(element.radiusType), str(element.targetType), element.uniqueCrimes,
+            element.BurglaryUniq, element.RobberyUniq, element.LarcenyUniq, 
             element.LarcenyMotorUnique, element.AssaultUnique, element.cummCrimes, element.BurglaryCumm, element.RobberyCumm,
             element.LarcenyCumm, element.LarcenyMotorCumm, element.AssaultCumm, element.PercentuniqueCrimes, element.PercentBurglaryUniq,
             element.PercentRobberyUniq, element.PercentLarcenyUniq, element.PercentLarcenyMotorUnique, element.PercentAssaultUnique,
             element.uniqPai, element.uniquePaiBurglary, element.uniquePaiRobbery, element.uniquePaiLarceny, element.uniquePaiLarcneyM,
             element.uniquePaiAssault, element.walkedD, element.walkedDPercent))
             conn.commit()
-        conn.commit()
         conn.close()
 
 conn= psycopg2.connect("dbname='shared' user='rraquel' host='127.0.0.1' password='Mobil4b' ")        
 mycurs = conn.cursor()
 
-numagents=[5, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 475, 500, 525, 550, 575, 600, 625, 650, 675, 700, 725, 750, 775, 800, 825, 850, 875, 900, 925, 950, 975, 1000]
+numagents=[5, 25, 50, 75, 100, 125, 150]
 #for test
 #numagents=[5]
 
-table='abm_res.res_la_results1000agent'
-select_ids='(run_id=620 OR run_id=621 OR run_id=622 OR run_id=623 OR run_id=624 OR run_id=625 OR run_id=626 OR run_id=627 OR run_id=629 OR run_id=631 OR run_id=632 OR run_id=633 OR run_id=634 OR run_id=635 OR run_id=636)'
-
+table='open.res_la_results150agent'
+select_ids='(run_id=279 OR run_id=283 OR run_id=286 OR run_id=227 OR run_id=280 OR run_id=285 OR run_id=228 OR run_id=229 OR run_id=1 OR run_id=2 OR run_id=3 OR run_id=4 OR run_id=5 OR run_id=6 OR run_id=7 OR run_id=8 OR run_id=9)'
 #for test
-#select_ids='run_id=320 OR run_id=321'
+#select_ids='run_id=279 OR run_id=283'
 
 #mapped crimes for June 2015
 crimesTotal=8494
@@ -270,6 +269,4 @@ allCrimes()
 typesCrimes()
 calculatePAI()
 insertValuesInTable()
-
-print("inserted")
 
