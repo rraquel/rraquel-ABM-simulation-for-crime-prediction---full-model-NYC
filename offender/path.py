@@ -560,7 +560,6 @@ class Path:
             self.log.debug('weightlist p sum: {}'.format(sum(pWeightList)))
             roadIdNp=np.random.choice(roadsList, 1, True, pWeightList)
             roadId=roadIdNp[0]
-        print(roadId)
         return roadId
     
        
