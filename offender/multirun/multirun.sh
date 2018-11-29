@@ -14,13 +14,13 @@
 #runs 5
 for i in config/test1000_new/all/1000_p*.ini ; do 
     python3 offender/run.py `echo "$i"|sed -e 's:config/::'` &
-    sleep 100
+    sleep 10
 done
 
 #runs 10
 for i in config/test1000_new/all/1000_ctmd*.ini ; do 
     python3 offender/run.py `echo "$i"|sed -e 's:config/::'` &
-    sleep 100
+    sleep 10
 done
 
 #runs 10

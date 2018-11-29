@@ -537,6 +537,13 @@ class Path:
                     vtw=self.model.venueTypeweight[v]
                     weightList.append(vtw)
                 self.log.debug('weights: {}'.format(weightList[0]))
+            pWeightList=[]
+            sumWeightList=sum(weightList)
+            for value in weightList:
+                pWeightList.append(value/sumWeightList)
+            self.log.debug('weightlist p sum: {}'.format(sum(pWeightList)))
+            roadIdNp=np.random.choice(roadsList, 1, True, pWeightList)
+            roadId=roadIdNp[0]  
         else:
             roadsList=[x[0] for x in roads]
             weightList=[x[1] for x in roads]
@@ -546,14 +553,14 @@ class Path:
                 weightList2=[i for i in weightList2]
                 weightList=[i*j for i,j in zip(weightList,weightList2)]
                 self.log.debug('combined weights: {}'.format(weightList[0]))
-            exit()
             pWeightList=[]
             sumWeightList=sum(weightList)
             for value in weightList:
                 pWeightList.append(value/sumWeightList)
             self.log.debug('weightlist p sum: {}'.format(sum(pWeightList)))
             roadIdNp=np.random.choice(roadsList, 1, True, pWeightList)
-            roadId=roadIdNp[0]  
+            roadId=roadIdNp[0]
+        print(roadId)
         return roadId
     
        
