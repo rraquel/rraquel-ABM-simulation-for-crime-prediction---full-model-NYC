@@ -175,50 +175,52 @@ def calculatePAI():
         element.uniquePaiAssault=float(element.PercentAssaultUnique)/float(element.walkedDPercent)
 
 
+def createNewTable():
+    try:
+        mycurs.execute("""DROP TABLE {0}""".format(table))
+    except:
+        print("table does not exist yet")
+    mycurs.execute("""CREATE TABLE {0} (
+    run_id integer,
+    num_agents numeric,
+    totalnumagents numeric,
+    "distancetype" varchar,
+    "targettype" varchar,
+    "wayfindingType" varchar,
+    uniqueCrimes numeric,
+    BurglaryUniq numeric,
+    RobberyUniq numeric,
+    LarcenyUniq numeric,
+    LarcenyMotorUnique numeric,
+    AssaultUnique numeric,
+
+    cummCrimes numeric,
+    BurglaryCumm numeric,
+    RobberyCumm numeric,
+    LarcenyCumm numeric,
+    LarcenyMotorCumm numeric,
+    AssaultCumm numeric,
+
+    PercentuniqueCrimes numeric,
+    PercentBurglaryUniq numeric,
+    PercentRobberyUniq numeric,
+    PercentLarcenyUniq numeric,
+    PercentLarcenyMotorUnique numeric,
+    PercentAssaultUnique numeric,
+
+    uniqPai numeric,
+    uniquePaiBurglary numeric,
+    uniquePaiRobbery numeric,
+    uniquePaiLarceny numeric,
+    uniquePaiLarcneyM numeric,
+    uniquePaiAssault numeric,
+    walkedD numeric,
+    walkedDPercent numeric)""".format(table))
+    conn.commit()
+    print("table created")
+
 def insertValuesInTable():
-        try:
-            mycurs.execute("""DROP TABLE {0}""".format(table))
-        except:
-            print("table does not exist yet")
-        mycurs.execute("""CREATE TABLE {0} (
-        run_id integer,
-        num_agents numeric,
-        totalnumagents numeric,
-        "distancetype" varchar,
-        "targettype" varchar,
-        "wayfindingType" varchar,
-        uniqueCrimes numeric,
-        BurglaryUniq numeric,
-        RobberyUniq numeric,
-        LarcenyUniq numeric,
-        LarcenyMotorUnique numeric,
-        AssaultUnique numeric,
-
-        cummCrimes numeric,
-        BurglaryCumm numeric,
-        RobberyCumm numeric,
-        LarcenyCumm numeric,
-        LarcenyMotorCumm numeric,
-        AssaultCumm numeric,
-
-        PercentuniqueCrimes numeric,
-        PercentBurglaryUniq numeric,
-        PercentRobberyUniq numeric,
-        PercentLarcenyUniq numeric,
-        PercentLarcenyMotorUnique numeric,
-        PercentAssaultUnique numeric,
-
-        uniqPai numeric,
-        uniquePaiBurglary numeric,
-        uniquePaiRobbery numeric,
-        uniquePaiLarceny numeric,
-        uniquePaiLarcneyM numeric,
-        uniquePaiAssault numeric,
-        walkedD numeric,
-        walkedDPercent numeric)""".format(table))
-        conn.commit()
-        print("table created")
-        
+    try:        
         for element in resultsList:
             mycurs.execute("""Insert into {0} ("run_id", "num_agents", "totalnumagents",
             "distancetype", "targettype", "wayfindingType", uniqueCrimes, BurglaryUniq, RobberyUniq, LarcenyUniq,
@@ -237,8 +239,10 @@ def insertValuesInTable():
             element.uniqPai, element.uniquePaiBurglary, element.uniquePaiRobbery, element.uniquePaiLarceny, element.uniquePaiLarcneyM,
             element.uniquePaiAssault, element.walkedD, element.walkedDPercent))
             conn.commit()
-        conn.commit()
-        conn.close()
+    except:
+        print("could not insert values in table ")
+    conn.commit()
+    conn.close()
 
 conn= psycopg2.connect("dbname='shared' user='rraquel' host='127.0.0.1' password='Mobil4b' ")        
 mycurs = conn.cursor()
@@ -248,10 +252,10 @@ numagents=[5, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350,
 #numagents=[5]
 
 table='abm_res.res_la_results1000agent'
-select_ids='(run_id=620 OR run_id=621 OR run_id=622 OR run_id=623 OR run_id=624 OR run_id=625 OR run_id=626 OR run_id=627 OR run_id=629 OR run_id=631 OR run_id=632 OR run_id=633 OR run_id=634 OR run_id=635 OR run_id=636)'
+select_ids='(run_id=628 OR run_id=630)'
 
 #for test
-#select_ids='run_id=320 OR run_id=321'
+#select_ids='run_id=620 OR run_id=62'
 
 #mapped crimes for June 2015
 crimesTotal=8494
@@ -269,6 +273,7 @@ distance()
 allCrimes()
 typesCrimes()
 calculatePAI()
+#createNewTable()
 insertValuesInTable()
 
 print("inserted")

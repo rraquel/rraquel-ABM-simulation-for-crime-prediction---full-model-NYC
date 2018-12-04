@@ -20,7 +20,7 @@ def uniquePaiCrimesU():
 
     mycurs.execute("""SELECT "targettype",uniqPai, num_agents, run_id
     FROM abm_res.res_la_results1000agent AS m
-    WHERE "radiustype"='uniformR'""")
+    WHERE "distancetype"='uniformR'""")
     results=mycurs.fetchall() #returns tuple with first row (unordered list)
     #print(results)
 
@@ -100,7 +100,7 @@ def uniquePaiCrimesS():
 
     mycurs.execute("""SELECT "targettype", uniqPai, num_agents, run_id
     FROM abm_res.res_la_results1000agent AS m
-    WHERE  "radiustype"='staticR'""")
+    WHERE  "distancetype"='staticR'""")
     results=mycurs.fetchall() #returns tuple with first row (unordered list)
 
     res=collections.defaultdict(list)
@@ -185,7 +185,7 @@ def uniquePaiCrimesP():
 
     mycurs.execute("""SELECT "targettype", uniqPai, num_agents, run_id
    FROM abm_res.res_la_results1000agent
-   WHERE  "radiustype"='powerR'""")
+   WHERE  "distancetype"='powerR'""")
     results=mycurs.fetchall() #returns tuple with first row (unordered list)
 
     res=collections.defaultdict(list)
@@ -262,7 +262,7 @@ def uniquePaiCrimesT():
 
     mycurs.execute("""SELECT "targettype", uniqPai, num_agents, run_id
    FROM abm_res.res_la_results1000agent
-   WHERE  "radiustype"='taxiTract'""")
+   WHERE  "distancetype"='taxiTract'""")
     results=mycurs.fetchall() #returns tuple with first row (unordered list)
 
     res=collections.defaultdict(list)
@@ -339,7 +339,7 @@ def uniquePaiCrimesTD():
 
     mycurs.execute("""SELECT "targettype", uniqPai, num_agents, run_id
    FROM abm_res.res_la_results1000agent
-   WHERE  "radiustype"='taxiTractD'""")
+   WHERE  "distancetype"='taxiTractD'""")
     results=mycurs.fetchall() #returns tuple with first row (unordered list)
 
     res=collections.defaultdict(list)
@@ -416,7 +416,7 @@ def uniquePaiCrimesCtM():
 
     mycurs.execute("""SELECT "targettype", uniqPai, num_agents, run_id
    FROM abm_res.res_la_results1000agent
-   WHERE  "radiustype"='crimeTractM'""")
+   WHERE  "distancetype"='crimeTractM'""")
     results=mycurs.fetchall() #returns tuple with first row (unordered list)
 
     res=collections.defaultdict(list)
@@ -493,7 +493,7 @@ def uniquePaiCrimesCt12():
 
     mycurs.execute("""SELECT "targettype", uniqPai, num_agents, run_id
    FROM abm_res.res_la_results1000agent
-   WHERE  "radiustype"='crimeTract1x12'""")
+   WHERE  "distancetype"='crimeTract1x12'""")
     results=mycurs.fetchall() #returns tuple with first row (unordered list)
 
     res=collections.defaultdict(list)
@@ -570,7 +570,7 @@ def uniquePaiCrimesCtMD():
 
     mycurs.execute("""SELECT "targettype", uniqPai, num_agents, run_id
    FROM abm_res.res_la_results1000agent
-   WHERE  "radiustype"='crimeTractMD'""")
+   WHERE  "distancetype"='crimeTractMD'""")
     results=mycurs.fetchall() #returns tuple with first row (unordered list)
 
     res=collections.defaultdict(list)
@@ -647,7 +647,7 @@ def uniquePaiCrimesCt12D():
 
     mycurs.execute("""SELECT "targettype", uniqPai, num_agents, run_id
    FROM abm_res.res_la_results1000agent
-   WHERE  "radiustype"='crimeTract1x12D'""")
+   WHERE  "distancetype"='crimeTract1x12D'""")
     results=mycurs.fetchall() #returns tuple with first row (unordered list)
 
     res=collections.defaultdict(list)
@@ -791,7 +791,7 @@ def uniquePercentCrimesU():
 
     mycurs.execute("""SELECT "targettype", PercentuniqueCrimes, num_agents, run_id
    FROM abm_res.res_la_results1000agent
-   WHERE "radiustype"='uniformR'""")
+   WHERE "distancetype"='uniformR'""")
     results=mycurs.fetchall() #returns tuple with first row (unordered list)
 
 
@@ -871,7 +871,7 @@ def uniquePercentCrimesS():
 
     mycurs.execute("""SELECT "targettype", PercentuniqueCrimes, num_agents, run_id
    FROM abm_res.res_la_results1000agent
-   WHERE  "radiustype"='staticR'""")
+   WHERE  "distancetype"='staticR'""")
     results=mycurs.fetchall() #returns tuple with first row (unordered list)
 
 
@@ -954,7 +954,7 @@ def uniquePercentCrimesP():
 
     mycurs.execute("""SELECT "targettype", PercentuniqueCrimes, num_agents, run_id
    FROM abm_res.res_la_results1000agent
-   WHERE  "radiustype"='powerR'""")
+   WHERE  "distancetype"='powerR'""")
     results=mycurs.fetchall() #returns tuple with first row (unordered list)
 
 
@@ -1034,7 +1034,7 @@ def uniquePercentCrimesT():
 
     mycurs.execute("""SELECT "targettype", PercentuniqueCrimes, num_agents, run_id
    FROM abm_res.res_la_results1000agent
-   WHERE  "radiustype"='taxiTract'""")
+   WHERE  "distancetype"='taxiTract'""")
     results=mycurs.fetchall() #returns tuple with first row (unordered list)
 
 
@@ -1114,7 +1114,7 @@ def uniquePercentCrimesTD():
 
     mycurs.execute("""SELECT "targettype", PercentuniqueCrimes, num_agents, run_id
    FROM abm_res.res_la_results1000agent
-   WHERE  "radiustype"='taxiTractD'""")
+   WHERE  "distancetype"='taxiTractD'""")
     results=mycurs.fetchall() #returns tuple with first row (unordered list)
 
 
@@ -1194,7 +1194,7 @@ def uniquePercentCrimesCtM():
 
     mycurs.execute("""SELECT "targettype", PercentuniqueCrimes, num_agents, run_id
    FROM abm_res.res_la_results1000agent
-   WHERE  "radiustype"='crimeTractM'""")
+   WHERE  "distancetype"='crimeTractM'""")
     results=mycurs.fetchall() #returns tuple with first row (unordered list)
 
 
@@ -1274,7 +1274,7 @@ def uniquePercentCrimesCt12():
 
     mycurs.execute("""SELECT "targettype", PercentuniqueCrimes, num_agents, run_id
    FROM abm_res.res_la_results1000agent
-   WHERE  "radiustype"='crimeTract1x12 '""")
+   WHERE  "distancetype"='crimeTract1x12 '""")
     results=mycurs.fetchall() #returns tuple with first row (unordered list)
 
 
@@ -1354,7 +1354,7 @@ def uniquePercentCrimesCtMD():
 
     mycurs.execute("""SELECT "targettype", PercentuniqueCrimes, num_agents, run_id
    FROM abm_res.res_la_results1000agent
-   WHERE  "radiustype"='crimeTractMD '""")
+   WHERE  "distancetype"='crimeTractMD '""")
     results=mycurs.fetchall() #returns tuple with first row (unordered list)
 
 
@@ -1434,7 +1434,7 @@ def uniquePercentCrimesCt12D():
 
     mycurs.execute("""SELECT "targettype", PercentuniqueCrimes, num_agents, run_id
    FROM abm_res.res_la_results1000agent
-   WHERE  "radiustype"='crimeTract1x12D'""")
+   WHERE  "distancetype"='crimeTract1x12D'""")
     results=mycurs.fetchall() #returns tuple with first row (unordered list)
 
 
