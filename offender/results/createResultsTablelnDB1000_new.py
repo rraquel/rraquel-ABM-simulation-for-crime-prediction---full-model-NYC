@@ -252,7 +252,8 @@ numagents=[5, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350,
 #numagents=[5]
 
 table='abm_res.res_la_results1000agent'
-select_ids='(run_id=628 OR run_id=630)'
+#select_ids='(run_id=628 OR run_id=630)'
+select_ids='(run_id>669 and run_id<689)'
 
 #for test
 #select_ids='run_id=620 OR run_id=62'
