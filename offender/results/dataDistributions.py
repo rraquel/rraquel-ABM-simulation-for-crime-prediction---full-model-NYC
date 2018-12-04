@@ -78,6 +78,47 @@ def crimesPerRoad():
     plt.legend()
     plt.show()
 
+def crimesPerCT():
+    
+    ####
+    ####TODO erase LIMIT 2
+    """----------ALL CRIMES----------"""
+    """distinct crimes and distinct roads"""
+
+    mycurs.execute("""select gid, count(objectid) from open.nyc_police_incident2CT
+        WHERE ((occurence_year=2015 AND occurrence_month='May') OR
+       (occurence_year=2015 AND occurrence_month='Mar') OR
+       (occurence_year=2015 AND occurrence_month='Apr') OR
+       (occurence_year=2015 AND occurrence_month='Mar') OR
+       (occurence_year=2015 AND occurrence_month='Feb') OR
+       (occurence_year=2015 AND occurrence_month='Jan') OR
+       (occurence_year=2014 AND occurrence_month='Jun') OR
+       (occurence_year=2014 AND occurrence_month='Jul') OR
+       (occurence_year=2014 AND occurrence_month='Aug') OR
+       (occurence_year=2014 AND occurrence_month='Sep') OR
+       (occurence_year=2014 AND occurrence_month='Oct') OR
+       (occurence_year=2014 AND occurrence_month='Nov') OR
+       (occurence_year=2014 AND occurrence_month='Dec'))
+       group by gid""")
+    results=mycurs.fetchall() #returns tuple with first row (unordered list)
+
+    #each row is a run_id
+    crimecount=list()
+    for row in results:
+        gid=row[0]
+        crimecount.append(float(row[1]))
+
+    x=np.array(crimecount)
+    print(max(x))
+    fig=plt.figure(1)
+    plot1=plt.hist(x, bins=50)
+    #plt.xlim(0,10)
+    #plt.title('crimes count for each road distribution')
+    plt.xlabel('number crimes per census tract')
+    plt.ylabel('frequency')
+    plt.legend()
+    plt.show()
+
 
 def venuesPerRoad():
 
@@ -113,7 +154,35 @@ def venuesPerRoad():
     plt.show()
 
 
-def crimesPerCT():
+def taxiperCT():
+    
+    ####
+    ####TODO erase LIMIT 2
+    """----------ALL CRIMES----------"""
+    """distinct crimes and distinct roads"""
+
+    mycurs.execute("""SELECT weight FROM
+        open.nyc_taxi_trips0706_1415_censuscoutns""")
+    results=mycurs.fetchall() #returns tuple with first row (unordered list)
+
+    #each row is a run_id
+    tripcount=list()
+    for row in results:
+        tripcount.append(float(row[0]))
+
+    x=np.array(tripcount)
+    print(max(x))
+    fig=plt.figure(1)
+    plot1=plt.hist(x, bins=50)
+    #plt.xlim(0,60)
+    #plt.title('venue count for each road distribution')
+    plt.xlabel('number of transitions per pair of census tracts')
+    plt.ylabel('frequency')
+    plt.legend()
+    plt.show()
+
+
+def crimesPerCTx():
 
     ####
     ####TODO erase LIMIT 2
@@ -246,7 +315,9 @@ def crimeCorr():
     plt.show()
     
 
+taxiperCT()
 #crimesPerCT()
+#crimesPerCTx()
 #crimeCorr()
 #roadDist()
 #crimesPerRoad()
