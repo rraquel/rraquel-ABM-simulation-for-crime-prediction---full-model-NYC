@@ -75,7 +75,7 @@ def buildbase():
             #print(results.result_id)
             #print(results._ID)
             #print(results.num_agents)
-    print('done')
+    print('done buildbase')
 
 def distance():
     for x in numagents:
@@ -277,5 +277,5 @@ calculatePAI()
 #createNewTable()
 insertValuesInTable()
 
-print("inserted")
+print("inserted and finished")
 
