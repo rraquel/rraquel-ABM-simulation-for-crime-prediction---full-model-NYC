@@ -122,11 +122,6 @@ def crimesPerCT():
 
 def venuesPerRoad():
 
-    ####
-    ####TODO erase LIMIT 2
-    """----------ALL CRIMES----------"""
-    """distinct crimes and distinct roads"""
-
     mycurs.execute("""SELECT road_id, COUNT(fs_id)
     FROM
     open.nyc_road2fs_near2

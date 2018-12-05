@@ -491,7 +491,7 @@ class Path:
             roadId=self.weightedChoice(roads, road)
             if not roadId is None:
                 targetRoad=roadId
-                return (targetRoad)
+                return targetRoad
             #enlarge by 10%
             maxRadius=maxRadius*1.05
             minRadius=minRadius*0.95
@@ -593,7 +593,6 @@ class Path:
         """find way to target road and count statistics for path"""
         #self.log.debug('search radius: {}'.format(self.radiusR))
         #print(self.road, targetroad)
-        roadValuesList=[]
         if self.road==targetroad:
             self.way=[targetroad]
             self.log.debug("road and target road are the same")
@@ -607,20 +606,15 @@ class Path:
                 #          "agent": self.unique_id, "way": self.way})
                 i=0
                 for road in self.way:
-                    #print("for road: {}".format(road))
-                    #print(self.model.G.node[road]['length'])
                     self.walkedDistance += self.model.G.node[road]['length']
-                    #print("crimes")
                     self.crimesOnRoad(road)
-                    #print("walked")
                     self.walkedRoads +=1
                     ##has to be commented if want to use Qrunner
-                    sql = """insert into abm_res.res_la_roadsprototype ("id","run_id","step","agent","road_id", i, trip) values
+                    sql = """insert into abm_res.res_la_roadsprototype2 ("id","run_id","step","agent","road_id", i, trip) values
                         (DEFAULT,{0},{1},{2},{3},{4},{5})""".format(self.model.run_id, self.model.modelStepCount, self.unique_id, road, i, self.tripcount)
                     self.model.mycurs.execute(sql)
-                    #print("execute")
+                    print("execute")
                     self.pathroadlist.append(road)
-                    #print("pathroadlist")
                     i+=1
                 self.model.conn.commit()
             except Exception as e:

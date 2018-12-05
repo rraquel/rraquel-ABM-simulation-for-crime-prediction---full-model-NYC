@@ -153,7 +153,7 @@ def uniquePaiCrimesBest():
     """combines best target type strategies per radius search"""
     mycurs.execute("""SELECT "targettype", uniqPai, num_agents, run_id
     FROM abm_res.res_la_results1000agent
-    Where run_id=414 or run_id=419 or run_id=415""")
+    Where '{0}'""".format(run_ids))
     resultstotal=mycurs.fetchall() #returns tuple with first row (unordered list)
     
     res=collections.defaultdict(list)
@@ -203,10 +203,48 @@ def uniquePaiCrimesBest():
 
 ################################################################################################################################################################## 
 
+"""===========plot frequency of roads traveled for BEST strategy and wors strategy========="""
+
+def roadFrequency():
+    for r in run_ids2:
+        mycurs.execute("""SELECT road_id, count(road_id) as c
+           FROM abm_res.res_la_roadsprototype
+           WHERE run_id='{0}' 
+           GROUP BY road_id
+           UNION
+           SELECT gid, 0
+           FROM open.nyc_road_proj_final
+           WHERE gid NOT IN (SELECT road_id FROM abm_res.res_la_roadsprototype WHERE run_id='{1}')""".format(r, r))
+
+        results=mycurs.fetchall() #returns tuple with first row (unordered list)
+
+        #each row is a run_id
+        roadcount=list()
+        for row in results:
+            roadid=row[0]
+            roadcount.append(float(row[1]))
+
+        x=np.array(roadcount)
+        print(max(x))
+        fig=plt.figure(1)
+        plot1=plt.hist(x, bins=50)
+        #plt.xlim(0,60)
+        #plt.title('venue count for each road distribution')
+        plt.xlabel('number of venues per road')
+        plt.ylabel('frequency')
+        plt.legend()
+        plt.show()
+
+################################################################################################################################################################## 
+
 
 distancetype=['staticR', 'uniformR', 'powerR', 'taxiTract', 'taxiTractD', 'crimeTractM', 'crimeTractMD', 'crimeTract1x12', 'crimeTract1x12D', 'crimeTract1x6', 'crimeTract1']
-uniquePaiCrimes()
-uniquePercentCrimes()
+run_ids=['run_id=620 OR run_id=621']
+#uniquePaiCrimes()
+#uniquePercentCrimes()
 
 #unique results best combined
-uniquePaiCrimesBest()
+#uniquePaiCrimesBest()
+#frequency roads traveled best and wors strategy
+run_ids2=[620, 621]
+roadFrequency()
