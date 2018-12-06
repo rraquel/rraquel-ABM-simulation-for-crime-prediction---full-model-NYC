@@ -610,7 +610,7 @@ class Path:
                     self.crimesOnRoad(road)
                     self.walkedRoads +=1
                     ##has to be commented if want to use Qrunner
-                    sql = """insert into abm_res.res_la_roadsprototype2 ("id","run_id","step","agent","road_id", i, trip) values
+                    sql = """insert into abm_res.res_la_roadsprototype3 ("id","run_id","step","agent","road_id", i, trip) values
                         (DEFAULT,{0},{1},{2},{3},{4},{5})""".format(self.model.run_id, self.model.modelStepCount, self.unique_id, road, i, self.tripcount)
                     self.model.mycurs.execute(sql)
                     print("execute")
