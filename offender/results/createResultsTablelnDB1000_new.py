@@ -252,31 +252,36 @@ numagents=[5, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350,
 #numagents=[5]
 
 table='abm_res.res_la_results1000agent'
-#select_ids='(run_id=628 OR run_id=630)'
-#select_ids='(run_id>669 and run_id<689)'
-select_ids='(run_id=639 OR run_id=640 OR run_id=641 OR run_id=642 OR run_id=643)'
+#select_ids='(run_id=697 OR run_id=698)'
+#select_ids='(run_id>726 and run_id<...)'
 
+list_ids=list()
+for id in range(665,692):
+    list_ids.append(id)
 #for test
 #select_ids='run_id=620 OR run_id=62'
+for id in list_ids:
+    #select_ids="'run_id="+str(id)+"'"
+    select_ids='run_id='+str(id)
+    print(select_ids)
+    #mapped crimes for June 2015
+    crimesTotal=8494
+    burglaryTotal=1287
+    robberyTotal=1301
+    larcenyTotal=3555
+    larcenyMTotal=580
+    assaultTotal=1778
 
-#mapped crimes for June 2015
-crimesTotal=8494
-burglaryTotal=1287
-robberyTotal=1301
-larcenyTotal=3555
-larcenyMTotal=580
-assaultTotal=1778
+    resultsList=[]
+    configdict={}
+    allcrimesdict={}
+    buildbase()
+    distance()
+    allCrimes()
+    typesCrimes()
+    calculatePAI()
+    #createNewTable()
+    insertValuesInTable()
 
-resultsList=[]
-configdict={}
-allcrimesdict={}
-buildbase()
-distance()
-allCrimes()
-typesCrimes()
-calculatePAI()
-#createNewTable()
-insertValuesInTable()
-
-print("inserted and finished")
+    print("inserted and finished")
 

@@ -2,6 +2,7 @@ from collections import defaultdict
 from time import sleep
 
 
-r0='hola'
-if 'o' in r0:
-    print(r0)
+list_ids=list()
+for id in range(664,692):
+    list_ids.append(id)
+    print(id)
