@@ -17,30 +17,32 @@
 #    sleep 10
 #done
 
+
 #runs 2
-for i in config/test1000_new/10/1000_p*.ini ; do 
+for i in config/test1000_new/10/1000_u*.ini ; do 
     python3 offender/run.py `echo "$i"|sed -e 's:config/::'` &
     sleep 10
 done
 
 #runs 2
-for i in config/test1000_new/10/1000_s*.ini ; do 
+for i in config/test1000_new/10/1000_td*.ini ; do 
     python3 offender/run.py `echo "$i"|sed -e 's:config/::'` &
     sleep 10
 done
-
-#runs 2
-#for i in config/test1000_new/10/1000_u*.ini ; do 
-#    python3 offender/run.py `echo "$i"|sed -e 's:config/::'` &
-#    sleep 10
-#done
-
-#runs 2
-#for i in config/test1000_new/10/1000_td*.ini ; do 
-#    python3 offender/run.py `echo "$i"|sed -e 's:config/::'` &
-#    sleep 10
-#done
 
 
   # starte zweite Ladung
 #  offender/run.py
+
+
+#runs 2 DONE
+#for i in config/test1000_new/10/1000_p*.ini ; do 
+#    python3 offender/run.py `echo "$i"|sed -e 's:config/::'` &
+#    sleep 10
+#done
+
+#runs 2 DONE
+#for i in config/test1000_new/10/1000_s*.ini ; do 
+#    python3 offender/run.py `echo "$i"|sed -e 's:config/::'` &
+#    sleep 10
+#done
