@@ -3,7 +3,7 @@ from time import sleep
 
 
 list_ids=list()
-for id in range(665,692):
+for id in range(697,699):
     list_ids.append(id)
 #for test
 #select_ids='run_id=620 OR run_id=62'

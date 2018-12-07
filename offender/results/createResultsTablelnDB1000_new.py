@@ -256,7 +256,8 @@ table='abm_res.res_la_results1000agent'
 #select_ids='(run_id>726 and run_id<...)'
 
 list_ids=list()
-for id in range(666,692):
+#run 697 and 698
+for id in range(697,699):
     list_ids.append(id)
 #for test
 #select_ids='run_id=620 OR run_id=62'
