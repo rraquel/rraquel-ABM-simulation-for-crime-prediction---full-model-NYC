@@ -242,7 +242,7 @@ def insertValuesInTable():
     except:
         print("could not insert values in table ")
     conn.commit()
-    conn.close()
+
 
 conn= psycopg2.connect("dbname='shared' user='rraquel' host='127.0.0.1' password='Mobil4b' ")        
 mycurs = conn.cursor()
@@ -256,7 +256,7 @@ table='abm_res.res_la_results1000agent'
 #select_ids='(run_id>726 and run_id<...)'
 
 list_ids=list()
-for id in range(665,692):
+for id in range(666,692):
     list_ids.append(id)
 #for test
 #select_ids='run_id=620 OR run_id=62'
@@ -283,5 +283,7 @@ for id in list_ids:
     #createNewTable()
     insertValuesInTable()
 
-    print("inserted and finished")
+    print("inserted and finished: {}".format(select_ids))
+print("finished all {}".format(list_ids))
+conn.close()
 
