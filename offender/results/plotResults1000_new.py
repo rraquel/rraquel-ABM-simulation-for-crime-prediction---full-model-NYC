@@ -9,7 +9,7 @@ conn= psycopg2.connect("dbname='shared' user='rraquel' host='localhost' password
 mycurs = conn.cursor()
 
 
-def buildCases(results, type):
+def buildCases(results, type, dt):
 
     res=collections.defaultdict(list)
     #each row is a run_id
@@ -90,13 +90,21 @@ def buildCases(results, type):
     fig=plt.figure(1)
     ax=plt.subplot(111)
     plot1=plt.plot(xrr, yrr, label='RandomRoad')
+    plotlist.append((xrr, yrr, 'RandomRoad'+dt))
     #plot2=plt.plot(xrrc, yrrc, label='RandomRoadCenter')
+    #plotlist.append(plot2)
     plot3=plt.plot(xrv, yrv, label='randomVenue')
+    plotlist.append((xrv, yrv, 'randomVenue'+dt))
     plot4=plt.plot(xrvc, yrvc, label='randomVenueCenter')
+    plotlist.append((xrvc, yrvc, 'randomVenueCenter'+dt))
     plot5=plt.plot(xrvt, yrvt, label='randomVenueType')
+    plotlist.append((xrvt, yrvt, 'randomVenueType'+dt))
     plot6=plt.plot(xpv, ypv, label='popularVenue')
+    plotlist.append((xpv, ypv, 'popularVenue'+dt))
     plot7=plt.plot(xpvc, ypvc, label='popularVenueCenter')
+    plotlist.append((xpvc, ypvc, 'popularVenueCenter'+dt))
     plot8=plt.plot(xpvt, ypvt, label='popularVenueType')
+    plotlist.append((xpvt, ypvt, 'popularVenueType'+dt))
     if type==0:
         plt.axis([25,1000,1.1,1.8])
         #ax.set_title('adapted PAI - uniform distance')
@@ -126,7 +134,29 @@ def uniquePaiCrimes():
         results=mycurs.fetchall() #returns tuple with first row (unordered list)
         #print(results)
         print(dt)
-        buildCases(results, 0)
+        buildCases(results, 0, dt)
+
+##################################################################################################################################################################    
+"""===========plot ALL LINES target type and radius type per UNIQUE PAI========="""
+
+def allPai():
+    color=['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
+    fig=plt.figure(1)
+    ax=plt.subplot(111)
+    i=0
+    x=0
+    for p in plotlist:
+        c=color[x]
+        plot=plt.plot(p[0], p[1], c, label=p[2])
+        if (i+1)%7==0:
+            x+=1
+        i+=1
+    plt.axis([25,1000,1.1,1.8])
+    #ax.set_title('adapted PAI - uniform distance')
+    ax.set_xlabel('n of agents in scenario')
+    ax.set_ylabel('unique adapted PAI')
+    plt.legend()
+    plt.show()
 
 ################################################################################################################################################################## 
 
@@ -141,7 +171,7 @@ def uniquePercentCrimes():
         WHERE "distancetype"='{0}'""".format(dt))
         results=mycurs.fetchall() #returns tuple with first row (unordered list)
         print('Percent {}'.format(dt))
-        buildCases(results, 1)
+        buildCases(results, 1, dt)
 
 
 ##################################################################################################################################################################    
@@ -237,14 +267,18 @@ def roadFrequency():
 
 ################################################################################################################################################################## 
 
-
-distancetype=['staticR', 'uniformR', 'powerR', 'taxiTract', 'taxiTractD', 'crimeTractM', 'crimeTractMD', 'crimeTract1x12', 'crimeTract1x12D', 'crimeTract1x6', 'crimeTract1']
-run_ids=['run_id=620 OR run_id=621']
-#uniquePaiCrimes()
+plotlist=list()
+#distancetype=['staticR', 'uniformR', 'powerR', 'taxiTract', 'taxiTractD', 'crimeTractM', 'crimeTractMD', 'crimeTract1x12', 'crimeTract1x12D', 'crimeTract1x6', 'crimeTract1']
+distancetype=['staticR', 'uniformR', 'powerR', 'taxiTract']
+uniquePaiCrimes()
+#plot all:
+allPai()
 #uniquePercentCrimes()
 
+
 #unique results best combined
+run_ids=['run_id=620 OR run_id=621']
 #uniquePaiCrimesBest()
 #frequency roads traveled best and wors strategy
 run_ids2=[620, 621]
-roadFrequency()
+#roadFrequency()
