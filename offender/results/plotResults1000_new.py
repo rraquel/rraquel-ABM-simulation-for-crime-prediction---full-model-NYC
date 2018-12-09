@@ -140,7 +140,8 @@ def uniquePaiCrimes():
 """===========plot ALL LINES target type and radius type per UNIQUE PAI========="""
 
 def allPai():
-    color=['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
+    #one color per distance search type
+    color=['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w', 'b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
     fig=plt.figure(1)
     ax=plt.subplot(111)
     i=0
@@ -268,8 +269,8 @@ def roadFrequency():
 ################################################################################################################################################################## 
 
 plotlist=list()
-#distancetype=['staticR', 'uniformR', 'powerR', 'taxiTract', 'taxiTractD', 'crimeTractM', 'crimeTractMD', 'crimeTract1x12', 'crimeTract1x12D', 'crimeTract1x6', 'crimeTract1']
-distancetype=['staticR', 'uniformR', 'powerR', 'taxiTract']
+distancetype=['staticR', 'uniformR', 'powerR', 'taxiTract', 'taxiTractD', 'crimeTractM', 'crimeTractMD', 'crimeTract1x12', 'crimeTract1x12D', 'crimeTract1x6', 'crimeTract1']
+#distancetype=['staticR', 'uniformR', 'powerR', 'taxiTract']
 uniquePaiCrimes()
 #plot all:
 allPai()
