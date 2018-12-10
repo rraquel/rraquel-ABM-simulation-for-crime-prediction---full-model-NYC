@@ -81,9 +81,9 @@ def distance():
     for x in numagents:
         """select uniqueCrimes and cummCrimes"""
         mycurs.execute("""SELECT run_id, sum(distinct(shape_leng)) AS distinctSum FROM
-        (SELECT run.run_id, run.road_id, road.shape_leng from abm_res.res_la_roadsprototype run
-        LEFT JOIN open.nyc_road_proj_final as road on road.gid=run.road_id WHERE run.agent<{0} and {1})
-        as f group by f.run_id""".format(x,select_ids))
+        (SELECT run.run_id, run.road_id, road.shape_leng from {0} run
+        LEFT JOIN open.nyc_road_proj_final as road on road.gid=run.road_id WHERE run.agent<{1} and {2})
+        as f group by f.run_id""".format(roadsT, x,select_ids))
         a=mycurs.fetchall() #returns tuple with first row (unordered list)
         for line in a:
             run_id=line[0]
@@ -100,15 +100,15 @@ def allCrimes():
         mycurs.execute("""SELECT  run_id,
         COUNT(DISTINCT(object_id)),
         COUNT(object_id)
-        FROM abm_res.res_la_roadsprototype f
+        FROM {0} f
         LEFT JOIN open.nyc_road_proj_final r
         ON r.gid=f.road_id
         LEFT JOIN open.nyc_road2pi_5ft_2015_jun p
         ON f.road_id=p.road_id
-        WHERE NOT f.road_id is NULL AND agent<{0} AND {1}
+        WHERE NOT f.road_id is NULL AND agent<{1} AND {2}
         group by run_id""".format(x, select_ids))
         a=mycurs.fetchall() #returns tuple with first row (unordered list)
-        print("current numagents: {}".format(x,select_ids))
+        print("current numagents: {}".format(roadsT, x,select_ids))
         for line in a:
             run_id=line[0]
             for element in resultsList:
@@ -126,13 +126,13 @@ def typesCrimes():
             mycurs.execute("""SELECT  run_id,
             COUNT(DISTINCT(object_id)),
             COUNT(object_id)
-            FROM abm_res.res_la_roadsprototype f
+            FROM {0} f
             LEFT JOIN open.nyc_road_proj_final r
             ON r.gid=f.road_id
             LEFT JOIN open.nyc_road2pi_5ft_2015_jun p
             ON f.road_id=p.road_id
-            WHERE NOT f.road_id is NULL AND agent<{0} AND offense={1} AND {2}
-            group by run_id""".format(x, crimetype, select_ids))
+            WHERE NOT f.road_id is NULL AND agent<{1} AND offense={2} AND {3}
+            group by run_id""".format(roadsT, x, crimetype, select_ids))
             a=mycurs.fetchall() #returns tuple with first row (unordered list)
             for line in a:
                 run_id=line[0]
@@ -250,6 +250,8 @@ mycurs = conn.cursor()
 numagents=[5, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 475, 500, 525, 550, 575, 600, 625, 650, 675, 700, 725, 750, 775, 800, 825, 850, 875, 900, 925, 950, 975, 1000]
 #for test
 #numagents=[5]
+
+roadsT=abm_res.res_la_roadsprototype2
 
 table='abm_res.res_la_results1000agent'
 #select_ids='(run_id=726 OR run_id=727)'
