@@ -106,9 +106,9 @@ def allCrimes():
         LEFT JOIN open.nyc_road2pi_5ft_2015_jun p
         ON f.road_id=p.road_id
         WHERE NOT f.road_id is NULL AND agent<{1} AND {2}
-        group by run_id""".format(x, select_ids))
+        group by run_id""".format(roadsT, x, select_ids))
         a=mycurs.fetchall() #returns tuple with first row (unordered list)
-        print("current numagents: {}".format(roadsT, x,select_ids))
+        print("current numagents: {}".format(x,select_ids))
         for line in a:
             run_id=line[0]
             for element in resultsList:
