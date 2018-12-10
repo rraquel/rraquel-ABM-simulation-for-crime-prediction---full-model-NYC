@@ -251,7 +251,7 @@ numagents=[5, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350,
 #for test
 #numagents=[5]
 
-roadsT=abm_res.res_la_roadsprototype2
+roadsT='abm_res.res_la_roadsprototype2'
 
 table='abm_res.res_la_results1000agent'
 #select_ids='(run_id=726 OR run_id=727)'
