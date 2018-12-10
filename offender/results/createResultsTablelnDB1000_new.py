@@ -252,12 +252,12 @@ numagents=[5, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350,
 #numagents=[5]
 
 table='abm_res.res_la_results1000agent'
-#select_ids='(run_id=697 OR run_id=698)'
-#select_ids='(run_id>726 and run_id<...)'
+#select_ids='(run_id=726 OR run_id=727)'
+#select_ids='(run_id>734 and run_id<743)
 
 list_ids=list()
 #run 697 and 698
-for id in range(697,699):
+for id in range(728,734):
     list_ids.append(id)
 #for test
 #select_ids='run_id=620 OR run_id=62'

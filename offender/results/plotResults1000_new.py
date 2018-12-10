@@ -107,12 +107,15 @@ def buildCases(results, type, dt):
     plotlist.append((xpvt, ypvt, 'popularVenueType'+dt))
     if type==0:
         plt.axis([25,1000,1.1,1.8])
+        #plt.xticks([25, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000])
+        plt.xticks([100, 200, 300, 400, 500, 600, 700, 800, 900, 1000])
         #ax.set_title('adapted PAI - uniform distance')
         ax.set_xlabel('n of agents in scenario')
         ax.set_ylabel('unique adapted PAI')
     elif type==1:
-        plt.axis([25,1000,0,100])
+        plt.axis([25,1000,50,100])
         #plt.xticks([25, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000])
+        plt.xticks([100, 200, 300, 400, 500, 600, 700, 800, 900, 1000])
         #plt.xticks([25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 475, 500, 525, 550, 575, 600, 625, 650, 675, 700, 725, 750, 775, 800, 825, 850, 875, 900, 925, 950, 975, 1000])
         ax.set_title('Percent covered unique crimes')
         ax.set_xlabel('n of agents in scenario')
@@ -273,8 +276,8 @@ distancetype=['staticR', 'uniformR', 'powerR', 'taxiTract', 'taxiTractD', 'crime
 #distancetype=['staticR', 'uniformR', 'powerR', 'taxiTract']
 uniquePaiCrimes()
 #plot all:
-allPai()
-#uniquePercentCrimes()
+#allPai()
+uniquePercentCrimes()
 
 
 #unique results best combined
