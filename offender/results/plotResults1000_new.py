@@ -378,14 +378,14 @@ plotPVRR=list()
 distancetype=['staticR', 'uniformR', 'powerR', 'taxiTract', 'crimeTractMD']
 #distancetype=['staticR', 'uniformR', 'powerR', 'taxiTract']
 """PAI"""
-#uniquePaiCrimes()
+uniquePaiCrimes()
 #plot all:
 #allPai()
 #RRPai()
 #RR with crime tract performs best
 #PVPai()
 #RRPVPai()
-avgPai()
+#avgPai()
 """
 StaticR -popular venue center
 unform - popular venue center
