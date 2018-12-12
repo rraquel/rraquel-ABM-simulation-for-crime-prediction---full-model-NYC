@@ -151,16 +151,14 @@ def uniquePaiCrimes():
 def allPai():
     print("all PAI")
     #one color per distance search type
-    #color=['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w', 'b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
-    color=['b', 'g', 'c', 'y', 'k']
-    
+    color=['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w', 'b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
     fig=plt.figure(1)
     ax=plt.subplot(111)
     i=0
     x=0
     for p in plotall:
         c=color[x]
-        plot=plt.plot(p[0], p[1], c, label=distancetype[x])
+        plot=plt.plot(p[0], p[1], c, label=p[2])
         if (i+1)%7==0:
             x+=1
         i+=1
@@ -237,29 +235,6 @@ def RRPVPai():
     ax.set_ylabel('unique adapted PAI')
     plt.legend()
     plt.show()
-
-    
-def avgPai():
-    mycurs.execute("""SELECT a.run_id, average, distancetype, targettype FROM (
-        SELECT run_id, AVG(uniqpai) as average
-        FROM abm_res.res_la_results1000agent group by run_id) as a
-        left join abm_res.res_la_runprototype b on a.run_id=b.run_id""")
-    results=mycurs.fetchall() #returns tuple with first row (unordered list)
-    #print(results)
-    paiavg=list()
-    for row in results:
-        r=row[0]
-        paiavg.append(float(row[1]))
-    x=np.array(paiavg)
-    fig=plt.figure(1)
-    plot1=plt.hist(x, bins=50)
-    #plt.xlim(0,60)
-    #plt.title('venue count for each road distribution')
-    plt.xlabel('number of venues per road')
-    plt.ylabel('frequency')
-    plt.legend()
-    plt.show()
-
 
 
 ################################################################################################################################################################## 
@@ -374,8 +349,7 @@ plotall=list()
 plotRR=list()
 plotPV=list()
 plotPVRR=list()
-#distancetype=['staticR', 'uniformR', 'powerR', 'taxiTract', 'taxiTractD', 'crimeTractM', 'crimeTractMD', 'crimeTract1x12', 'crimeTract1x12D', 'crimeTract1x6', 'crimeTract1']
-distancetype=['staticR', 'uniformR', 'powerR', 'taxiTract', 'crimeTractMD']
+distancetype=['staticR', 'uniformR', 'powerR', 'taxiTract', 'taxiTractD', 'crimeTractM', 'crimeTractMD', 'crimeTract1x12', 'crimeTract1x12D', 'crimeTract1x6', 'crimeTract1']
 #distancetype=['staticR', 'uniformR', 'powerR', 'taxiTract']
 """PAI"""
 #uniquePaiCrimes()
@@ -385,7 +359,6 @@ distancetype=['staticR', 'uniformR', 'powerR', 'taxiTract', 'crimeTractMD']
 #RR with crime tract performs best
 #PVPai()
 #RRPVPai()
-avgPai()
 """
 StaticR -popular venue center
 unform - popular venue center
@@ -395,7 +368,7 @@ crimeMD -popular venue center
 """
 
 """Percent"""
-#uniquePercentCrimes()
+uniquePercentCrimes()
 
 
 #unique results best combined
