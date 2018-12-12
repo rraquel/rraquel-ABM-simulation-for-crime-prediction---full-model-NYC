@@ -259,7 +259,7 @@ table='abm_res.res_la_results1000agent'
 
 list_ids=list()
 #run 697 and 698
-for id in range(728,734):
+for id in range(734,743):
     list_ids.append(id)
     
 #for test
