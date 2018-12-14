@@ -27,7 +27,6 @@ class Results():
 
 
 def buildbase():
-    #TODO erase run_id=622 - - - only for testing
     mycurs.execute("""SELECT run_id, num_agents, "distancetype", "targettype", "wayfindingtype", numsteps
         from abm_res.res_la_runprototype
         WHERE {0}""".format(select_ids))
@@ -110,6 +109,7 @@ def allCrimesBaseline():
     except:
         print("could not insert values in table ")
     conn.commit()
+    print('done build baseline for all crimes')
 
 def allCrimes():
     #for x in numagents:
