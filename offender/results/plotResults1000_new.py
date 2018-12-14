@@ -384,7 +384,7 @@ uniquePaiCrimes()
 #RRPai()
 #RR with crime tract performs best
 #PVPai()
-RRPVPai()
+#RRPVPai()
 #avgPai()
 """
 StaticR -popular venue center
@@ -395,7 +395,7 @@ crimeMD -popular venue center
 """
 
 """Percent"""
-#uniquePercentCrimes()
+uniquePercentCrimes()
 
 
 #unique results best combined

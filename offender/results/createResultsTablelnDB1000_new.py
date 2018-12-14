@@ -259,8 +259,9 @@ table='abm_res.res_la_results1000agent'
 
 list_ids=list()
 #run 697 and 698
-for id in range(726,727):
+for id in range(664,665):
     list_ids.append(id)
+list_ids=[664, 727]
     
 #for test
 #select_ids='run_id=620 OR run_id=62'
