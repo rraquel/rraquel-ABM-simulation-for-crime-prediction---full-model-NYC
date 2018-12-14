@@ -85,19 +85,19 @@ def allCrimesBaseline():
     #    conn.commit()
     #except:
     #    print("could not insert values in table ")
-    print('done build baseline for all crimes')
+    #print('done build baseline for all crimes')
     return db
 
-def allCrimes(run_id):
+def allCrimes(run_id, numagents):
     #for x in numagents:
     #for each run_id
     ctftus=dict()
     d=dict()
     """select uniqueCrimes and cummCrimes"""
     mycurs.execute("""SELECT count(distinct object_id), offense, new_gid, new_gid_ftus FROM (
-        SELECT distinct road_id FROM {0} where run_id={1}) AS rp
+        SELECT distinct road_id FROM {0} where run_id={1} and agent<={2}) AS rp
         left join open.nyc_road2pi_5ft_2015_jun AS j ON rp.road_id=j.road_id 
-        left join open.nyc_road2censustract c ON j.road_id=c.gid where new_gid is not Null group BY new_gid, offense, new_gid_ftus""".format(roadsT, str(run_id)))
+        left join open.nyc_road2censustract c ON j.road_id=c.gid where new_gid is not Null group BY new_gid, offense, new_gid_ftus""".format(roadsT, str(run_id), numagents))
     res=mycurs.fetchall()
 
     print(run_id)
@@ -135,35 +135,43 @@ def allCrimes(run_id):
             assaultcount=line[0]
             d[ct]['assaultcount']+=assaultcount
             d[ct]['totalcount']+=assaultcount       
-    #try:        
-    #    for ct in d.keys():
-    #        mycurs.execute("""Insert into {0} ("run_id", ct , ct_ftus, totalcount,
-    #            burglarycount, robberycount, larcenycount, larcenyMotorcount, assaultcount
-    #            ) values
-    #            ({1},{2},'{3}',{4},{5},{6},{7},{8},{9})""".format(
-    #            table,             
-    #            run_id, ct, ctftus[ct], d[ct]['totalcount'], d[ct]['burglarycount'], 
-    #            d[ct]['robberycount'], d[ct]['larcenycount'], d[ct]['larcenyMotorcount'], d[ct]['assaultcount']))
-    #        conn.commit()
-    #except:
-    #    print("could not insert values in table ")
-    #    exit()
-    return d
-
-def completeCT(run_id):
-    #for x in numagents:
-    #for each run_id
+    try:        
+        for ct in d.keys():
+            mycurs.execute("""Insert into {0} ("run_id", ct , ct_ftus, numagents, totalcount,
+                burglarycount, robberycount, larcenycount, larcenyMotorcount, assaultcount
+                ) values
+                ({1},{2},'{3}',{4},{5},{6},{7},{8},{9},{10})""".format(
+                table,             
+                run_id, ct, ctftus[ct], numagents, d[ct]['totalcount'], d[ct]['burglarycount'], 
+                d[ct]['robberycount'], d[ct]['larcenycount'], d[ct]['larcenyMotorcount'], d[ct]['assaultcount']))
+            conn.commit()
+    except:
+        print("could not insert values in table ")
+        exit()
     try:  
         """select uniqueCrimes and cummCrimes"""
-        mycurs.execute("""INSERT INTO abm_res.crimesperCTjune2015
-            SELECT {0}, gid, geom, 0, 0, 0, 0, 0, 0 FROM open_shapes.nyc_census_tract_e
-            WHERE gid NOT IN (SELECT ct FROM abm_res.crimesperCTjune2015 WHERE run_id={})""".format(str(run_id), str(run_id)))
+        mycurs.execute("""INSERT INTO {0}
+            SELECT {1}, gid, geom, {2}, 0, 0, 0, 0, 0, 0 FROM open_shapes.nyc_census_tract_e
+            WHERE gid NOT IN (SELECT ct FROM {3} WHERE run_id={4})""".format(table, str(run_id), numagents, str(run_id)), table)
         conn.commit()
     except:
         print("could not insert COMPLETE ct in table ")
+    
 
-def crimesDiff(run_id, db, d):
+    return d
+
+def completeCT(run_id, numagents):
+    #for x in numagents:
+    #for each run_id
     ctftus=dict()
+    mycurs.execute("""SELECT DISTINCT ct, ct_ftus FROM {}""".format(table))
+    res=mycurs.fetchall()
+    for line in res:
+        ctftus[line[0]]=line[1]
+
+    return ctftus
+
+def crimesDiff(run_id, numagents, db, d, ctftus):
     diff=dict()
     dnew=dict()
     for ct in d.keys():
@@ -199,17 +207,18 @@ def crimesDiff(run_id, db, d):
         
         dnew[ct]=diff
         try:        
-            mycurs.execute("""Insert into {0} ("run_id", ct, totaldiff,
+            mycurs.execute("""Insert into {0} ("run_id", ct, ct_ftus, numagents, totaldiff,
                 burglarydiff, robberydiff, larcenydiff, larcenyMotordiff, assaultdiff
                 ) values
-                ({1},{2},{3},{4},{5},{6},{7},{8})""".format(
+                ({1},{2},'{3}',{4},{5},{6},{7},{8},{9},{10})""".format(
                 table2,             
-                run_id, ct, dnew[ct]['totaldiff'], dnew[ct]['burglarydiff'], 
+                run_id, ct, ctftus[ct], numagents, dnew[ct]['totaldiff'], dnew[ct]['burglarydiff'], 
                 dnew[ct]['robberydiff'], dnew[ct]['larcenydiff'], dnew[ct]['larcenyMotordiff'], dnew[ct]['assaultdiff']))
             conn.commit()
         except:
             print("could not insert values in table for diff")
-    exit()
+            print(dnew[ct], ct, ctftus[ct])
+            exit()
 
 
 
@@ -224,6 +233,7 @@ def createNewTable():
         run_id integer,
         ct numeric,
         ct_ftus geometry,
+        numagents numeric,
         totalcount numeric,
         burglarycount numeric,
         robberycount numeric,
@@ -241,6 +251,8 @@ def createNewTable2():
     mycurs.execute("""CREATE TABLE {0} (
         run_id integer,
         ct numeric,
+        ct_ftus geometry,
+        numagents numeric,
         totaldiff numeric,
         burglarydiff numeric,
         robberydiff numeric,
@@ -256,7 +268,7 @@ mycurs = conn.cursor()
 
 #numagents=[5, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 475, 500, 525, 550, 575, 600, 625, 650, 675, 700, 725, 750, 775, 800, 825, 850, 875, 900, 925, 950, 975, 1000]
 #for test
-numagents=[5]
+numagents=1000
 baseline='abm_res.crimesperCTjune2015'
 
 #table to save results
@@ -289,7 +301,7 @@ for id in range(726,747):
     list_ids.append(id)
 
 
-#createNewTable()
+createNewTable()
 createNewTable2()
 db=allCrimesBaseline()
     
@@ -297,15 +309,18 @@ db=allCrimesBaseline()
 #select_ids='run_id=620 OR run_id=62'
 for id in list_ids:
     #select_ids="'run_id="+str(id)+"'"
+    
     if id>725:
         roadsT='abm_res.res_la_roadsprototype2'
     else:
         roadsT='abm_res.res_la_roadsprototype'
     run_id=id
+    print(run_id)
 
-    d=allCrimes(run_id)
-    #completeCT(run_id)
-    crimesDiff(run_id, db, d)
+    d=allCrimes(run_id, numagents)
+    ctftus=completeCT(run_id, numagents)
+    crimesDiff(run_id, numagents, db, d, ctftus)
+    print("done")
     
 
 conn.close()
