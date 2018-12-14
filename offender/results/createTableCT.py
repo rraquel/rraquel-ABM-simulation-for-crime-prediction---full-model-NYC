@@ -133,9 +133,7 @@ def allCrimes(run_id):
         elif crimetype=='FELONY ASSAULT': 
             assaultcount=line[0]
             d[ct]['assaultcount']+=assaultcount
-            d[ct]['totalcount']+=assaultcount 
-    print(len(d.keys()))
-    exit()          
+            d[ct]['totalcount']+=assaultcount         
     try:        
         for ct in d.keys():
             mycurs.execute("""Insert into {0} ("run_id", ct , ct_ftus, totalcount,
