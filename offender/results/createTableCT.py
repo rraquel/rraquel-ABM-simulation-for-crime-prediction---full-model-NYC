@@ -232,7 +232,6 @@ for id in range(726,747):
     list_ids.append(id)
 
 createNewTable()
-buildbase()
 allCrimesBaseline()
     
 #for test
@@ -242,6 +241,7 @@ for id in list_ids:
     select_ids='run_id='+str(id)
     print(select_ids)
     resultsList=[]
+    buildbase()
     allCrimes()
 
 conn.close()
