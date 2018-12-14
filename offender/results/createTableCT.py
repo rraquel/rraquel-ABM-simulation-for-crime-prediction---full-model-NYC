@@ -106,7 +106,7 @@ def allCrimesBaseline():
             table,             
             run_id, ct, ctftus[ct], d[ct]['totalcount'], d[ct]['burglarycount'], 
             d[ct]['robberycount'], d[ct]['larcenycount'], d[ct]['larcenyMotorcount'], d[ct]['assaultcount']))
-            #conn.commit()
+        conn.commit()
     except:
         print("could not insert values in table ")
     conn.commit()
@@ -170,7 +170,7 @@ def allCrimes():
                 table,             
                 run_id, ct, ctftus[ct], element.d[ct]['totalcount'], element.d[ct]['burglarycount'], 
                 element.d[ct]['robberycount'], element.d[ct]['larcenycount'], element.d[ct]['larcenyMotorcount'], element.d[ct]['assaultcount']))
-                #conn.commit()
+            conn.commit()
         except:
             print("could not insert values in table ")
         conn.commit()
@@ -230,6 +230,10 @@ for id in range(664,692):
     list_ids.append(id)
 for id in range(726,747):
     list_ids.append(id)
+
+createNewTable()
+buildbase()
+allCrimesBaseline()
     
 #for test
 #select_ids='run_id=620 OR run_id=62'
@@ -238,10 +242,6 @@ for id in list_ids:
     select_ids='run_id='+str(id)
     print(select_ids)
     resultsList=[]
-
-    createNewTable()
-    buildbase()
-    allCrimesBaseline()
     allCrimes()
 
 conn.close()
