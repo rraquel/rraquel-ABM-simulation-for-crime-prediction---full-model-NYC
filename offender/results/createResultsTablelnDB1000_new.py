@@ -266,6 +266,10 @@ list_ids=[664, 727]
 #for test
 #select_ids='run_id=620 OR run_id=62'
 for id in list_ids:
+    if id>725:
+        roadsT='abm_res.res_la_roadsprototype2'
+    else:
+        roadsT='abm_res.res_la_roadsprototype'
     #select_ids="'run_id="+str(id)+"'"
     select_ids='run_id='+str(id)
     print(select_ids)
