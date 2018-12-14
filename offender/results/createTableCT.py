@@ -96,7 +96,7 @@ def allCrimes(run_id):
     mycurs.execute("""SELECT count(distinct object_id), offense, new_gid, new_gid_ftus FROM (
         SELECT distinct road_id FROM {0} where run_id={1}) AS rp
         left join open.nyc_road2pi_5ft_2015_jun AS j ON rp.road_id=j.road_id 
-        left join open.nyc_road2censustract c ON j.road_id=c.gid group BY new_gid, offense, new_gid_ftus""".format(roadsT, run_id))
+        left join open.nyc_road2censustract c ON j.road_id=c.gid where new_gid is not Null group BY new_gid, offense, new_gid_ftus""".format(roadsT, str(run_id)))
     res=mycurs.fetchall()
 
     print(run_id)
@@ -133,7 +133,7 @@ def allCrimes(run_id):
         elif crimetype=='FELONY ASSAULT': 
             assaultcount=line[0]
             d[ct]['assaultcount']+=assaultcount
-            d[ct]['totalcount']+=assaultcount         
+            d[ct]['totalcount']+=assaultcount       
     try:        
         for ct in d.keys():
             mycurs.execute("""Insert into {0} ("run_id", ct , ct_ftus, totalcount,
@@ -146,6 +146,7 @@ def allCrimes(run_id):
             conn.commit()
     except:
         print("could not insert values in table ")
+        exit()
 
 def createNewTable():
     try:
@@ -214,7 +215,7 @@ for id in list_ids:
     else:
         roadsT='abm_res.res_la_roadsprototype'
     run_id=id
-    print(run_id)
+
     allCrimes(run_id)
 
 conn.close()

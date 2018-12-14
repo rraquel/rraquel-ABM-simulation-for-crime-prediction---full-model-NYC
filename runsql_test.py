@@ -12,15 +12,15 @@ print("start query")
 #select run_id, step, agent, road_id, i, trip from abm_res.res_la_roadsprototype
 #where run_id in (select run_id from abm_res.res_la_runprototype)""")
 
-mycurs.execute("""DELETE FROM abm_res.res_la_roadsprototype
-	WHERE run_id NOT IN (SELECT run_id FROM abm_res.res_la_runprototype)""")
+run_id=620
+table='abm_res.crimesperCTjune2015'
+mycurs.execute("""Insert into {0} ("run_id"
+            ) values
+            ({1})""".format(table,             
+            run_id))
 
-conn.commit()
-mycurs.execute("""DELETE FROM abm_res.res_la_agentprototype
-	WHERE run_id NOT IN (SELECT run_id FROM abm_res.res_la_runprototype)""")
-conn.commit()  
+#conn.commit()  
 #mycurs.execute("""select * from abm_res.res_la_roadsprototype2 limit 10""")
-result=mycurs.fetchall()
 print(result[0])
 conn.close()
 
