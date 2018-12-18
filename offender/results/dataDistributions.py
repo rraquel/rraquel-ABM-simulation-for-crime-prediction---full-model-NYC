@@ -158,12 +158,13 @@ def taxiperCT():
 
     #mycurs.execute("""SELECT weight FROM
     #    open.nyc_taxi_trips0706_1415_censuscoutns""")
-    mycurs.execute("""SELECT censuspickup, sum(weight) FROM
-        open.nyc_taxi_trips0706_1415_censuscoutns group by censuspickup""")
+    #mycurs.execute("""SELECT censuspickup, sum(weight) FROM
+    #    open.nyc_taxi_trips0706_1415_censuscoutns group by censuspickup""")
+    mycurs.execute("""SELECT censuspickup, weight FROM
+        open.nyc_taxi_trips0706_1415_censuscoutns""")
     
     results=mycurs.fetchall() #returns tuple with first row (unordered list)
 
-    #each row is a run_id
     tripcount=list()
     for row in results:
         if row[1]==263936:
