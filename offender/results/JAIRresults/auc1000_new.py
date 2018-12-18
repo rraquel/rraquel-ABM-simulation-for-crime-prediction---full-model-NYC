@@ -40,85 +40,78 @@ def buildCases(results, type, dt):
             ##print(res)
     
  
+    n=[5, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 475, 500, 525, 550, 575, 600, 625, 650, 675, 700, 725, 750, 775, 800, 825, 850, 875, 900, 925, 950, 975, 1000]
+
     """randomRoad"""
-    rr0=[x[0] for x in res['randomRoad']]
-    yrr=np.array([np.array(xi) for xi in rr0])
-    area = trapz(yrr, dx=5)
+    rr0=[x[0] for x in res['randomRoad']]    
+    area = trapz(rr0,n, dx=5)
     # Compute the area using the composite trapezoidal rule.
     #print("area yrr=", area)
     print(area)
     # Compute the area using the composite Simpson's rule.
-    area = simps(yrr, dx=5)
+    area = simps(rr0,n, dx=5)
     #print("area yrr=", area)
 
     #"""randomRoadCenter"""
-    #rrc0=[x[0] for x in res['randomRoadCenter']]
-    #yrrc=np.array([np.array(xi) for xi in rrc0])
 
     """randomVenue"""
     rv0=[x[0] for x in res['randomVenue']]
-    yrv=np.array([np.array(xi) for xi in rv0])
-    area = trapz(yrv, dx=5)
+    area = trapz(rv0, n, dx=5)
     # Compute the area using the composite trapezoidal rule.
     #print("area yrv=", area)
     print(area)
     # Compute the area using the composite Simpson's rule.
-    area = simps(yrv, dx=5)
+    area = simps(rv0,n, dx=5)
     #print("area yrv=", area)
 
     """randomVenueCenter"""
     rvc0=[x[0] for x in res['randomVenueCenter']]
-    yrvc=np.array([np.array(xi) for xi in rvc0])
-    area = trapz(yrvc, dx=5)
+    area = trapz(rvc0,n, dx=5)
     # Compute the area using the composite trapezoidal rule.
     #print("area yrvc=", area)
     print(area)
     # Compute the area using the composite Simpson's rule.
-    area = simps(yrvc, dx=5)
+    area = simps(rvc0,n, dx=5)
     #print("area yrvc=", area)
 
     """randomVenueType"""
     rvc0=[x[0] for x in res['randomVenueType']]
-    yrvt=np.array([np.array(xi) for xi in rvc0])
-    area = trapz(yrvt, dx=5)
+    area = trapz(rvc0, n, dx=5)
     # Compute the area using the composite trapezoidal rule.
     #print("area yrvt=", area)
     print(area)
     # Compute the area using the composite Simpson's rule.
-    area = simps(yrvt, dx=5)
+    area = simps(rvc0, n, dx=5)
     #print("area yrvt=", area)
 
     """popularVenue"""
     pv0=[x[0] for x in res['popularVenue']]
-    ypv=np.array([np.array(xi) for xi in pv0])
-    area = trapz(ypv, dx=5)
+    area = trapz(pv0, n, dx=5)
     # Compute the area using the composite trapezoidal rule.
     #print("area ypv=", area)
     print(area)
     # Compute the area using the composite Simpson's rule.
-    area = simps(ypv, dx=5)
+    area = simps(pv0, n, dx=5)
     #print("area ypv=", area)
 
     """popularVenueCenter"""
     pvc0=[x[0] for x in res['popularVenueCenter']]
-    ypvc=np.array([np.array(xi) for xi in pvc0])
-    area = trapz(ypvc, dx=5)
+    area = trapz(pvc0, n, dx=5)
     # Compute the area using the composite trapezoidal rule.
     #print("area ypvc=")
     print(area)
     # Compute the area using the composite Simpson's rule.
-    area = simps(ypvc, dx=5)
+    area = simps(pvc0, n, dx=5)
     #print("area ypvc=", area)
 
     """popularVenueType"""
     pvc0=[x[0] for x in res['popularVenueType']]
-    ypvt=np.array([np.array(xi) for xi in pvc0])
-    area = trapz(ypvt, dx=5)
+    area = trapz(pvc0, n, dx=5)
     # Compute the area using the composite trapezoidal rule.
     #print("area ypvt=", area)
     print(area)
     # Compute the area using the composite Simpson's rule.
-    area = simps(ypvt, dx=5)
+    area = simps(pvc0, n, dx=5)
     #print("area ypvt=", area)
 
 
@@ -169,7 +162,7 @@ distancetype=['staticR', 'uniformR', 'powerR', 'taxiTract', 'crimeTractMD']
 #distancetype=['staticR', 'uniformR', 'powerR', 'taxiTract']
 #distancetype=['crimeTract1x12D']
 destinationType=['randomRoad', 'randomVenue', 'randomVenueCenter', 'randomVenueType', 'popularVenue', 'popularVenueCenter', 'popularVenueType']
-#uniquePaiCrimes()
+uniquePaiCrimes()
 #percent()
 run_ids=[620, 625, 664, 633, 739]
-percentBest()
+#percentBest()

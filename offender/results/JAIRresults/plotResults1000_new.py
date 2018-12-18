@@ -56,8 +56,6 @@ def buildCases(results, type, dt):
     rv1=[x[1] for x in res['randomVenue']]
     xrv=np.array([np.array(xi) for xi in rv1])
 
-    area = trapz(yrv, dx=5)
-    print("area =", area)
 
     """randomVenueCenter"""
     rvc0=[x[0] for x in res['randomVenueCenter']]
