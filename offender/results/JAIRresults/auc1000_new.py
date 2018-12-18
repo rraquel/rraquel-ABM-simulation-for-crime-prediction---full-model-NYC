@@ -149,7 +149,7 @@ def percentBest():
         mycurs.execute("""SELECT PercentuniqueCrimes, uniqPai, num_agents, run_id
         FROM abm_res.res_la_results1000agent AS m
         WHERE run_id={}
-        AND PercentuniqueCrimes>0.95 ORDER BY PercentuniqueCrimes ASC LIMIT 1""".format(run_id))
+        AND PercentuniqueCrimes>0.20 ORDER BY PercentuniqueCrimes ASC LIMIT 1""".format(run_id))
         results=mycurs.fetchall() #returns tuple wi
         for line in results:
             
@@ -162,7 +162,7 @@ distancetype=['staticR', 'uniformR', 'powerR', 'taxiTract', 'crimeTractMD']
 #distancetype=['staticR', 'uniformR', 'powerR', 'taxiTract']
 #distancetype=['crimeTract1x12D']
 destinationType=['randomRoad', 'randomVenue', 'randomVenueCenter', 'randomVenueType', 'popularVenue', 'popularVenueCenter', 'popularVenueType']
-uniquePaiCrimes()
+#uniquePaiCrimes()
 #percent()
 run_ids=[620, 625, 664, 633, 739]
-#percentBest()
+percentBest()

@@ -141,9 +141,6 @@ def typesCrimes():
                         if crimetype=="'BURGLARY'":
                             element.BurglaryUniq=line[1]
                             element.PercentBurglaryUniq=line[1]/burglaryTotal
-                            print(line)
-                            print(element.PercentBurglaryUniq)
-                            print(burglaryTotal)
                             element.BurglaryCumm=line[2]
                         if crimetype=="'ROBBERY'":
                             element.RobberyUniq=line[1]
@@ -170,7 +167,7 @@ def calculatePAI():
         print(element.uniqPai)
         element.uniquePaiBurglary=float(element.PercentBurglaryUniq)/float(element.walkedDPercent)
         element.uniquePaiRobbery=float(element.PercentRobberyUniq)/float(element.walkedDPercent)
-        element.uniquePaiLarceny=float(element.PercentBurglaryUniq)/float(element.walkedDPercent)
+        element.uniquePaiLarceny=float(element.PercentLarcenyUniq)/float(element.walkedDPercent)
         element.uniquePaiLarcneyM=float(element.PercentLarcenyMotorUnique)/float(element.walkedDPercent)
         element.uniquePaiAssault=float(element.PercentAssaultUnique)/float(element.walkedDPercent)
 
