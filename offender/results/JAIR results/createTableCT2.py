@@ -368,7 +368,7 @@ createNewTable2()
 allCrimesBaseline()
 completeCT(0, 0)
 
-list_ids=[622]
+list_ids=[620, 625, 664, 633, 739]
     
 #for test
 #select_ids='run_id=620 OR run_id=62'

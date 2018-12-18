@@ -144,17 +144,32 @@ def percent():
             mycurs.execute("""SELECT PercentuniqueCrimes, uniqPai, num_agents, run_id
             FROM abm_res.res_la_results1000agent AS m
             WHERE "distancetype"='{0}' AND "targettype"='{1}'
-            AND PercentuniqueCrimes>0.9 ORDER BY PercentuniqueCrimes ASC LIMIT 1""".format(dt, dest))
+            AND PercentuniqueCrimes>0.85 ORDER BY PercentuniqueCrimes ASC LIMIT 1""".format(dt, dest))
             results=mycurs.fetchall() #returns tuple wi
             for line in results:
                 #print(dt)
                 print("{0}, {1}, {2}, {3}".format(dest, line[2], line[1], line[0]))
+
+def percentBest():
+    for run_id in run_ids:
+        #÷print(run_id)
+        mycurs.execute("""SELECT PercentuniqueCrimes, uniqPai, num_agents, run_id
+        FROM abm_res.res_la_results1000agent AS m
+        WHERE run_id={}
+        AND PercentuniqueCrimes>0.95 ORDER BY PercentuniqueCrimes ASC LIMIT 1""".format(run_id))
+        results=mycurs.fetchall() #returns tuple wi
+        for line in results:
+            
+            print("{0}, {1}, {2}, {3}".format(run_id, line[2], line[1], line[0]))
 
 
 
 #distancetype=['staticR', 'uniformR', 'powerR', 'taxiTract', 'taxiTractD', 'crimeTractM', 'crimeTractMD', 'crimeTract1x12', 'crimeTract1x12D', 'crimeTract1x6', 'crimeTract1']
 distancetype=['staticR', 'uniformR', 'powerR', 'taxiTract', 'crimeTractMD']
 #distancetype=['staticR', 'uniformR', 'powerR', 'taxiTract']
+#distancetype=['crimeTract1x12D']
 destinationType=['randomRoad', 'randomVenue', 'randomVenueCenter', 'randomVenueType', 'popularVenue', 'popularVenueCenter', 'popularVenueType']
 #uniquePaiCrimes()
-percent()
+#percent()
+run_ids=[620, 625, 664, 633, 739]
+percentBest()
