@@ -276,11 +276,13 @@ def crimesDiff(d, db):
 
 def addftus(table, table2):
     tables=[table, table2]
-    for t in tables:
+    try:
         mycurs.execute("""ALTER TABLE {0}
             ADD COLUMN ftus geometry""".format(t))
         conn.commit()
-
+    except:
+        pass
+    for t in tables:
         mycurs.execute("""UPDATE {}
 	        SET ftus=ct.geom
 	        from ( SELECT gid, geom from open_shapes.nyc_census_tract_e) ct
@@ -383,8 +385,8 @@ for id in list_ids:
     allCrimes(run_id, numagents)
     completeCT(run_id, numagents)
     crimesCalc(run_id, numagents)
-    addftus(table, table2)
-    
+
+addftus(table, table2)   
 
 conn.close()
 
