@@ -365,12 +365,14 @@ for id in range(664,692):
 for id in range(726,747):
     list_ids.append(id)
 
-createNewTable()
-createNewTable2()
-allCrimesBaseline()
-completeCT(0, 0)
+#createNewTable()
+#createNewTable2()
+#allCrimesBaseline()
+#completeCT(0, 0)
 
 list_ids=[620, 625, 664, 633, 739]
+list_ids=[739]
+numagents=300
     
 #for test
 #select_ids='run_id=620 OR run_id=62'

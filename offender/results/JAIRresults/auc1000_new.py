@@ -156,6 +156,90 @@ def percentBest():
             print("{0}, {1}, {2}, {3}".format(run_id, line[2], line[1], line[0]))
 
 
+################################################################################################################################################################## 
+
+def auccrimetypes(runid):
+    mycurs.execute("""SELECT "targettype",uniquePaiBurglary,
+        uniquePaiRobbery, uniquepailarceny, uniquePaiLarcneyM,
+        uniquePaiAssault, num_agents, run_id, uniqPai
+        FROM abm_res.res_la_results1000agent
+        where run_id={}""".format(runid))
+    result = mycurs.fetchall()  # returns tuple with first row (unordered list)
+    res2=collections.defaultdict(list)
+    for row in result:
+        runid = row[7]
+        targettype = row[0]
+        uniquePaiB = float(row[1])
+        uniquePaiR = float(row[2])
+        uniquePaiL = float(row[3])
+        uniquePaiLM = float(row[4])
+        uniquePaiA = float(row[5])
+        uniqPai=float(row[8])
+        agents = row[6]
+        runid = row[7]
+        b = [uniquePaiB, agents]
+        crimetype = 'b'
+        res2[crimetype].append(b)
+        r = [uniquePaiR, agents]
+        crimetype = 'r'
+        res2[crimetype].append(r)
+        l = [uniquePaiL, agents]
+        crimetype = 'l'
+        res2[crimetype].append(l)
+        m = [uniquePaiLM, agents]
+        crimetype = 'm'
+        res2[crimetype].append(m)
+        a = [uniquePaiA, agents]
+        crimetype = 'a'
+        res2[crimetype].append(a)
+        c = [uniqPai, agents]
+        crimetype = 'c'
+        res2[crimetype].append(c)
+
+    n=[5, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 475, 500, 525, 550, 575, 600, 625, 650, 675, 700, 725, 750, 775, 800, 825, 850, 875, 900, 925, 950, 975, 1000]
+
+    rr0 = [x[0] for x in res2['b']]
+    area = trapz(rr0, n, dx=5)
+    print(area)
+
+    rrc0 = [x[0] for x in res2['r']]
+    area = trapz(rrc0, n, dx=5)
+    print(area)
+
+    rv0 = [x[0] for x in res2['l']]
+    area = trapz(rv0, n, dx=5)
+    print(area)
+
+    rvc0 = [x[0] for x in res2['m']]
+    area = trapz(rvc0, n, dx=5)
+    print(area)
+
+    pv0 = [x[0] for x in res2['a']]
+    area = trapz(pv0, n, dx=5)
+    print(area)
+
+    pv2 = [x[0] for x in res2['c']]
+    area = trapz(pv2, n, dx=5)
+    print(area)
+
+def percentBestcrimes():
+    for run_id in run_ids:
+        crimes=[('PercentuniqueCrimes', 'uniqPai'), ('percentburglaryuniq', 'uniquepaiburglary'), ('percentrobberyuniq', 'uniquepairobbery'), ('percentlarcenyuniq', 'uniquepailarceny'), ('percentlarcenymotorunique', 'uniquepailarcneym'), ('percentassaultunique', 'uniquepaiassault')]
+        for crime in crimes:
+            #÷print(run_id)
+            mycurs.execute("""SELECT {0}, {1}, num_agents, run_id
+            FROM abm_res.res_la_results1000agent AS m
+            WHERE run_id={2}
+            AND {3}>0.80 ORDER BY {4} ASC LIMIT 1""".format(crime[0],crime[1], run_id, crime[0], crime[0]))
+            results=mycurs.fetchall() #returns tuple wi
+            for line in results:
+                #print run_id, num agents, pai an dpercent
+                print("{0}, {1}, {2}, {3}, {4}".format(run_id, line[2], line[1], line[0], crime[0]))
+        
+
+################################################################################################################################################################## 
+
+
 
 #distancetype=['staticR', 'uniformR', 'powerR', 'taxiTract', 'taxiTractD', 'crimeTractM', 'crimeTractMD', 'crimeTract1x12', 'crimeTract1x12D', 'crimeTract1x6', 'crimeTract1']
 distancetype=['staticR', 'uniformR', 'powerR', 'taxiTract', 'crimeTractMD']
@@ -165,4 +249,8 @@ destinationType=['randomRoad', 'randomVenue', 'randomVenueCenter', 'randomVenueT
 #uniquePaiCrimes()
 #percent()
 run_ids=[620, 625, 664, 633, 739]
-percentBest()
+#percentBest()
+#beset best 633 739
+#auccrimetypes(633)
+run_ids=[633, 739]
+percentBestcrimes()

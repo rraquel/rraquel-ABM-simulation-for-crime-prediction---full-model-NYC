@@ -404,7 +404,7 @@ def percentBest():
 
 def uniquePaiCrimesBestB(runid):
     mycurs.execute("""SELECT "targettype",uniquePaiBurglary,
-        uniquePaiRobbery, uniquePaiLarceny, uniquePaiLarcneyM,
+        uniquePaiRobbery, uniquepailarceny, uniquePaiLarcneyM,
         uniquePaiAssault, num_agents, run_id, uniqPai
         FROM abm_res.res_la_results1000agent
         where run_id={}""".format(runid))
@@ -460,12 +460,12 @@ def uniquePaiCrimesBestB(runid):
 
     fig = plt.figure(1)
     ax = plt.subplot(111)
+    plot6 = plt.plot(x, yc, label='All Crime types', color='k', linewidth=3)
     plot1 = plt.plot(x, yb, label='Burglary')
     plot2 = plt.plot(x, yr, label='Robbery')
     plot3 = plt.plot(x, yl, label='Grand Larceny')
     plot4 = plt.plot(x, ym, label='Grand Larceny Motor Vehicle')
     plot5 = plt.plot(x, ya, label='Felony Assault')
-    plot6 = plt.plot(x, yc, label='All Crime types', color='k', linewidth=3)
     plt.axis([5,1000,1,2])
     plt.xticks([5, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000])
     #ax.set_title('adapted PAI - comparing best performing scenarios')
@@ -538,6 +538,7 @@ run_ids='run_id=620 OR run_id=625 OR run_id=664 OR run_id=633 OR run_id=739'
 #percentBest()
 #crimetypes
 runid=739
+#runid=633
 uniquePaiCrimesBestB(runid)
 
 #frequency roads traveled best and wors strategy
