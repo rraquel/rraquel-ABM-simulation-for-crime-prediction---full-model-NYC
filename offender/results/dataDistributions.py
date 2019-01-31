@@ -114,7 +114,7 @@ def crimesPerCT():
     plot1=plt.hist(x, bins=50)
     #plt.xlim(0,10)
     #plt.title('crimes count for each road distribution')
-    plt.xlabel('number crimes per census tract')
+    plt.xlabel('number of crimes per CT')
     plt.ylabel('frequency')
     plt.legend()
     plt.show()
@@ -158,10 +158,10 @@ def taxiperCT():
 
     #mycurs.execute("""SELECT weight FROM
     #    open.nyc_taxi_trips0706_1415_censuscoutns""")
-    #mycurs.execute("""SELECT censuspickup, sum(weight) FROM
-    #    open.nyc_taxi_trips0706_1415_censuscoutns group by censuspickup""")
-    mycurs.execute("""SELECT censuspickup, weight FROM
-        open.nyc_taxi_trips0706_1415_censuscoutns""")
+    mycurs.execute("""SELECT censuspickup, sum(weight) FROM
+        open.nyc_taxi_trips0706_1415_censuscoutns group by censuspickup""")
+    #mycurs.execute("""SELECT censuspickup, weight FROM
+    #    open.nyc_taxi_trips0706_1415_censuscoutns""")
     
     results=mycurs.fetchall() #returns tuple with first row (unordered list)
 
@@ -178,7 +178,7 @@ def taxiperCT():
     plot1=plt.hist(x, bins=50)
     #plt.xlim(0,60)
     #plt.title('venue count for each road distribution')
-    plt.xlabel('number of transitions per pair of census tracts')
+    plt.xlabel('number of taxi pickups per CT')
     plt.ylabel('frequency')
     plt.legend()
     plt.show()
@@ -318,7 +318,7 @@ def crimeCorr():
     
 
 taxiperCT()
-#crimesPerCT()
+crimesPerCT()
 #crimesPerCTx()
 #crimeCorr()
 #roadDist()

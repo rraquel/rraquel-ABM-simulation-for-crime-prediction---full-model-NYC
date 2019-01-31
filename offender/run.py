@@ -165,7 +165,7 @@ class Runner:
 if __name__ == '__main__':
     # Initialize variables so they can be used as global
     runner = Runner()
-
+    print("prototype branch taxiData")
     runner.readConfig()
     print("Config read")
 
