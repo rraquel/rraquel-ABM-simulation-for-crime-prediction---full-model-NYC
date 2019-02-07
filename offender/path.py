@@ -623,13 +623,6 @@ class Path:
         return True   
 
 
-    def roadAccessibility(self):
-        """test if there is a way to the road"""
-        try:
-            self.way=nx.shortest_path(self.model.G,7,self.targetRoad)
-            return True
-        except:
-            return False
 
     def buildpathhome(self, homeRoad):
         #print("path back home")
