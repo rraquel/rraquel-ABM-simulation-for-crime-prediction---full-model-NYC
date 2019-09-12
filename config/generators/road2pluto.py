@@ -47,6 +47,6 @@ def getAllRoads():
             for road in res:
                 getNearbyElement(road)    
 
-filesql=open(os.path.join(dir_path,'..','data','sql','road2pluto_2.sql'),'w')
+filesql=open(os.path.join(dir_path,'..','data','sql','road2pluto_80ft_2.sql'),'w')
 conn = connectDB()
 getAllRoads()
